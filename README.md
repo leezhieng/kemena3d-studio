@@ -1,4 +1,4 @@
-# Kemena3D SDK
+# Kemena3D Studio
 
 Kemena3D Studio is an open-source, cross-platform 3D game engine built with C/C++, powered by the underlying Kemena3D SDK rendering engine.
 
