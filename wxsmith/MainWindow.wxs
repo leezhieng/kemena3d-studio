@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<wxsmith>
+	<object class="wxFrame" name="MainWindow">
+		<centered>1</centered>
+		<size>800,600</size>
+		<bg>wxSYS_COLOUR_MENU</bg>
+		<pos_arg>1</pos_arg>
+		<size_arg>1</size_arg>
+		<object class="wxAuiManager" variable="AuiManager" member="yes">
+			<style>wxAUI_MGR_LIVE_RESIZE|wxAUI_MGR_DEFAULT</style>
+		</object>
+	</object>
+</wxsmith>

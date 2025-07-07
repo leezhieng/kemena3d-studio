@@ -1,0 +1,19 @@
+{
+	"uuid": "uuid_a0b1c2d3",
+	"sky":
+	{
+		"type": "cube",
+		"material": "udid_a0b1c2d3",
+	},
+	"scenes":
+	[
+		{
+			"uuid": "uuid_a0b1c2d3",
+			"name": "Scene",
+			"active": true,
+			"objects":
+			[
+			],
+		},
+	],
+}

@@ -1,0 +1,19 @@
+{
+	"type": "script",
+	"last_change": 1234567,
+	"src_checksum": "a1b2c3d4e5",
+	"src_path": "/path/dir/",
+	"src_file": "file.as",
+	"dest_path": "/path/dir/",
+	"dest_file": "uuid_a0b1c2d3",
+}
+
+{
+	"type": "mesh",
+	"last_change": 1234567,
+	"src_checksum": "a1b2c3d4e5",
+	"src_path": "/path/dir/",
+	"src_file": "file.fbx",
+	"dest_path": "/path/dir/",
+	"dest_file": "uuid_a0b1c2d3",
+}

@@ -1,0 +1,17 @@
+{
+	"project_name": "New Game",
+	"developer_name": "My Company",
+	"project_version": "0.0.1",
+	"engine_version": "1.0.0",
+	"default_world": "",
+	"worlds":
+	[
+		"",
+	],
+	"build_settings":
+	[
+		{
+			"platform": "windows",
+		},
+	]
+}

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="KemenaGameStudio" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/KemenaGameStudio" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="include" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/KemenaGameStudio" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-std=gnu++11" />
+			<Add directory="C:/wxWidgets-3.2.7/include" />
+			<Add directory="C:/wxWidgets-3.2.7/lib/gcc_dll/mswu" />
+			<Add directory="D:/Projects/kemena-engine/Dependencies/assimp/include" />
+			<Add directory="D:/Projects/kemena-engine/Dependencies/glew/include" />
+			<Add directory="D:/Projects/kemena-engine/Dependencies/glm" />
+			<Add directory="D:/Projects/kemena-engine/Dependencies/sdl2/x86_64-w64-mingw32/include/SDL2" />
+			<Add directory="D:/Projects/kemena-engine/Dependencies/stb" />
+			<Add directory="D:/Projects/kemena-engine/Source/include" />
+			<Add directory="dep/angelscript/include" />
+			<Add directory="dep/angelscript/add_on" />
+			<Add directory="dep/angelscript/source" />
+			<Add directory="../kemena-engine/Dependencies/nlohmann" />
+		</Compiler>
+		<ResourceCompiler>
+			<Add directory="C:/wxWidgets-3.2.7/lib/gcc_dll" />
+			<Add directory="C:/wxWidgets-3.2.7/lib/gcc_dll/mswu" />
+			<Add directory="C:/wxWidgets-3.2.7/include" />
+		</ResourceCompiler>
+		<Linker>
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxbase32u.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxbase32u_net.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxbase32u_xml.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxexpat.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxjpeg.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_adv.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_aui.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_core.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_gl.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_html.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_media.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_propgrid.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_ribbon.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_richtext.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_stc.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_webview.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_xrc.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxpng.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxregexu.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxscintilla.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxtiff.a" />
+			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxzlib.a" />
+			<Add library="opengl32" />
+			<Add library="mingw32" />
+			<Add library="SDL2main" />
+			<Add library="SDL2" />
+			<Add library="glew32" />
+			<Add library="assimp" />
+			<Add library="kemena" />
+			<Add directory="C:/wxWidgets-3.2.7/lib/gcc_dll" />
+			<Add directory="D:/Projects/kemena-engine/Dependencies/glew/lib/Release/x64" />
+			<Add directory="D:/Projects/kemena-engine/Dependencies/assimp/lib" />
+			<Add directory="D:/Projects/kemena-engine/Dependencies/sdl2/x86_64-w64-mingw32/lib" />
+			<Add directory="D:/Projects/kemena-engine/Source/bin/Debug" />
+		</Linker>
+		<ExtraCommands>
+			<Add after='cmd /c copy &quot;$(PROJECT_DIR)res\fonts\inter.ttf&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)fonts\inter.ttf&quot;' />
+		</ExtraCommands>
+		<Unit filename="ConsolePane.cpp" />
+		<Unit filename="ConsolePane.h" />
+		<Unit filename="Dockable.h" />
+		<Unit filename="HierarchyPane.cpp" />
+		<Unit filename="HierarchyPane.h" />
+		<Unit filename="InspectorPane.cpp" />
+		<Unit filename="InspectorPane.h" />
+		<Unit filename="MainMenu.h" />
+		<Unit filename="MainWindow.cpp" />
+		<Unit filename="MainWindow.h" />
+		<Unit filename="NewProjectDialog.cpp" />
+		<Unit filename="NewProjectDialog.h" />
+		<Unit filename="ProjectPane.cpp" />
+		<Unit filename="ProjectPane.h" />
+		<Unit filename="ScenePane.cpp" />
+		<Unit filename="ScenePane.h" />
+		<Unit filename="ScriptPane.cpp" />
+		<Unit filename="ScriptPane.h" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxAwesomeBrandsArt.cpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxAwesomeBrandsArt.hpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxAwesomeRegularArt.cpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxAwesomeRegularArt.hpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxAwesomeSolidArt.cpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxAwesomeSolidArt.hpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxFluentuiFilledArt.cpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxFluentuiFilledArt.hpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxFluentuiRegularArt.cpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxFluentuiRegularArt.hpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxMaterialDesignArtProvider.cpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxMaterialDesignArtProvider.hpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxMaterialFilledArt.cpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxMaterialFilledArt.hpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxMaterialOutlinedArt.cpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxMaterialOutlinedArt.hpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxMaterialRoundArt.cpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxMaterialRoundArt.hpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxMaterialSharpArt.cpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxMaterialSharpArt.hpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxMaterialTwoToneArt.cpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxMaterialTwoToneArt.hpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxSimpleIconsArt.cpp" />
+		<Unit filename="dep/wxMaterialDesignArtProvider/MaterialDesign/wxSimpleIconsArt.hpp" />
+		<Unit filename="include/ArtProvider.h" />
+		<Unit filename="include/FileManager.h" />
+		<Unit filename="include/Md5.h" />
+		<Unit filename="include/RendererWindow.h" />
+		<Unit filename="main.cpp" />
+		<Unit filename="res/fonts/inter.ttf" />
+		<Unit filename="res/fonts/opensans.ttf" />
+		<Unit filename="res/icons/add.png" />
+		<Unit filename="res/icons/app.ico" />
+		<Unit filename="res/icons/audio.ico" />
+		<Unit filename="res/icons/audio.png" />
+		<Unit filename="res/icons/camera.png" />
+		<Unit filename="res/icons/console.ico" />
+		<Unit filename="res/icons/cube.png" />
+		<Unit filename="res/icons/file.ico" />
+		<Unit filename="res/icons/fire.png" />
+		<Unit filename="res/icons/folder.ico" />
+		<Unit filename="res/icons/folder_up.png" />
+		<Unit filename="res/icons/gear.ico" />
+		<Unit filename="res/icons/gui.png" />
+		<Unit filename="res/icons/image.ico" />
+		<Unit filename="res/icons/layout.png" />
+		<Unit filename="res/icons/light.png" />
+		<Unit filename="res/icons/partition.ico" />
+		<Unit filename="res/icons/pause.ico" />
+		<Unit filename="res/icons/play.ico" />
+		<Unit filename="res/icons/project.ico" />
+		<Unit filename="res/icons/property.ico" />
+		<Unit filename="res/icons/scene.png" />
+		<Unit filename="res/icons/script.ico" />
+		<Unit filename="res/icons/stop.ico" />
+		<Unit filename="res/icons/text.ico" />
+		<Unit filename="res/icons/video.ico" />
+		<Unit filename="res/icons/video.png" />
+		<Unit filename="resources.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="src/ArtProvider.cpp" />
+		<Unit filename="src/FileManager.cpp" />
+		<Unit filename="src/RendererWindow.cpp" />
+		<Unit filename="wxsmith/ConsolePane.wxs" />
+		<Unit filename="wxsmith/HierarchyPane.wxs" />
+		<Unit filename="wxsmith/InspectorPane.wxs" />
+		<Unit filename="wxsmith/MainWindow.wxs" />
+		<Unit filename="wxsmith/NewProjectDialog.wxs" />
+		<Unit filename="wxsmith/ProjectPane.wxs" />
+		<Unit filename="wxsmith/ScenePane.wxs" />
+		<Unit filename="wxsmith/ScriptPane.wxs" />
+		<Extensions>
+			<lib_finder disable_auto="1" />
+			<wxsmith version="1">
+				<gui name="wxWidgets" src="" main="" init_handlers="necessary" language="CPP" />
+				<resources>
+					<wxFrame wxs="wxsmith/MainWindow.wxs" src="MainWindow.cpp" hdr="MainWindow.h" fwddecl="0" i18n="1" name="MainWindow" language="CPP" />
+					<wxPanel wxs="wxsmith/ProjectPane.wxs" src="ProjectPane.cpp" hdr="ProjectPane.h" fwddecl="0" i18n="1" name="ProjectPane" language="CPP" />
+					<wxPanel wxs="wxsmith/ConsolePane.wxs" src="ConsolePane.cpp" hdr="ConsolePane.h" fwddecl="0" i18n="1" name="ConsolePane" language="CPP" />
+					<wxPanel wxs="wxsmith/InspectorPane.wxs" src="InspectorPane.cpp" hdr="InspectorPane.h" fwddecl="0" i18n="1" name="InspectorPane" language="CPP" />
+					<wxPanel wxs="wxsmith/HierarchyPane.wxs" src="HierarchyPane.cpp" hdr="HierarchyPane.h" fwddecl="0" i18n="1" name="HierarchyPane" language="CPP" />
+					<wxPanel wxs="wxsmith/ScenePane.wxs" src="ScenePane.cpp" hdr="ScenePane.h" fwddecl="0" i18n="1" name="ScenePane" language="CPP" />
+					<wxDialog wxs="wxsmith/NewProjectDialog.wxs" src="NewProjectDialog.cpp" hdr="NewProjectDialog.h" fwddecl="0" i18n="1" name="NewProjectDialog" language="CPP" />
+					<wxPanel wxs="wxsmith/ScriptPane.wxs" src="ScriptPane.cpp" hdr="ScriptPane.h" fwddecl="0" i18n="1" name="ScriptPane" language="CPP" />
+				</resources>
+			</wxsmith>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

@@ -1,0 +1,86 @@
+{
+	"objects":
+	[
+		{
+			"uuid": "uuid_a0b1c2d3",
+			"type": "object",
+			"name": "Object 0",
+			"active": true,
+			"position": { "x": 0.0, "y": 0.0, "z": 0.0 },
+			"rotation": { "x": 0.0, "y": 0.0, "z": 0.0 },
+			"scale": { "x": 1.0, "y": 1.0, "z": 1.0 },
+			"scripts":
+			[
+				{
+					"reference": "uuid_a0b1c2d3",			// optional, will use this if available
+					"file_name": "sample.as",				// will be ignored if 'reference' is available
+					"active": true,
+					"params": {},
+				},
+			],
+		},
+		{
+			"uuid": "uuid_a0b1c2d3",
+			"type": "camera",
+			"name": "Camera 1",
+			"active": true,
+			"position": { "x": 0.0, "y": 0.0, "z": 0.0 },
+			"rotation": { "x": 0.0, "y": 0.0, "z": 0.0 },
+			"scale": { "x": 1.0, "y": 1.0, "z": 1.0 },
+			"scripts": [],
+			"scenes": [ 0, ],
+			"look_at": { "x": 0.0, "y": 0.0, "z": 0.0 },
+			"up_axis": { "x": 0.0, "y": 0.0, "z": 0.0 },
+			"fov": 45.0,
+			"near_clip": 0.1,
+			"far_clip": 100.0,
+			"aspect_ratio": 1.0,
+		},
+		{
+			"uuid": "uuid_a0b1c2d3",
+			"type": "mesh",
+			"name": "Mesh 2",
+			"active": true,
+			"position": { "x": 0.0, "y": 0.0, "z": 0.0 },
+			"rotation": { "x": 0.0, "y": 0.0, "z": 0.0 },
+			"scale": { "x": 1.0, "y": 1.0, "z": 1.0 },
+			"materials":
+			[
+				{
+					"reference": "uuid_a0b1c2d3",			// optional, will use this if available
+					"file_name": "sample.mat",				// will be ignored if 'reference' is available
+					"active": true,
+					"params": {},
+				},
+			],
+			"scripts": [],
+			"visible": true,
+			"static": false,
+			"reference": "udid_a0b1c2d3",					// optional, will use this if available
+			"file_name": "sample.fbx",						// will be ignored if 'reference' is available
+		},
+		{
+			"uuid": "uuid_a0b1c2d3",
+			"type": "light",
+			"name": "Light 3",
+			"active": true,
+			"position": { "x": 0.0, "y": 0.0, "z": 0.0 },
+			"rotation": { "x": 0.0, "y": 0.0, "z": 0.0 },
+			"scale": { "x": 1.0, "y": 1.0, "z": 1.0 },
+			"scripts": [],
+			"light_type": "point",
+		},
+		{
+			"uuid": "uuid_a0b1c2d3",
+			"type": "prefab",
+			"name": "Prefab 4",
+			"active": true,
+			"position": { "x": 0.0, "y": 0.0, "z": 0.0 },
+			"rotation": { "x": 0.0, "y": 0.0, "z": 0.0 },
+			"scale": { "x": 1.0, "y": 1.0, "z": 1.0 },
+			"visible": true,
+			"reference": "uuid_a0b1c2d3",					// optional, will use this if available
+			"file_name": "sample.prefab",					// will be ignored if 'reference' is available
+		},
+	],
+}

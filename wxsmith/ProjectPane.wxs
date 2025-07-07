@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<wxsmith>
+	<object class="wxPanel" name="ProjectPane">
+		<size>610,246</size>
+		<bg>wxSYS_COLOUR_MENU</bg>
+		<id_arg>0</id_arg>
+		<object class="wxFlexGridSizer" variable="FlexGridSizer1" member="no">
+			<cols>1</cols>
+			<rows>2</rows>
+			<growablecols>0</growablecols>
+			<growablerows>1</growablerows>
+			<object class="sizeritem">
+				<object class="wxFlexGridSizer" variable="FlexGridSizer2" member="no">
+					<cols>3</cols>
+					<growablecols>2</growablecols>
+					<growablerows>0</growablerows>
+					<object class="sizeritem">
+						<object class="wxBitmapButton" name="ID_BITMAPBUTTON1" variable="projectFolderUpButton" member="yes">
+							<size>25,25</size>
+							<style>wxBORDER_NONE</style>
+							<handler function="OnBitmapButton1Click1" entry="EVT_BUTTON" />
+						</object>
+						<flag>wxTOP|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+						<border>5</border>
+						<option>1</option>
+					</object>
+					<object class="sizeritem">
+						<object class="wxBitmapButton" name="ID_BITMAPBUTTON2" variable="projectAddButton" member="yes">
+							<size>25,25</size>
+							<style>wxBORDER_NONE</style>
+						</object>
+						<flag>wxTOP|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+						<border>5</border>
+						<option>1</option>
+					</object>
+					<object class="sizeritem">
+						<object class="wxSearchCtrl" name="ID_SEARCHCTRL" variable="SearchCtrl" member="yes" />
+						<flag>wxTOP|wxLEFT|wxEXPAND</flag>
+						<border>5</border>
+						<option>1</option>
+					</object>
+				</object>
+				<flag>wxALL|wxEXPAND</flag>
+				<border>5</border>
+				<option>1</option>
+			</object>
+			<object class="sizeritem">
+				<object class="wxListCtrl" name="ID_LISTCTRL1" variable="projectList" member="yes">
+					<style>wxLC_ICON|wxLC_AUTOARRANGE|wxLC_SINGLE_SEL|wxVSCROLL</style>
+				</object>
+				<flag>wxBOTTOM|wxLEFT|wxRIGHT|wxEXPAND</flag>
+				<border>5</border>
+				<option>1</option>
+			</object>
+		</object>
+	</object>
+</wxsmith>
