@@ -17,9 +17,9 @@
 
 #include <vector>
 
-#include "kscriptmanager.h"
+//#include "kemena/kscriptmanager.h"
 
-using namespace kemena;
+//using namespace kemena;
 
 class ScriptPane: public wxPanel
 {
@@ -58,7 +58,7 @@ class ScriptPane: public wxPanel
         wxString scriptName = "";
         wxString scriptFullPath = "";
 
-        kScriptManager* scriptManager;
+        //kScriptManager* scriptManager;
 };
 
 #endif

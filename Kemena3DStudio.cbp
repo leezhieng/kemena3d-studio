@@ -7,85 +7,130 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/KemenaGameStudio" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Debug/Kemena3DStudio" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
 					<Add directory="include" />
+					<Add directory="C:/wxWidgets/output/lib/gcc_x64_dll/mswud" />
 				</Compiler>
+				<Linker>
+					<Add library="wxbase32ud" />
+					<Add library="wxmsw32ud_core" />
+					<Add library="wxmsw32ud_gl" />
+					<Add library="wxbase32ud_net" />
+					<Add library="wxbase32ud_xml" />
+					<Add library="wxmsw32ud_adv" />
+					<Add library="wxmsw32ud_aui" />
+					<Add library="wxmsw32ud_html" />
+					<Add library="wxmsw32ud_media" />
+					<Add library="wxmsw32ud_propgrid" />
+					<Add library="wxmsw32ud_qa" />
+					<Add library="wxmsw32ud_ribbon" />
+					<Add library="wxmsw32ud_richtext" />
+					<Add library="wxmsw32ud_stc" />
+					<Add library="wxmsw32ud_webview" />
+					<Add library="wxmsw32ud_xrc" />
+					<Add library="shlwapi" />
+					<Add library="uxtheme" />
+					<Add library="comdlg32" />
+					<Add library="comctl32" />
+					<Add library="shell32" />
+					<Add library="advapi32" />
+					<Add library="user32" />
+					<Add library="winspool" />
+					<Add library="winmm" />
+					<Add library="ole32" />
+					<Add library="setupapi" />
+					<Add library="gdi32" />
+					<Add library="imm32" />
+					<Add library="version" />
+					<Add library="oleaut32" />
+					<Add library="uuid" />
+					<Add library="pcre2-16" />
+					<Add library="png" />
+					<Add library="jpeg" />
+					<Add library="oleacc" />
+					<Add library="expat" />
+					<Add library="opengl32" />
+					<Add library="z" />
+				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/KemenaGameStudio" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Release/Kemena3DStudio" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="include" />
+					<Add directory="C:/wxWidgets/output/lib/gcc_x64_dll/mswu" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="wxbase32u" />
+					<Add library="wxmsw32u_core" />
+					<Add library="wxmsw32u_gl" />
+					<Add library="wxbase32u_net" />
+					<Add library="wxbase32u_xml" />
+					<Add library="wxmsw32u_adv" />
+					<Add library="wxmsw32u_aui" />
+					<Add library="wxmsw32u_html" />
+					<Add library="wxmsw32u_media" />
+					<Add library="wxmsw32u_propgrid" />
+					<Add library="wxmsw32u_qa" />
+					<Add library="wxmsw32u_ribbon" />
+					<Add library="wxmsw32u_richtext" />
+					<Add library="wxmsw32u_stc" />
+					<Add library="wxmsw32u_webview" />
+					<Add library="wxmsw32u_xrc" />
+					<Add library="shlwapi" />
+					<Add library="uxtheme" />
+					<Add library="comdlg32" />
+					<Add library="comctl32" />
+					<Add library="shell32" />
+					<Add library="advapi32" />
+					<Add library="user32" />
+					<Add library="winspool" />
+					<Add library="winmm" />
+					<Add library="ole32" />
+					<Add library="setupapi" />
+					<Add library="gdi32" />
+					<Add library="imm32" />
+					<Add library="version" />
+					<Add library="oleaut32" />
+					<Add library="uuid" />
+					<Add library="pcre2-16" />
+					<Add library="png" />
+					<Add library="jpeg" />
+					<Add library="oleacc" />
+					<Add library="expat" />
+					<Add library="opengl32" />
+					<Add library="z" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
-			<Add option="-std=gnu++11" />
-			<Add directory="C:/wxWidgets-3.2.7/include" />
-			<Add directory="C:/wxWidgets-3.2.7/lib/gcc_dll/mswu" />
-			<Add directory="D:/Projects/kemena-engine/Dependencies/assimp/include" />
-			<Add directory="D:/Projects/kemena-engine/Dependencies/glew/include" />
-			<Add directory="D:/Projects/kemena-engine/Dependencies/glm" />
-			<Add directory="D:/Projects/kemena-engine/Dependencies/sdl2/x86_64-w64-mingw32/include/SDL2" />
-			<Add directory="D:/Projects/kemena-engine/Dependencies/stb" />
-			<Add directory="D:/Projects/kemena-engine/Source/include" />
-			<Add directory="dep/angelscript/include" />
-			<Add directory="dep/angelscript/add_on" />
-			<Add directory="dep/angelscript/source" />
-			<Add directory="../kemena-engine/Dependencies/nlohmann" />
+			<Add option="-std=gnu++17" />
+			<Add directory="C:/wxWidgets/output/include" />
+			<Add directory="D:/Projects/Kemena3D/kemena3d/Output/include" />
+			<Add directory="C:/msys64/mingw64/include" />
+			<Add directory="C:/wxWidgets/include" />
 		</Compiler>
 		<ResourceCompiler>
-			<Add directory="C:/wxWidgets-3.2.7/lib/gcc_dll" />
-			<Add directory="C:/wxWidgets-3.2.7/lib/gcc_dll/mswu" />
-			<Add directory="C:/wxWidgets-3.2.7/include" />
+			<Add directory="C:/wxWidgets/include" />
 		</ResourceCompiler>
 		<Linker>
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxbase32u.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxbase32u_net.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxbase32u_xml.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxexpat.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxjpeg.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_adv.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_aui.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_core.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_gl.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_html.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_media.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_propgrid.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_ribbon.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_richtext.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_stc.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_webview.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxmsw32u_xrc.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxpng.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxregexu.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxscintilla.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxtiff.a" />
-			<Add library="C:/wxWidgets-3.2.7/lib/gcc_dll/libwxzlib.a" />
-			<Add library="opengl32" />
-			<Add library="mingw32" />
-			<Add library="SDL2main" />
-			<Add library="SDL2" />
-			<Add library="glew32" />
+			<Add library="libkemena3d.dll.a" />
+			<Add library="SDL3" />
+			<Add library="glew32s" />
 			<Add library="assimp" />
-			<Add library="kemena" />
-			<Add directory="C:/wxWidgets-3.2.7/lib/gcc_dll" />
-			<Add directory="D:/Projects/kemena-engine/Dependencies/glew/lib/Release/x64" />
-			<Add directory="D:/Projects/kemena-engine/Dependencies/assimp/lib" />
-			<Add directory="D:/Projects/kemena-engine/Dependencies/sdl2/x86_64-w64-mingw32/lib" />
-			<Add directory="D:/Projects/kemena-engine/Source/bin/Debug" />
+			<Add directory="C:/wxWidgets/output/lib/gcc_x64_dll" />
+			<Add directory="D:/Projects/Kemena3D/kemena3d/Output/lib" />
+			<Add directory="C:/msys64/mingw64/lib" />
 		</Linker>
 		<ExtraCommands>
 			<Add after='cmd /c copy &quot;$(PROJECT_DIR)res\fonts\inter.ttf&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)fonts\inter.ttf&quot;' />

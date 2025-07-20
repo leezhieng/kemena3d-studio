@@ -1,10 +1,23 @@
 #ifndef RENDERERWINDOW_H
 #define RENDERERWINDOW_H
 
-#include "kemena.h"
+#include "kemena/kemena.h"
+
+//#define GLEW_STATIC
+#include <GL/glew.h>
 
 #include <wx/glcanvas.h>
 #include <wx/dcclient.h>
+
+// Platform-specific includes
+#ifdef _WIN32
+    #include <wx/msw/private.h>
+    #include <windows.h>
+#elif defined(__linux__)
+    #include <gdk/gdkx.h>
+    #include <gtk/gtk.h>
+    #include <gdk/gdk.h>
+#endif
 
 using namespace kemena;
 

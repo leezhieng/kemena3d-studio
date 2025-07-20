@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<FileVersion major="1" minor="0" />
+	<ActiveTarget name="Debug" />
+	<File name="resources.rc" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2254" topLine="127" />
+		</Cursor>
+	</File>
+	<File name="HierarchyPane.cpp" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2552" topLine="82" />
+		</Cursor>
+	</File>
+	<File name="InspectorPane.cpp" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="619" topLine="4" />
+		</Cursor>
+	</File>
+	<File name="ConsolePane.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="74" topLine="6" />
+		</Cursor>
+	</File>
+	<File name="dep\wxMaterialDesignArtProvider\MaterialDesign\wxAwesomeBrandsArt.hpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="80" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="NewProjectDialog.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="338" topLine="6" />
+		</Cursor>
+	</File>
+	<File name="Dockable.h" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="6685" topLine="33" />
+		</Cursor>
+	</File>
+	<File name="HierarchyPane.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="706" topLine="11" />
+		</Cursor>
+	</File>
+	<File name="include\RendererWindow.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1138" topLine="27" />
+		</Cursor>
+	</File>
+	<File name="ProjectPane.cpp" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="9230" topLine="343" />
+		</Cursor>
+	</File>
+	<File name="dep\wxMaterialDesignArtProvider\MaterialDesign\wxAwesomeSolidArt.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="210782" topLine="4196" />
+		</Cursor>
+	</File>
+	<File name="dep\wxMaterialDesignArtProvider\MaterialDesign\wxFluentuiFilledArt.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="406967" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="ScriptPane.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="798" topLine="15" />
+		</Cursor>
+	</File>
+	<File name="src\ArtProvider.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1483" topLine="14" />
+		</Cursor>
+	</File>
+	<File name="ProjectPane.h" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1872" topLine="4" />
+		</Cursor>
+	</File>
+	<File name="src\RendererWindow.cpp" open="1" top="1" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2715" topLine="70" />
+		</Cursor>
+	</File>
+	<File name="ScriptPane.cpp" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1675" topLine="274" />
+		</Cursor>
+	</File>
+	<File name="include\ArtProvider.h" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="117" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\FileManager.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="853" topLine="130" />
+		</Cursor>
+	</File>
+	<File name="MainWindow.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="355" topLine="54" />
+		</Cursor>
+	</File>
+	<File name="MainMenu.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1724" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="ScenePane.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="889" topLine="17" />
+		</Cursor>
+	</File>
+	<File name="ScenePane.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2064" topLine="43" />
+		</Cursor>
+	</File>
+	<File name="include\FileManager.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="851" topLine="22" />
+		</Cursor>
+	</File>
+	<File name="MainWindow.cpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="10900" topLine="355" />
+		</Cursor>
+	</File>
+	<File name="dep\wxMaterialDesignArtProvider\MaterialDesign\wxAwesomeBrandsArt.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="501" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="main.cpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2740" topLine="42" />
+		</Cursor>
+	</File>
+	<File name="NewProjectDialog.cpp" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="506" topLine="89" />
+		</Cursor>
+	</File>
+	<File name="ConsolePane.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="957" topLine="14" />
+		</Cursor>
+	</File>
+</CodeBlocks_layout_file>

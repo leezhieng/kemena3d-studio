@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <wx/wx.h>
 #include <wx/artprov.h>
 #include <wx/stdpaths.h>
@@ -76,4 +78,3 @@ bool MyApp::OnInit()
 
     return true;
 }
-

@@ -39,7 +39,7 @@ ScriptPane::ScriptPane(wxWindow* parent,wxWindowID id,const wxPoint& pos,const w
     Layout();
     //*)
 
-    scriptManager = new kScriptManager();
+    //scriptManager = new kScriptManager();
 
     editor = new wxStyledTextCtrl(this, wxID_ANY);
     textInputLayout->Add(editor, 1, wxEXPAND | wxALL, 0);

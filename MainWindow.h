@@ -16,12 +16,12 @@
 #include "ProjectPane.h"
 #include "HierarchyPane.h"
 #include "ScenePane.h"
-#include "RendererWindow.h"
+//#include "RendererWindow.h"
 
-#include "kemena.h"
-#include "kworld.h"
+//#include "kemena/kemena.h"
+//#include "kemena/kworld.h"
 
-using namespace kemena;
+//using namespace kemena;
 
 class MainWindow: public wxFrame
 {
@@ -73,7 +73,7 @@ class MainWindow: public wxFrame
 
         FileManager* fileManager;
 
-        const wxString windowTitle = "Kemena Game Studio";
+        const wxString windowTitle = "Kemena3D Studio";
         wxString projectName = "";
         wxString worldName = "";
         bool projectSaved = true;

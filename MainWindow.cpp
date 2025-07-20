@@ -39,6 +39,7 @@ void MainWindow::OnActivate(wxActivateEvent& event)
 {
     if (event.GetActive())
     {
+        // Not using now
         /*
         // Check for file changes whenever refocusing back to the editor
         std::thread([this]()
@@ -165,7 +166,7 @@ void MainWindow::setEnableAllPanes(bool enabled)
     {
         wxAuiPaneInfo& pane = allPanes.Item(i);
         pane.window->Enable(enabled); // Enable the pane
-        //pane.Show(enabled);    // Make sure it's visible
+        pane.Show(enabled);    // Make sure it's visible
     }
 
     AuiManager->Update(); // Apply the changes;
@@ -246,7 +247,7 @@ void MainWindow::loadSceneList()
 
     // Loop through scenes
     // Start from 1 because we don't want to show what's in the editor scene
-    if (scenePane->getRendererWindow()->getWorld()->getScenes().size() > 1)
+    /*if (scenePane->getRendererWindow()->getWorld()->getScenes().size() > 1)
     {
         for (size_t i = 1; i < scenePane->getRendererWindow()->getWorld()->getScenes().size(); ++i)
         {
@@ -267,22 +268,22 @@ void MainWindow::loadSceneList()
 
                     // WIP: Save the list item to the kObject?
 
-                    if (childNode->getType() == NodeType::NODE_TYPE_OBJECT)
+                    if (childNode->getType() == kNodeType::NODE_TYPE_OBJECT)
                     {
                         // Empty node
                         icon = hierarchyPane->iconIndexObject;
                     }
-                    else if (childNode->getType() == NodeType::NODE_TYPE_MESH)
+                    else if (childNode->getType() == kNodeType::NODE_TYPE_MESH)
                     {
                         // Mesh
                         icon = hierarchyPane->iconIndexMesh;
                     }
-                    else if (childNode->getType() == NodeType::NODE_TYPE_LIGHT)
+                    else if (childNode->getType() == kNodeType::NODE_TYPE_LIGHT)
                     {
                         // Light
                         icon = hierarchyPane->iconIndexLight;
                     }
-                    else if (childNode->getType() == NodeType::NODE_TYPE_CAMERA)
+                    else if (childNode->getType() == kNodeType::NODE_TYPE_CAMERA)
                     {
                         // Camera
                         icon = hierarchyPane->iconIndexCamera;
@@ -292,7 +293,7 @@ void MainWindow::loadSceneList()
                 }
             }
         }
-    }
+    }*/
 
     hierarchyPane->sceneList->Expand(rootItem);
 }
@@ -348,14 +349,14 @@ void MainWindow::newWorld()
         scenePane = dynamic_cast<ScenePane*>(scenePaneInfo.window);
     }
 
-    RendererWindow* renderer = scenePane->getRendererWindow();
+    //RendererWindow* renderer = scenePane->getRendererWindow();
 
     // Close old world if exist
     worldName = "";
-    //renderer->getSceneManager()->clearScenes();
+    //renderer->getWorld()->clearScenes();
 
     // New scene
-    renderer->newScene();
+    //renderer->newScene();
 }
 
 void MainWindow::loadWorld(std::string fileName)
@@ -367,11 +368,11 @@ void MainWindow::loadWorld(std::string fileName)
         scenePane = dynamic_cast<ScenePane*>(scenePaneInfo.window);
     }
 
-    RendererWindow* renderer = scenePane->getRendererWindow();
+    //RendererWindow* renderer = scenePane->getRendererWindow();
 
     // Close old world if exist
     worldName = "";
-    //renderer->getSceneManager()->clearScenes();
+    //renderer->getWorld()->clearScenes();
 
     // Load world
 }
