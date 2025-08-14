@@ -1,80 +1,173 @@
-#include <iostream>
+#include "kemena/kemena.h"
 
-#include <wx/wx.h>
-#include <wx/artprov.h>
-#include <wx/stdpaths.h>
-#include <wx/filename.h>
-#include "dep/wxMaterialDesignArtProvider/MaterialDesign/wxMaterialDesignArtProvider.hpp"
+using namespace kemena;
 
-#include "ArtProvider.h"
-#include "MainWindow.h"
-#include "MainMenu.h"
-#include "Dockable.h"
-
-class MyApp : public wxApp
+int main()
 {
-public:
-    bool OnInit() override;
-};
+    // Create window and renderer
+    kWindow* window = createWindow(1024, 768, "Kemena3D Studio");
+    kRenderer* renderer = createRenderer(window);
+    renderer->setClearColor(vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
-wxIMPLEMENT_APP(MyApp);
+    // Create the asset manager, world and scene
+    kAssetManager* assetManager = createAssetManager();
+    kWorld* world = createWorld(assetManager);
+    kScene* scene = world->createScene("My Scene");
 
-bool MyApp::OnInit()
-{
-    wxInitAllImageHandlers();   // Needed for loading PNG images
-    wxArtProvider::Push(new wxMaterialDesignArtProvider);
+    kCamera* camera = scene->addCamera(glm::vec3(-20.0f, 5.0f, 20.0f), glm::vec3(0.0f, 0.5f, 0.0f), kCameraType::CAMERA_TYPE_LOCKED);
 
-    wxString exePath = wxStandardPaths::Get().GetExecutablePath();
-    wxFileName exeFile(exePath);
-    wxString baseDir = exeFile.GetPath();
+    kGuiManager* gui = createGuiManager(renderer);
 
-    // Set custom fonts
-    wxFont fontInter;
-    fontInter.AddPrivateFont(baseDir + "\\fonts\\inter.ttf");
-    fontInter.SetFaceName("Inter");
+    // Game loop
+    kSystemEvent event;
+    while (window->getRunning())
+    {
+        gui->processEvent(event);
 
-    // Setup main window
-    MainWindow* window = new MainWindow(nullptr, wxID_ANY);
-    SetTopWindow(window);
+        if (event.hasEvent())
+        {
+            if (event.getType() == K_EVENT_QUIT)
+            {
+                window->setRunning(false);
+            }
+        }
 
-    window->AuiManager->SetManagedWindow(window);
-    window->SetIcon(wxIcon(wxT("APP_ICON")));
-    window->SetFont(fontInter);
+        renderer->render(scene, 0, 0, window->getWindowWidth(), window->getWindowHeight(), window->getTimer()->getDeltaTime(), false);
 
-    // Set style
-    wxAuiManager* auiManager = window->AuiManager;
+        gui->canvasStart();
+        gui->dockSpaceStart("MainDockSpace");
 
-    ArtProvider* art = new ArtProvider();
-    auiManager->SetArtProvider(art);
 
-    // Panel title bar color
-    art->SetColour(wxAUI_DOCKART_INACTIVE_CAPTION_COLOUR, wxColour(240, 240, 240));                 // Top color
-    art->SetColour(wxAUI_DOCKART_INACTIVE_CAPTION_GRADIENT_COLOUR, wxColour(220, 220, 220));        // Bottom color
-    art->SetColour(wxAUI_DOCKART_INACTIVE_CAPTION_TEXT_COLOUR, wxColour(0, 0, 0));                  // Text color
-    art->SetColour(wxAUI_DOCKART_ACTIVE_CAPTION_COLOUR, wxColour(240, 240, 240));                   // Top color
-    art->SetColour(wxAUI_DOCKART_ACTIVE_CAPTION_GRADIENT_COLOUR, wxColour(220, 220, 220));          // Bottom color
-    art->SetColour(wxAUI_DOCKART_ACTIVE_CAPTION_TEXT_COLOUR, wxColour(0, 0, 0));                    // Text color
-    art->SetColour(wxAUI_DOCKART_BORDER_COLOUR, wxColour(240, 240, 240));                           // Border color
-    art->SetMetric(wxAUI_DOCKART_SASH_SIZE, 4);                                                     // Border margin for resizing panel
-    art->SetMetric(wxAUI_DOCKART_CAPTION_SIZE, 25);                                                 // Title bar vertical height
-    art->SetMetric(wxAUI_DOCKART_PANE_BUTTON_SIZE, 25);                                             // Button size, horizontally
-    art->SetMetric(wxAUI_DOCKART_PANE_BORDER_SIZE, 0);                                              // Panel's padding
-    art->SetFont(wxAUI_DOCKART_CAPTION_FONT, fontInter);                                            // Caption font
 
-    // Apply the changes
-    auiManager->Update();
 
-    // Setup dockable panes
-    SetupDockable(window);
+        // Draw main menu bar
+        if (gui->menuBar())
+        {
+            // File menu
+            if (gui->menu("File"))
+            {
+                if (gui->menuItem("New", "Ctrl+N")) { /* Handle new */ }
+                if (gui->menuItem("Open...", "Ctrl+O")) { /* Handle open */ }
+                if (gui->menuItem("Save", "Ctrl+S")) { /* Handle save */ }
+                gui->separator();
+                if (gui->menuItem("Exit")) { /* Handle exit */ }
+                gui->menuEnd();
+            }
 
-    // Setup main menu
-    SetupMainMenu(window);
+            // Edit menu
+            if (gui->menu("Edit"))
+            {
+                if (gui->menuItem("Undo", "Ctrl+Z")) {}
+                if (gui->menuItem("Redo", "Ctrl+Y", false, false)) {} // disabled item
+                gui->separator();
+                if (gui->menuItem("Cut", "Ctrl+X")) {}
+                if (gui->menuItem("Copy", "Ctrl+C")) {}
+                if (gui->menuItem("Paste", "Ctrl+V")) {}
+                gui->menuEnd();
+            }
 
-    // Window event
-    Bind(wxEVT_ACTIVATE_APP, &MainWindow::OnActivate, window);
+            // View menu
+            if (gui->menu("View"))
+            {
+                static bool showInspector = true;
+                if (gui->menuItem("Inspector", "", showInspector))
+                    showInspector = !showInspector;
 
-    window->Maximize(true);
-    window->Show();
+                static bool showConsole = true;
+                if (gui->menuItem("Console", "", showConsole))
+                    showConsole = !showConsole;
 
-    return true;
+                gui->menuEnd();
+            }
+
+            gui->menuBarEnd();
+        }
+
+
+
+        gui->windowStart("Inspector");
+
+        // --- Icon & Right-side group ---
+        {
+            // Icon on the left
+            gui->groupStart();
+            ImGui::Button("Icon", ImVec2(48, 48)); // Replace with ImGui::Image for real icon
+            gui->groupEnd();
+
+            gui->sameLine();
+
+            // Right side (name + checkboxes)
+            gui->groupStart();
+
+            // Name field
+            static char name[128] = "My Object";
+            ImGui::SetNextItemWidth(-FLT_MIN);
+            ImGui::InputText("##Name", name, IM_ARRAYSIZE(name));
+
+            // Visible + Static in the same row
+            static bool enabled = true;
+            static bool isStatic = false;
+            ImGui::Checkbox("Enabled", &enabled);
+            gui->sameLine();
+            ImGui::Checkbox("Static", &isStatic);
+
+            gui->groupEnd();
+        }
+
+        gui->spacing();
+
+        // --- Transform section ---
+        if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            static float position[3] = {0.0f, 0.0f, 0.0f};
+            static float rotation[3] = {0.0f, 0.0f, 0.0f};
+            static float scale[3]    = {1.0f, 1.0f, 1.0f};
+
+            if (ImGui::BeginTable("TransformTable", 2, ImGuiTableFlags_SizingStretchProp))
+            {
+                ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 60.0f);
+                ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
+
+                // Position
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("Position");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::SetNextItemWidth(-FLT_MIN);
+                ImGui::DragFloat3("##Position", position, 0.1f);
+
+                // Rotation
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("Rotation");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::SetNextItemWidth(-FLT_MIN);
+                ImGui::DragFloat3("##Rotation", rotation, 0.1f);
+
+                // Scale
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("Scale");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::SetNextItemWidth(-FLT_MIN);
+                ImGui::DragFloat3("##Scale", scale, 0.1f);
+
+                ImGui::EndTable();
+            }
+        }
+
+        gui->windowEnd();
+
+
+        gui->dockSpaceEnd();
+        gui->canvasEnd();
+
+        window->swap();
+    }
+
+    // Clean up
+    gui->destroy();
+    renderer->destroy();
+    window->destroy();
+    return 0;
 }

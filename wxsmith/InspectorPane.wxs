@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<wxsmith>
-	<object class="wxPanel" name="InspectorPane">
-		<size>493,435</size>
-		<bg>wxSYS_COLOUR_MENU</bg>
-		<pos_arg>1</pos_arg>
-		<size_arg>1</size_arg>
-	</object>
-</wxsmith>

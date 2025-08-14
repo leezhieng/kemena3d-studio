@@ -9739,9 +9739,7 @@
 	<wx/msgdlg.h>
 	<wx/dir.h>
 
-1747255163 source:d:\projects\kemena3d\kemena3d-studio\resources.rc
-	<windows.h>
-	"wx/msw/rcdefs.h"
+1755087563 source:d:\projects\kemena3d\kemena3d-studio\resources.rc
 
 1745338041 source:d:\projects\kemena3d\kemena3d-studio\src\artprovider.cpp
 	"ArtProvider.h"
@@ -9800,7 +9798,7 @@
 	<gtk/gtk.h>
 	<gdk/gdk.h>
 
-1753033673 d:\projects\kemena3d\kemena3d\output\include\kemena\kemena.h
+1754129790 d:\projects\kemena3d\kemena3d\output\include\kemena\kemena.h
 	"kexport.h"
 	"kdatatype.h"
 	"kwindow.h"
@@ -9808,8 +9806,9 @@
 	"kassetmanager.h"
 	"kworld.h"
 	"kscriptmanager.h"
+	"kguimanager.h"
 
-1750276699 d:\projects\kemena3d\kemena3d\output\include\kemena\kdatatype.h
+1753906802 d:\projects\kemena3d\kemena3d\output\include\kemena\kdatatype.h
 	<string>
 	<vector>
 	<iostream>
@@ -9824,25 +9823,25 @@
 	<SDL3/SDL.h>
 	<SDL3/SDL_main.h>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\quaternion.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\quaternion.h
 	<assimp/defs.h>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\defs.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\defs.h
 	<assimp/config.h>
 
-1752986819 d:\projects\kemena3d\kemena3d\output\include\assimp\config.h
+1753472320 d:\projects\kemena3d\kemena3d\output\include\assimp\config.h
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\vector3.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\vector3.h
 	<cmath>
 	<math.h>
 	<assimp/defs.h>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\matrix4x4.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\matrix4x4.h
 	<assimp/vector3.h>
 	<assimp/defs.h>
 	<assimp/config.h>
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\glm.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\glm.hpp
 	"detail/_fixes.hpp"
 	"detail/setup.hpp"
 	<cmath>
@@ -9872,17 +9871,17 @@
 	"vector_relational.hpp"
 	"integer.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\_fixes.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\_fixes.hpp
 	<cmath>
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\setup.hpp
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\setup.hpp
 	<cassert>
 	<cstddef>
 	"../simd/platform.h"
 	<cstdint>
 	<type_traits>
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\simd\platform.h
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\simd\platform.h
 	<cuda.h>
 	<immintrin.h>
 	<immintrin.h>
@@ -9894,16 +9893,16 @@
 	<emmintrin.h>
 	"neon.h"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\simd\neon.h
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\simd\neon.h
 	<arm_neon.h>
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\fwd.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\fwd.hpp
 	"detail/qualifier.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\qualifier.hpp
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\qualifier.hpp
 	"setup.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\vec2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\vec2.hpp
 	"./ext/vector_bool2.hpp"
 	"./ext/vector_bool2_precision.hpp"
 	"./ext/vector_float2.hpp"
@@ -9915,63 +9914,63 @@
 	"./ext/vector_uint2.hpp"
 	"./ext/vector_uint2_sized.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_bool2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_bool2.hpp
 	"../detail/type_vec2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec2.hpp
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec2.hpp
 	"qualifier.hpp"
 	"_swizzle.hpp"
 	"_swizzle_func.hpp"
 	<cstddef>
 	"type_vec2.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\_swizzle.hpp
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\_swizzle.hpp
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\_swizzle_func.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\_swizzle_func.hpp
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec2.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec2.inl
 	"./compute_vector_relational.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\compute_vector_relational.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\compute_vector_relational.hpp
 	"setup.hpp"
 	<limits>
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_bool2_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_bool2_precision.hpp
 	"../detail/type_vec2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_float2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_float2.hpp
 	"../detail/type_vec2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_float2_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_float2_precision.hpp
 	"../detail/type_vec2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_double2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_double2.hpp
 	"../detail/type_vec2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_double2_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_double2_precision.hpp
 	"../detail/type_vec2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_int2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_int2.hpp
 	"../detail/type_vec2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_int2_sized.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_int2_sized.hpp
 	"../ext/vector_int2.hpp"
 	"../ext/scalar_int_sized.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\scalar_int_sized.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\scalar_int_sized.hpp
 	"../detail/setup.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_uint2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_uint2.hpp
 	"../detail/type_vec2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_uint2_sized.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_uint2_sized.hpp
 	"../ext/vector_uint2.hpp"
 	"../ext/scalar_uint_sized.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\scalar_uint_sized.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\scalar_uint_sized.hpp
 	"../detail/setup.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\vec3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\vec3.hpp
 	"./ext/vector_bool3.hpp"
 	"./ext/vector_bool3_precision.hpp"
 	"./ext/vector_float3.hpp"
@@ -9983,49 +9982,49 @@
 	"./ext/vector_uint3.hpp"
 	"./ext/vector_uint3_sized.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_bool3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_bool3.hpp
 	"../detail/type_vec3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec3.hpp
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec3.hpp
 	"qualifier.hpp"
 	"_swizzle.hpp"
 	"_swizzle_func.hpp"
 	<cstddef>
 	"type_vec3.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec3.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec3.inl
 	"compute_vector_relational.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_bool3_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_bool3_precision.hpp
 	"../detail/type_vec3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_float3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_float3.hpp
 	"../detail/type_vec3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_float3_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_float3_precision.hpp
 	"../detail/type_vec3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_double3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_double3.hpp
 	"../detail/type_vec3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_double3_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_double3_precision.hpp
 	"../detail/type_vec3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_int3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_int3.hpp
 	"../detail/type_vec3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_int3_sized.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_int3_sized.hpp
 	"../ext/vector_int3.hpp"
 	"../ext/scalar_int_sized.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_uint3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_uint3.hpp
 	"../detail/type_vec3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_uint3_sized.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_uint3_sized.hpp
 	"../ext/vector_uint3.hpp"
 	"../ext/scalar_uint_sized.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\vec4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\vec4.hpp
 	"./ext/vector_bool4.hpp"
 	"./ext/vector_bool4_precision.hpp"
 	"./ext/vector_float4.hpp"
@@ -10037,71 +10036,71 @@
 	"./ext/vector_uint4.hpp"
 	"./ext/vector_uint4_sized.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_bool4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_bool4.hpp
 	"../detail/type_vec4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec4.hpp
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec4.hpp
 	"qualifier.hpp"
 	"_swizzle.hpp"
 	"_swizzle_func.hpp"
 	<cstddef>
 	"type_vec4.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec4.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec4.inl
 	"compute_vector_relational.hpp"
 	"type_vec4_simd.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec4_simd.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec4_simd.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_bool4_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_bool4_precision.hpp
 	"../detail/type_vec4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_float4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_float4.hpp
 	"../detail/type_vec4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_float4_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_float4_precision.hpp
 	"../detail/type_vec4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_double4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_double4.hpp
 	"../detail/type_vec4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_double4_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_double4_precision.hpp
 	"../detail/setup.hpp"
 	"../detail/type_vec4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_int4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_int4.hpp
 	"../detail/type_vec4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_int4_sized.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_int4_sized.hpp
 	"../ext/vector_int4.hpp"
 	"../ext/scalar_int_sized.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_uint4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_uint4.hpp
 	"../detail/type_vec4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_uint4_sized.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_uint4_sized.hpp
 	"../ext/vector_uint4.hpp"
 	"../ext/scalar_uint_sized.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\mat2x2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\mat2x2.hpp
 	"./ext/matrix_double2x2.hpp"
 	"./ext/matrix_double2x2_precision.hpp"
 	"./ext/matrix_float2x2.hpp"
 	"./ext/matrix_float2x2_precision.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double2x2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double2x2.hpp
 	"../detail/type_mat2x2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat2x2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat2x2.hpp
 	"type_vec2.hpp"
 	<limits>
 	<cstddef>
 	"type_mat2x2.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat2x2.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat2x2.inl
 	"../matrix.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\matrix.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\matrix.hpp
 	"detail/qualifier.hpp"
 	"detail/setup.hpp"
 	"vec2.hpp"
@@ -10118,240 +10117,240 @@
 	"mat4x4.hpp"
 	"detail/func_matrix.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\mat2x3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\mat2x3.hpp
 	"./ext/matrix_double2x3.hpp"
 	"./ext/matrix_double2x3_precision.hpp"
 	"./ext/matrix_float2x3.hpp"
 	"./ext/matrix_float2x3_precision.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double2x3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double2x3.hpp
 	"../detail/type_mat2x3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat2x3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat2x3.hpp
 	"type_vec2.hpp"
 	"type_vec3.hpp"
 	<limits>
 	<cstddef>
 	"type_mat2x3.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat2x3.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat2x3.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double2x3_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double2x3_precision.hpp
 	"../detail/type_mat2x3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float2x3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float2x3.hpp
 	"../detail/type_mat2x3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float2x3_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float2x3_precision.hpp
 	"../detail/type_mat2x3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\mat2x4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\mat2x4.hpp
 	"./ext/matrix_double2x4.hpp"
 	"./ext/matrix_double2x4_precision.hpp"
 	"./ext/matrix_float2x4.hpp"
 	"./ext/matrix_float2x4_precision.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double2x4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double2x4.hpp
 	"../detail/type_mat2x4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat2x4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat2x4.hpp
 	"type_vec2.hpp"
 	"type_vec4.hpp"
 	<limits>
 	<cstddef>
 	"type_mat2x4.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat2x4.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat2x4.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double2x4_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double2x4_precision.hpp
 	"../detail/type_mat2x4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float2x4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float2x4.hpp
 	"../detail/type_mat2x4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float2x4_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float2x4_precision.hpp
 	"../detail/type_mat2x4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\mat3x2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\mat3x2.hpp
 	"./ext/matrix_double3x2.hpp"
 	"./ext/matrix_double3x2_precision.hpp"
 	"./ext/matrix_float3x2.hpp"
 	"./ext/matrix_float3x2_precision.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double3x2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double3x2.hpp
 	"../detail/type_mat3x2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat3x2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat3x2.hpp
 	"type_vec2.hpp"
 	"type_vec3.hpp"
 	<limits>
 	<cstddef>
 	"type_mat3x2.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat3x2.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat3x2.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double3x2_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double3x2_precision.hpp
 	"../detail/type_mat3x2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float3x2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float3x2.hpp
 	"../detail/type_mat3x2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float3x2_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float3x2_precision.hpp
 	"../detail/type_mat3x2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\mat3x3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\mat3x3.hpp
 	"./ext/matrix_double3x3.hpp"
 	"./ext/matrix_double3x3_precision.hpp"
 	"./ext/matrix_float3x3.hpp"
 	"./ext/matrix_float3x3_precision.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double3x3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double3x3.hpp
 	"../detail/type_mat3x3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat3x3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat3x3.hpp
 	"type_vec3.hpp"
 	<limits>
 	<cstddef>
 	"type_mat3x3.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat3x3.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat3x3.inl
 	"../matrix.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double3x3_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double3x3_precision.hpp
 	"../detail/type_mat3x3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float3x3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float3x3.hpp
 	"../detail/type_mat3x3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float3x3_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float3x3_precision.hpp
 	"../detail/type_mat3x3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\mat3x4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\mat3x4.hpp
 	"./ext/matrix_double3x4.hpp"
 	"./ext/matrix_double3x4_precision.hpp"
 	"./ext/matrix_float3x4.hpp"
 	"./ext/matrix_float3x4_precision.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double3x4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double3x4.hpp
 	"../detail/type_mat3x4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat3x4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat3x4.hpp
 	"type_vec3.hpp"
 	"type_vec4.hpp"
 	<limits>
 	<cstddef>
 	"type_mat3x4.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat3x4.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat3x4.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double3x4_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double3x4_precision.hpp
 	"../detail/type_mat3x4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float3x4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float3x4.hpp
 	"../detail/type_mat3x4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float3x4_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float3x4_precision.hpp
 	"../detail/type_mat3x4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\mat4x2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\mat4x2.hpp
 	"./ext/matrix_double4x2.hpp"
 	"./ext/matrix_double4x2_precision.hpp"
 	"./ext/matrix_float4x2.hpp"
 	"./ext/matrix_float4x2_precision.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double4x2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double4x2.hpp
 	"../detail/type_mat4x2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat4x2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat4x2.hpp
 	"type_vec2.hpp"
 	"type_vec4.hpp"
 	<limits>
 	<cstddef>
 	"type_mat4x2.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat4x2.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat4x2.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double4x2_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double4x2_precision.hpp
 	"../detail/type_mat4x2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float4x2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float4x2.hpp
 	"../detail/type_mat4x2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float4x2_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float4x2_precision.hpp
 	"../detail/type_mat2x2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\mat4x3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\mat4x3.hpp
 	"./ext/matrix_double4x3.hpp"
 	"./ext/matrix_double4x3_precision.hpp"
 	"./ext/matrix_float4x3.hpp"
 	"./ext/matrix_float4x3_precision.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double4x3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double4x3.hpp
 	"../detail/type_mat4x3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat4x3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat4x3.hpp
 	"type_vec3.hpp"
 	"type_vec4.hpp"
 	<limits>
 	<cstddef>
 	"type_mat4x3.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat4x3.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat4x3.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double4x3_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double4x3_precision.hpp
 	"../detail/type_mat4x3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float4x3.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float4x3.hpp
 	"../detail/type_mat4x3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float4x3_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float4x3_precision.hpp
 	"../detail/type_mat4x3.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\mat4x4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\mat4x4.hpp
 	"./ext/matrix_double4x4.hpp"
 	"./ext/matrix_double4x4_precision.hpp"
 	"./ext/matrix_float4x4.hpp"
 	"./ext/matrix_float4x4_precision.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double4x4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double4x4.hpp
 	"../detail/type_mat4x4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat4x4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat4x4.hpp
 	"type_vec4.hpp"
 	<limits>
 	<cstddef>
 	"type_mat4x4.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat4x4.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat4x4.inl
 	"../matrix.hpp"
 	"type_mat4x4_simd.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat4x4_simd.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_mat4x4_simd.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double4x4_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double4x4_precision.hpp
 	"../detail/type_mat4x4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float4x4.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float4x4.hpp
 	"../detail/type_mat4x4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float4x4_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float4x4_precision.hpp
 	"../detail/type_mat4x4.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_matrix.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_matrix.inl
 	"../geometric.hpp"
 	<limits>
 	"func_matrix_simd.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\geometric.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\geometric.hpp
 	"detail/type_vec3.hpp"
 	"detail/func_geometric.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_geometric.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_geometric.inl
 	"../exponential.hpp"
 	"../common.hpp"
 	"func_geometric_simd.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\exponential.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\exponential.hpp
 	"detail/type_vec1.hpp"
 	"detail/type_vec2.hpp"
 	"detail/type_vec3.hpp"
@@ -10359,17 +10358,17 @@
 	<cmath>
 	"detail/func_exponential.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec1.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec1.hpp
 	"qualifier.hpp"
 	"_swizzle.hpp"
 	"_swizzle_func.hpp"
 	<cstddef>
 	"type_vec1.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec1.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_vec1.inl
 	"./compute_vector_relational.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_exponential.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_exponential.inl
 	"../vector_relational.hpp"
 	"_vectorize.hpp"
 	<limits>
@@ -10377,30 +10376,30 @@
 	<cassert>
 	"func_exponential_simd.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\vector_relational.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\vector_relational.hpp
 	"detail/qualifier.hpp"
 	"detail/setup.hpp"
 	"detail/func_vector_relational.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_vector_relational.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_vector_relational.inl
 	"func_vector_relational_simd.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_vector_relational_simd.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_vector_relational_simd.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\_vectorize.hpp
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\_vectorize.hpp
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_exponential_simd.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_exponential_simd.inl
 	"../simd/exponential.h"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\simd\exponential.h
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\simd\exponential.h
 	"platform.h"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\common.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\common.hpp
 	"detail/qualifier.hpp"
 	"detail/_fixes.hpp"
 	"detail/func_common.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_common.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_common.inl
 	"../vector_relational.hpp"
 	"compute_common.hpp"
 	"type_vec1.hpp"
@@ -10411,91 +10410,91 @@
 	<limits>
 	"func_common_simd.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\compute_common.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\compute_common.hpp
 	"setup.hpp"
 	<limits>
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_common_simd.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_common_simd.inl
 	"../simd/common.h"
 	<immintrin.h>
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\simd\common.h
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\simd\common.h
 	"platform.h"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_geometric_simd.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_geometric_simd.inl
 	"../simd/geometric.h"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\simd\geometric.h
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\simd\geometric.h
 	"common.h"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_matrix_simd.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_matrix_simd.inl
 	"type_mat4x4.hpp"
 	"../geometric.hpp"
 	"../simd/matrix.h"
 	<cstring>
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\simd\matrix.h
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\simd\matrix.h
 	"geometric.h"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double2x2_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_double2x2_precision.hpp
 	"../detail/type_mat2x2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float2x2.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float2x2.hpp
 	"../detail/type_mat2x2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float2x2_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_float2x2_precision.hpp
 	"../detail/type_mat2x2.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\trigonometric.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\trigonometric.hpp
 	"detail/setup.hpp"
 	"detail/qualifier.hpp"
 	"detail/func_trigonometric.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_trigonometric.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_trigonometric.inl
 	"_vectorize.hpp"
 	<cmath>
 	<limits>
 	"func_trigonometric_simd.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_trigonometric_simd.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_trigonometric_simd.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\packing.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\packing.hpp
 	"./ext/vector_uint2.hpp"
 	"./ext/vector_float2.hpp"
 	"./ext/vector_float4.hpp"
 	"detail/func_packing.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_packing.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_packing.inl
 	"../common.hpp"
 	"type_half.hpp"
 	"func_packing_simd.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_half.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_half.hpp
 	"setup.hpp"
 	"type_half.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_half.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_half.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_packing_simd.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_packing_simd.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\integer.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\integer.hpp
 	"detail/qualifier.hpp"
 	"common.hpp"
 	"vector_relational.hpp"
 	"detail/func_integer.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_integer.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_integer.inl
 	"_vectorize.hpp"
 	<intrin.h>
 	<limits>
 	"func_integer_simd.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_integer_simd.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\func_integer_simd.inl
 	"../simd/integer.h"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\simd\integer.h
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\simd\integer.h
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\quaternion.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\quaternion.hpp
 	"../glm.hpp"
 	"../gtc/constants.hpp"
 	"../gtc/quaternion.hpp"
@@ -10503,20 +10502,20 @@
 	"../gtx/norm.hpp"
 	"quaternion.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\constants.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\constants.hpp
 	"../ext/scalar_constants.hpp"
 	"constants.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\scalar_constants.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\scalar_constants.hpp
 	"../detail/setup.hpp"
 	"scalar_constants.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\scalar_constants.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\scalar_constants.inl
 	<limits>
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\constants.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\constants.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\quaternion.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\quaternion.hpp
 	"../gtc/constants.hpp"
 	"../gtc/matrix_transform.hpp"
 	"../ext/vector_relational.hpp"
@@ -10535,7 +10534,7 @@
 	"../detail/type_vec4.hpp"
 	"quaternion.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\matrix_transform.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\matrix_transform.hpp
 	"../mat4x4.hpp"
 	"../vec2.hpp"
 	"../vec3.hpp"
@@ -10545,51 +10544,51 @@
 	"../ext/matrix_transform.hpp"
 	"matrix_transform.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_projection.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_projection.hpp
 	"../gtc/constants.hpp"
 	"../geometric.hpp"
 	"../trigonometric.hpp"
 	"../matrix.hpp"
 	"matrix_projection.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_projection.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_projection.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_clip_space.hpp
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_clip_space.hpp
 	"../ext/scalar_constants.hpp"
 	"../geometric.hpp"
 	"../trigonometric.hpp"
 	"matrix_clip_space.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_clip_space.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_clip_space.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_transform.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_transform.hpp
 	"../gtc/constants.hpp"
 	"../geometric.hpp"
 	"../trigonometric.hpp"
 	"../matrix.hpp"
 	"matrix_transform.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_transform.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\matrix_transform.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\matrix_transform.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\matrix_transform.inl
 	"../geometric.hpp"
 	"../trigonometric.hpp"
 	"../matrix.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_relational.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_relational.hpp
 	"../detail/qualifier.hpp"
 	"vector_relational.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_relational.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_relational.inl
 	"../vector_relational.hpp"
 	"../common.hpp"
 	"../detail/qualifier.hpp"
 	"../detail/type_float.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_float.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_float.hpp
 	"setup.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_common.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_common.hpp
 	"../ext/scalar_constants.hpp"
 	"../ext/quaternion_geometric.hpp"
 	"../common.hpp"
@@ -10598,23 +10597,23 @@
 	<limits>
 	"quaternion_common.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_geometric.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_geometric.hpp
 	"../geometric.hpp"
 	"../exponential.hpp"
 	"../ext/vector_relational.hpp"
 	"quaternion_geometric.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_geometric.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_geometric.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_common.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_common.inl
 	"quaternion_common_simd.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_common_simd.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_common_simd.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_float.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_float.hpp
 	"../detail/type_quat.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_quat.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_quat.hpp
 	"../detail/type_mat3x3.hpp"
 	"../detail/type_mat4x4.hpp"
 	"../detail/type_vec3.hpp"
@@ -10625,13 +10624,13 @@
 	"../gtc/matrix_transform.hpp"
 	"type_quat.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_relational.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_relational.hpp
 	"../vector_relational.hpp"
 	"quaternion_relational.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_relational.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_relational.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_quat.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_quat.inl
 	"../trigonometric.hpp"
 	"../exponential.hpp"
 	"../ext/quaternion_common.hpp"
@@ -10639,18 +10638,18 @@
 	<limits>
 	"type_quat_simd.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_quat_simd.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\detail\type_quat_simd.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_float_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_float_precision.hpp
 	"../detail/type_quat.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_double.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_double.hpp
 	"../detail/type_quat.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_double_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_double_precision.hpp
 	"../detail/type_quat.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_trigonometric.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_trigonometric.hpp
 	"../trigonometric.hpp"
 	"../exponential.hpp"
 	"scalar_constants.hpp"
@@ -10658,18 +10657,18 @@
 	<limits>
 	"quaternion_trigonometric.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_trigonometric.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_trigonometric.inl
 	"scalar_constants.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_transform.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_transform.hpp
 	"../common.hpp"
 	"../trigonometric.hpp"
 	"../geometric.hpp"
 	"quaternion_transform.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_transform.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_transform.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\quaternion.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\quaternion.inl
 	"../trigonometric.hpp"
 	"../geometric.hpp"
 	"../exponential.hpp"
@@ -10677,57 +10676,57 @@
 	<limits>
 	"quaternion_simd.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\epsilon.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\epsilon.hpp
 	"../detail/setup.hpp"
 	"../detail/qualifier.hpp"
 	"epsilon.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\epsilon.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\epsilon.inl
 	"../vector_relational.hpp"
 	"../common.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\quaternion_simd.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\quaternion_simd.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_exponential.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_exponential.hpp
 	"../common.hpp"
 	"../trigonometric.hpp"
 	"../geometric.hpp"
 	"../ext/scalar_constants.hpp"
 	"quaternion_exponential.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_exponential.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\quaternion_exponential.inl
 	"scalar_constants.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\norm.hpp
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\norm.hpp
 	"../geometric.hpp"
 	"../gtx/quaternion.hpp"
 	"../gtx/component_wise.hpp"
 	"norm.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\component_wise.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\component_wise.hpp
 	"../detail/setup.hpp"
 	"../detail/qualifier.hpp"
 	"component_wise.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\component_wise.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\component_wise.inl
 	"../ext/scalar_common.hpp"
 	<limits>
 	<cmath>
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\scalar_common.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\scalar_common.hpp
 	"../common.hpp"
 	"scalar_common.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\scalar_common.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\scalar_common.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\norm.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\norm.inl
 	"../detail/qualifier.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\quaternion.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\quaternion.inl
 	<limits>
 	"../gtc/constants.hpp"
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_assert.h>
 	<SDL3/SDL_asyncio.h>
@@ -10784,7 +10783,7 @@
 	<SDL3/SDL_video.h>
 	<SDL3/SDL_oldnames.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_stdinc.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_stdinc.h
 	<SDL3/SDL_platform_defines.h>
 	<stdarg.h>
 	<stdint.h>
@@ -10804,36 +10803,36 @@
 	<stdlib.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_platform_defines.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_platform_defines.h
 	<AvailabilityMacros.h>
 	<TargetConditionals.h>
 	<TargetConditionals.h>
 	<winapifamily.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_begin_code.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_begin_code.h
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_close_code.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_close_code.h
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_assert.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_assert.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_begin_code.h>
 	<assert.h>
 	<signal.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_asyncio.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_asyncio.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_atomic.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_atomic.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_platform_defines.h>
 	<SDL3/SDL_begin_code.h>
 	<mbarrier.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_audio.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_audio.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_endian.h>
 	<SDL3/SDL_error.h>
@@ -10843,7 +10842,7 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_endian.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_endian.h
 	<SDL3/SDL_stdinc.h>
 	<intrin.h>
 	<endian.h>
@@ -10853,12 +10852,12 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_error.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_error.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_mutex.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_mutex.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_atomic.h>
 	<SDL3/SDL_error.h>
@@ -10866,7 +10865,7 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_thread.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_thread.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_properties.h>
@@ -10875,30 +10874,30 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_properties.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_properties.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_iostream.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_iostream.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_properties.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_bits.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_bits.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_blendmode.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_blendmode.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_camera.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_camera.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_pixels.h>
@@ -10907,14 +10906,14 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_pixels.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_pixels.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_endian.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_surface.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_surface.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_blendmode.h>
@@ -10925,24 +10924,24 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_rect.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_rect.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_clipboard.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_clipboard.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_cpuinfo.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_cpuinfo.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_dialog.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_dialog.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_properties.h>
@@ -10950,7 +10949,7 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_video.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_video.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_pixels.h>
@@ -10960,7 +10959,7 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_events.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_events.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_audio.h>
 	<SDL3/SDL_camera.h>
@@ -10979,7 +10978,7 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_gamepad.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_gamepad.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_guid.h>
@@ -10991,12 +10990,12 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_guid.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_guid.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_joystick.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_joystick.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_guid.h>
@@ -11007,20 +11006,20 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_power.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_power.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_sensor.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_sensor.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_properties.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_keyboard.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_keyboard.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_keycode.h>
@@ -11031,14 +11030,14 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_keycode.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_keycode.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_scancode.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_scancode.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_scancode.h
 	<SDL3/SDL_stdinc.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_mouse.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_mouse.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_surface.h>
@@ -11046,25 +11045,25 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_pen.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_pen.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_mouse.h>
 	<SDL3/SDL_touch.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_touch.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_touch.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_mouse.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_filesystem.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_filesystem.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_gpu.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_gpu.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_pixels.h>
 	<SDL3/SDL_properties.h>
@@ -11074,73 +11073,73 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_haptic.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_haptic.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_joystick.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_hidapi.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_hidapi.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_hints.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_hints.h
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_init.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_init.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_events.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_loadso.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_loadso.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_locale.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_locale.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_log.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_log.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_messagebox.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_messagebox.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_video.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_metal.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_metal.h
 	<SDL3/SDL_video.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_misc.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_misc.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_platform.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_platform.h
 	<SDL3/SDL_platform_defines.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_process.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_process.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_iostream.h>
@@ -11148,7 +11147,7 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_render.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_render.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_blendmode.h>
 	<SDL3/SDL_error.h>
@@ -11161,7 +11160,7 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_storage.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_storage.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_filesystem.h>
@@ -11169,7 +11168,7 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_system.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_system.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_keyboard.h>
@@ -11177,19 +11176,19 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_time.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_time.h
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_timer.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_timer.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_tray.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_tray.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
 	<SDL3/SDL_surface.h>
@@ -11197,15 +11196,15 @@
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_version.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_version.h
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_begin_code.h>
 	<SDL3/SDL_close_code.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_oldnames.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_oldnames.h
 	<SDL3/SDL_platform_defines.h>
 
-1752933133 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_main.h
+1753472013 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_main.h
 	<SDL3/SDL_platform_defines.h>
 	<SDL3/SDL_stdinc.h>
 	<SDL3/SDL_error.h>
@@ -11216,7 +11215,7 @@
 	<SDL3/SDL_close_code.h>
 	<SDL3/SDL_main_impl.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_main_impl.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_main_impl.h
 	"SDL_main_impl_private.h"
 
 1753033131 d:\projects\kemena3d\kemena3d\output\include\kemena\kwindow.h
@@ -11232,7 +11231,7 @@
 	"kexport.h"
 	<chrono>
 
-1753031598 d:\projects\kemena3d\kemena3d\output\include\kemena\krenderer.h
+1754130567 d:\projects\kemena3d\kemena3d\output\include\kemena\krenderer.h
 	"kexport.h"
 	"kwindow.h"
 	"kdatatype.h"
@@ -11271,13 +11270,13 @@
 	<OpenGL/glu.h>
 	<GL/glu.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_opengl.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_opengl.h
 	<SDL3/SDL_platform.h>
 	<SDL3/gl_mangle.h>
 	<windows.h>
 	<SDL3/SDL_opengl_glext.h>
 
-1752933131 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_opengl_glext.h
+1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_opengl_glext.h
 	<windows.h>
 	<stdint.h>
 	<inttypes.h>
@@ -11305,7 +11304,7 @@
 	"kmaterial.h"
 	"kscriptmanager.h"
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\json.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\json.hpp
 	<algorithm>
 	<cstddef>
 	<functional>
@@ -11350,16 +11349,16 @@
 	<string_view>
 	<nlohmann/detail/macro_unscope.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\adl_serializer.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\adl_serializer.hpp
 	<utility>
 	<nlohmann/detail/abi_macros.hpp>
 	<nlohmann/detail/conversions/from_json.hpp>
 	<nlohmann/detail/conversions/to_json.hpp>
 	<nlohmann/detail/meta/identity_tag.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\abi_macros.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\abi_macros.hpp
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\conversions\from_json.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\conversions\from_json.hpp
 	<algorithm>
 	<array>
 	<forward_list>
@@ -11381,7 +11380,7 @@
 	<nlohmann/detail/string_concat.hpp>
 	<nlohmann/detail/value_t.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\exceptions.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\exceptions.hpp
 	<cstddef>
 	<exception>
 	<numeric>
@@ -11396,7 +11395,7 @@
 	<nlohmann/detail/meta/type_traits.hpp>
 	<nlohmann/detail/string_concat.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\value_t.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\value_t.hpp
 	<array>
 	<cstddef>
 	<cstdint>
@@ -11404,7 +11403,7 @@
 	<nlohmann/detail/macro_scope.hpp>
 	<compare>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\macro_scope.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\macro_scope.hpp
 	<utility>
 	<nlohmann/detail/meta/detected.hpp>
 	<nlohmann/thirdparty/hedley/hedley.hpp>
@@ -11413,32 +11412,32 @@
 	<cstdlib>
 	<cassert>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\detected.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\detected.hpp
 	<type_traits>
 	<nlohmann/detail/meta/void_t.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\void_t.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\void_t.hpp
 	<nlohmann/detail/abi_macros.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\thirdparty\hedley\hedley.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\thirdparty\hedley\hedley.hpp
 	<stdint.h>
 	<stdint.h>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\string_escape.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\string_escape.hpp
 	<nlohmann/detail/abi_macros.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\input\position_t.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\input\position_t.hpp
 	<cstddef>
 	<nlohmann/detail/abi_macros.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\cpp_future.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\cpp_future.hpp
 	<array>
 	<cstddef>
 	<type_traits>
 	<utility>
 	<nlohmann/detail/macro_scope.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\type_traits.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\type_traits.hpp
 	<limits>
 	<string>
 	<tuple>
@@ -11452,19 +11451,19 @@
 	<nlohmann/detail/meta/detected.hpp>
 	<nlohmann/json_fwd.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\iterators\iterator_traits.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\iterators\iterator_traits.hpp
 	<iterator>
 	<nlohmann/detail/abi_macros.hpp>
 	<nlohmann/detail/meta/void_t.hpp>
 	<nlohmann/detail/meta/cpp_future.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\call_std\begin.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\call_std\begin.hpp
 	<nlohmann/detail/macro_scope.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\call_std\end.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\call_std\end.hpp
 	<nlohmann/detail/macro_scope.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\json_fwd.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\json_fwd.hpp
 	<cstdint>
 	<map>
 	<memory>
@@ -11472,22 +11471,22 @@
 	<vector>
 	<nlohmann/detail/abi_macros.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\string_concat.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\string_concat.hpp
 	<cstring>
 	<string>
 	<utility>
 	<nlohmann/detail/meta/cpp_future.hpp>
 	<nlohmann/detail/meta/detected.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\identity_tag.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\identity_tag.hpp
 	<nlohmann/detail/abi_macros.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\std_fs.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\std_fs.hpp
 	<nlohmann/detail/macro_scope.hpp>
 	<experimental/filesystem>
 	<filesystem>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\conversions\to_json.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\conversions\to_json.hpp
 	<nlohmann/detail/macro_scope.hpp>
 	<optional>
 	<algorithm>
@@ -11504,7 +11503,7 @@
 	<nlohmann/detail/meta/type_traits.hpp>
 	<nlohmann/detail/value_t.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\iterators\iteration_proxy.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\iterators\iteration_proxy.hpp
 	<cstddef>
 	<iterator>
 	<tuple>
@@ -11515,25 +11514,25 @@
 	<nlohmann/detail/string_utils.hpp>
 	<nlohmann/detail/value_t.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\string_utils.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\string_utils.hpp
 	<cstddef>
 	<string>
 	<nlohmann/detail/abi_macros.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\byte_container_with_subtype.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\byte_container_with_subtype.hpp
 	<cstdint>
 	<tuple>
 	<utility>
 	<nlohmann/detail/abi_macros.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\hash.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\hash.hpp
 	<cstdint>
 	<cstddef>
 	<functional>
 	<nlohmann/detail/abi_macros.hpp>
 	<nlohmann/detail/value_t.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\input\binary_reader.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\input\binary_reader.hpp
 	<algorithm>
 	<array>
 	<cmath>
@@ -11557,7 +11556,7 @@
 	<nlohmann/detail/string_concat.hpp>
 	<nlohmann/detail/value_t.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\input\input_adapters.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\input\input_adapters.hpp
 	<array>
 	<cstddef>
 	<cstring>
@@ -11574,7 +11573,7 @@
 	<nlohmann/detail/macro_scope.hpp>
 	<nlohmann/detail/meta/type_traits.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\input\json_sax.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\input\json_sax.hpp
 	<cstddef>
 	<string>
 	<type_traits>
@@ -11585,7 +11584,7 @@
 	<nlohmann/detail/macro_scope.hpp>
 	<nlohmann/detail/string_concat.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\input\lexer.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\input\lexer.hpp
 	<array>
 	<clocale>
 	<cstddef>
@@ -11600,7 +11599,7 @@
 	<nlohmann/detail/macro_scope.hpp>
 	<nlohmann/detail/meta/type_traits.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\is_sax.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\meta\is_sax.hpp
 	<cstdint>
 	<utility>
 	<string>
@@ -11608,7 +11607,7 @@
 	<nlohmann/detail/meta/detected.hpp>
 	<nlohmann/detail/meta/type_traits.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\input\parser.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\input\parser.hpp
 	<cmath>
 	<cstdint>
 	<functional>
@@ -11624,16 +11623,16 @@
 	<nlohmann/detail/string_concat.hpp>
 	<nlohmann/detail/value_t.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\iterators\internal_iterator.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\iterators\internal_iterator.hpp
 	<nlohmann/detail/abi_macros.hpp>
 	<nlohmann/detail/iterators/primitive_iterator.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\iterators\primitive_iterator.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\iterators\primitive_iterator.hpp
 	<cstddef>
 	<limits>
 	<nlohmann/detail/macro_scope.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\iterators\iter_impl.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\iterators\iter_impl.hpp
 	<iterator>
 	<type_traits>
 	<nlohmann/detail/exceptions.hpp>
@@ -11644,17 +11643,17 @@
 	<nlohmann/detail/meta/type_traits.hpp>
 	<nlohmann/detail/value_t.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\iterators\json_reverse_iterator.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\iterators\json_reverse_iterator.hpp
 	<cstddef>
 	<iterator>
 	<utility>
 	<nlohmann/detail/abi_macros.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\json_custom_base_class.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\json_custom_base_class.hpp
 	<type_traits>
 	<nlohmann/detail/abi_macros.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\json_pointer.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\json_pointer.hpp
 	<algorithm>
 	<cctype>
 	<cerrno>
@@ -11671,13 +11670,13 @@
 	<nlohmann/detail/string_escape.hpp>
 	<nlohmann/detail/value_t.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\json_ref.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\json_ref.hpp
 	<initializer_list>
 	<utility>
 	<nlohmann/detail/abi_macros.hpp>
 	<nlohmann/detail/meta/type_traits.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\output\binary_writer.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\output\binary_writer.hpp
 	<algorithm>
 	<array>
 	<map>
@@ -11693,7 +11692,7 @@
 	<nlohmann/detail/output/output_adapters.hpp>
 	<nlohmann/detail/string_concat.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\output\output_adapters.hpp
+1753473181 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\output\output_adapters.hpp
 	<algorithm>
 	<cstddef>
 	<iterator>
@@ -11704,7 +11703,7 @@
 	<ostream>
 	<nlohmann/detail/macro_scope.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\output\serializer.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\output\serializer.hpp
 	<algorithm>
 	<array>
 	<clocale>
@@ -11726,7 +11725,7 @@
 	<nlohmann/detail/string_concat.hpp>
 	<nlohmann/detail/value_t.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\conversions\to_chars.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\conversions\to_chars.hpp
 	<array>
 	<cmath>
 	<cstdint>
@@ -11735,7 +11734,7 @@
 	<type_traits>
 	<nlohmann/detail/macro_scope.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\ordered_map.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\ordered_map.hpp
 	<functional>
 	<initializer_list>
 	<iterator>
@@ -11747,10 +11746,10 @@
 	<nlohmann/detail/macro_scope.hpp>
 	<nlohmann/detail/meta/type_traits.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\macro_unscope.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\detail\macro_unscope.hpp
 	<nlohmann/thirdparty/hedley/hedley_undef.hpp>
 
-1752987575 d:\projects\kemena3d\kemena3d\output\include\nlohmann\thirdparty\hedley\hedley_undef.hpp
+1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\thirdparty\hedley\hedley_undef.hpp
 
 1753031490 d:\projects\kemena3d\kemena3d\output\include\kemena\kmaterial.h
 	"kexport.h"
@@ -11774,7 +11773,7 @@
 	<glm/gtc/type_ptr.hpp>
 	"kdatatype.h"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\type_ptr.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\type_ptr.hpp
 	"../gtc/quaternion.hpp"
 	"../gtc/vec1.hpp"
 	"../vec2.hpp"
@@ -11792,7 +11791,7 @@
 	<cstring>
 	"type_ptr.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\vec1.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\vec1.hpp
 	"../ext/vector_bool1.hpp"
 	"../ext/vector_bool1_precision.hpp"
 	"../ext/vector_float1.hpp"
@@ -11804,39 +11803,39 @@
 	"../ext/vector_uint1.hpp"
 	"../ext/vector_uint1_sized.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_bool1.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_bool1.hpp
 	"../detail/type_vec1.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_bool1_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_bool1_precision.hpp
 	"../detail/type_vec1.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_float1.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_float1.hpp
 	"../detail/type_vec1.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_float1_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_float1_precision.hpp
 	"../detail/type_vec1.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_double1.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_double1.hpp
 	"../detail/type_vec1.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_double1_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_double1_precision.hpp
 	"../detail/type_vec1.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_int1.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_int1.hpp
 	"../detail/type_vec1.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_int1_sized.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_int1_sized.hpp
 	"../ext/vector_int1.hpp"
 	"../ext/scalar_int_sized.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_uint1.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_uint1.hpp
 	"../detail/type_vec1.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_uint1_sized.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\ext\vector_uint1_sized.hpp
 	"../ext/vector_uint1.hpp"
 	"../ext/scalar_uint_sized.hpp"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\type_ptr.inl
+1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\type_ptr.inl
 	<cstring>
 
 1753031708 d:\projects\kemena3d\kemena3d\output\include\kemena\ktexture2d.h
@@ -11894,7 +11893,7 @@
 	"assimp/scene.h"
 	"kdatatype.h"
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\scene.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\scene.h
 	<assimp/types.h>
 	<assimp/texture.h>
 	<assimp/mesh.h>
@@ -11905,7 +11904,7 @@
 	<assimp/metadata.h>
 	<cstdlib>
 
-1752986814 d:\projects\kemena3d\kemena3d\output\include\assimp\types.h
+1753472315 d:\projects\kemena3d\kemena3d\output\include\assimp\types.h
 	<limits.h>
 	<stddef.h>
 	<stdint.h>
@@ -11928,36 +11927,36 @@
 	"matrix4x4.inl"
 	"quaternion.inl"
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\vector2.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\vector2.h
 	<cmath>
 	<math.h>
 	"defs.h"
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\color4.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\color4.h
 	<assimp/defs.h>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\matrix3x3.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\matrix3x3.h
 	<assimp/defs.h>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\vector2.inl
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\vector2.inl
 	<assimp/vector2.h>
 	<cmath>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\vector3.inl
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\vector3.inl
 	<assimp/vector3.h>
 	<cmath>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\color4.inl
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\color4.inl
 	<assimp/color4.h>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\matrix3x3.inl
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\matrix3x3.inl
 	<assimp/matrix3x3.h>
 	<assimp/matrix4x4.h>
 	<algorithm>
 	<cmath>
 	<limits>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\matrix4x4.inl
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\matrix4x4.inl
 	"matrix4x4.h"
 	"matrix3x3.h"
 	"quaternion.h"
@@ -11966,55 +11965,55 @@
 	<limits>
 	<cmath>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\mathfunctions.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\mathfunctions.h
 	<limits>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\quaternion.inl
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\quaternion.inl
 	<assimp/quaternion.h>
 	<cmath>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\texture.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\texture.h
 	<assimp/types.h>
 	"./Compiler/pushpack1.h"
 	"./Compiler/poppack1.h"
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\compiler\pushpack1.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\compiler\pushpack1.h
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\compiler\poppack1.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\compiler\poppack1.h
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\mesh.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\mesh.h
 	<assimp/aabb.h>
 	<assimp/types.h>
 	<unordered_set>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\aabb.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\aabb.h
 	<assimp/vector3.h>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\light.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\light.h
 	<assimp/types.h>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\camera.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\camera.h
 	"types.h"
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\material.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\material.h
 	<assimp/types.h>
 	"./Compiler/pushpack1.h"
 	"./Compiler/poppack1.h"
 	"material.inl"
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\material.inl
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\material.inl
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\anim.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\anim.h
 	<assimp/quaternion.h>
 	<assimp/types.h>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\metadata.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\metadata.h
 	"Compiler/pstdint.h"
 	<stdint.h>
 	<assimp/quaternion.h>
 	<string>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\compiler\pstdint.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\compiler\pstdint.h
 	<stddef.h>
 	<limits.h>
 	<signal.h>
@@ -12033,11 +12032,11 @@
 	"assimp/scene.h"
 	"assimp/postprocess.h"
 
-1752986814 d:\projects\kemena3d\kemena3d\output\include\assimp\importer.hpp
+1753472315 d:\projects\kemena3d\kemena3d\output\include\assimp\importer.hpp
 	<assimp/types.h>
 	<exception>
 
-1752986811 d:\projects\kemena3d\kemena3d\output\include\assimp\postprocess.h
+1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\postprocess.h
 	<assimp/types.h>
 
 1749118976 d:\projects\kemena3d\kemena3d\output\include\kemena\kanimator.h
@@ -12047,7 +12046,7 @@
 	"kmesh.h"
 	<glm/gtx/string_cast.hpp>
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\string_cast.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\string_cast.hpp
 	"../glm.hpp"
 	"../gtc/type_precision.hpp"
 	"../gtc/quaternion.hpp"
@@ -12057,7 +12056,7 @@
 	<cstring>
 	"string_cast.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\type_precision.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\type_precision.hpp
 	"../gtc/quaternion.hpp"
 	"../gtc/vec1.hpp"
 	"../ext/vector_int1_sized.hpp"
@@ -12084,19 +12083,19 @@
 	"../detail/type_mat4x4.hpp"
 	"type_precision.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\type_precision.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\type_precision.inl
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\dual_quaternion.hpp
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\dual_quaternion.hpp
 	"../glm.hpp"
 	"../gtc/constants.hpp"
 	"../gtc/quaternion.hpp"
 	"dual_quaternion.inl"
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\dual_quaternion.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\dual_quaternion.inl
 	"../geometric.hpp"
 	<limits>
 
-1752933383 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\string_cast.inl
+1753472274 d:\projects\kemena3d\kemena3d\output\include\glm\gtx\string_cast.inl
 	<cstdarg>
 	<cstdio>
 
@@ -12348,17 +12347,8 @@
 	"MainWindow.h"
 	"ScriptPane.h"
 
-1753029020 source:d:\projects\kemena3d\kemena3d-studio\main.cpp
-	<iostream>
-	<wx/wx.h>
-	<wx/artprov.h>
-	<wx/stdpaths.h>
-	<wx/filename.h>
-	"dep/wxMaterialDesignArtProvider/MaterialDesign/wxMaterialDesignArtProvider.hpp"
-	"ArtProvider.h"
-	"MainWindow.h"
-	"MainMenu.h"
-	"Dockable.h"
+1755136524 source:d:\projects\kemena3d\kemena3d-studio\main.cpp
+	"kemena/kemena.h"
 
 1746031945 d:\projects\kemena3d\kemena3d-studio\mainmenu.h
 	<wx/wx.h>
@@ -12383,7 +12373,7 @@
 	<wx/settings.h>
 	<wx/string.h>
 
-1753034086 source:d:\projects\kemena3d\kemena3d-studio\src\rendererwindow.cpp
+1753034467 source:d:\projects\kemena3d\kemena3d-studio\src\rendererwindow.cpp
 	"RendererWindow.h"
 
 1753028947 source:d:\projects\kemena3d\kemena3d-studio\mainwindow.cpp
@@ -18669,7 +18659,7 @@
 
 1753027374 c:\wxwidgets\output\lib\gcc_x64_dll\mswu\wx\setup.h
 
-1753031440 d:\projects\kemena3d\kemena3d\output\include\kemena\kexport.h
+1753475254 d:\projects\kemena3d\kemena3d\output\include\kemena\kexport.h
 
 1753027374 c:\wxwidgets\output\lib\gcc_x64_dll\mswud\wx\setup.h
 
@@ -18679,4 +18669,43 @@
 	"wx/window.h"
 	"wx/gdicmn.h"
 	"wx/colour.h"
+
+1755136494 d:\projects\kemena3d\kemena3d\output\include\kemena\kguimanager.h
+	"kexport.h"
+	"kdatatype.h"
+	"krenderer.h"
+	"kwindow.h"
+	<SDL3/SDL.h>
+	"imgui.h"
+	"backends/imgui_impl_sdl3.h"
+	"backends/imgui_impl_opengl3.h"
+
+1755092925 d:\projects\kemena3d\kemena3d\output\include\imgui.h
+	"imconfig.h"
+	<float.h>
+	<stdarg.h>
+	<stddef.h>
+	<string.h>
+	<assert.h>
+	"imgui_user.h"
+
+1755092925 d:\projects\kemena3d\kemena3d\output\include\imconfig.h
+
+1755092925 d:\projects\kemena3d\kemena3d\output\include\backends\imgui_impl_sdl3.h
+	"imgui.h"
+
+1755092925 d:\projects\kemena3d\kemena3d\output\include\backends\imgui.h
+	"imconfig.h"
+	<float.h>
+	<stdarg.h>
+	<stddef.h>
+	<string.h>
+	<assert.h>
+	"imgui_user.h"
+
+1755092925 d:\projects\kemena3d\kemena3d\output\include\backends\imconfig.h
+
+1755092925 d:\projects\kemena3d\kemena3d\output\include\backends\imgui_impl_opengl3.h
+	"imgui.h"
+	<TargetConditionals.h>
 
