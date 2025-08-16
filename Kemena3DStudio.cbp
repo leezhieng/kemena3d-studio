@@ -2,7 +2,7 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="KemenaGameStudio" />
+		<Option title="Kemena3DStudio" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
@@ -61,7 +61,12 @@
 		<ExtraCommands>
 			<Add after='cmd /c copy &quot;$(PROJECT_DIR)res\fonts\inter.ttf&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)fonts\inter.ttf&quot;' />
 		</ExtraCommands>
+		<Unit filename="include/MainMenu.h" />
 		<Unit filename="include/Md5.h" />
+		<Unit filename="include/Panel_Console.h" />
+		<Unit filename="include/Panel_Hierarchy.h" />
+		<Unit filename="include/Panel_Inspector.h" />
+		<Unit filename="include/Panel_Project.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="res/fonts/inter.ttf" />
 		<Unit filename="res/fonts/opensans.ttf" />

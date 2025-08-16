@@ -9798,7 +9798,7 @@
 	<gtk/gtk.h>
 	<gdk/gdk.h>
 
-1754129790 d:\projects\kemena3d\kemena3d\output\include\kemena\kemena.h
+1755329694 d:\projects\kemena3d\kemena3d\output\include\kemena\kemena.h
 	"kexport.h"
 	"kdatatype.h"
 	"kwindow.h"
@@ -9808,7 +9808,7 @@
 	"kscriptmanager.h"
 	"kguimanager.h"
 
-1753906802 d:\projects\kemena3d\kemena3d\output\include\kemena\kdatatype.h
+1755328953 d:\projects\kemena3d\kemena3d\output\include\kemena\kdatatype.h
 	<string>
 	<vector>
 	<iostream>
@@ -11218,7 +11218,7 @@
 1753472011 d:\projects\kemena3d\kemena3d\output\include\sdl3\sdl_main_impl.h
 	"SDL_main_impl_private.h"
 
-1753033131 d:\projects\kemena3d\kemena3d\output\include\kemena\kwindow.h
+1755329629 d:\projects\kemena3d\kemena3d\output\include\kemena\kwindow.h
 	"kexport.h"
 	"kdatatype.h"
 	"ktimer.h"
@@ -11231,7 +11231,7 @@
 	"kexport.h"
 	<chrono>
 
-1754130567 d:\projects\kemena3d\kemena3d\output\include\kemena\krenderer.h
+1755310099 d:\projects\kemena3d\kemena3d\output\include\kemena\krenderer.h
 	"kexport.h"
 	"kwindow.h"
 	"kdatatype.h"
@@ -11282,7 +11282,7 @@
 	<inttypes.h>
 	<stdint.h>
 
-1753031529 d:\projects\kemena3d\kemena3d\output\include\kemena\kmesh.h
+1755310084 d:\projects\kemena3d\kemena3d\output\include\kemena\kmesh.h
 	"kexport.h"
 	<map>
 	<vector>
@@ -11292,7 +11292,7 @@
 	"kanimation.h"
 	"kanimator.h"
 
-1753031591 d:\projects\kemena3d\kemena3d\output\include\kemena\kobject.h
+1755310093 d:\projects\kemena3d\kemena3d\output\include\kemena\kobject.h
 	"kexport.h"
 	<iostream>
 	<string>
@@ -11751,14 +11751,14 @@
 
 1753473182 d:\projects\kemena3d\kemena3d\output\include\nlohmann\thirdparty\hedley\hedley_undef.hpp
 
-1753031490 d:\projects\kemena3d\kemena3d\output\include\kemena\kmaterial.h
+1755310083 d:\projects\kemena3d\kemena3d\output\include\kemena\kmaterial.h
 	"kexport.h"
 	"kdatatype.h"
 	"kshader.h"
 	"ktexture2d.h"
 	"ktexturecube.h"
 
-1753031693 d:\projects\kemena3d\kemena3d\output\include\kemena\kshader.h
+1755310105 d:\projects\kemena3d\kemena3d\output\include\kemena\kshader.h
 	"kexport.h"
 	<iostream>
 	<string>
@@ -11838,11 +11838,11 @@
 1753472275 d:\projects\kemena3d\kemena3d\output\include\glm\gtc\type_ptr.inl
 	<cstring>
 
-1753031708 d:\projects\kemena3d\kemena3d\output\include\kemena\ktexture2d.h
+1755310113 d:\projects\kemena3d\kemena3d\output\include\kemena\ktexture2d.h
 	"kexport.h"
 	"ktexture.h"
 
-1753031704 d:\projects\kemena3d\kemena3d\output\include\kemena\ktexture.h
+1755310111 d:\projects\kemena3d\kemena3d\output\include\kemena\ktexture.h
 	"kexport.h"
 	<iostream>
 	<string>
@@ -11855,11 +11855,11 @@
 	<GL/glu.h>
 	"kdatatype.h"
 
-1753031713 d:\projects\kemena3d\kemena3d\output\include\kemena\ktexturecube.h
+1755310115 d:\projects\kemena3d\kemena3d\output\include\kemena\ktexturecube.h
 	"kexport.h"
 	"ktexture.h"
 
-1753031687 d:\projects\kemena3d\kemena3d\output\include\kemena\kscriptmanager.h
+1755310103 d:\projects\kemena3d\kemena3d\output\include\kemena\kscriptmanager.h
 	"kexport.h"
 	<cassert>
 	<vector>
@@ -11886,7 +11886,7 @@
 	<vector>
 	<string.h>
 
-1750873905 d:\projects\kemena3d\kemena3d\output\include\kemena\kbone.h
+1755310075 d:\projects\kemena3d\kemena3d\output\include\kemena\kbone.h
 	<string>
 	<stdexcept>
 	<iostream>
@@ -12024,7 +12024,7 @@
 	<stdio.h>
 	<string.h>
 
-1749118994 d:\projects\kemena3d\kemena3d\output\include\kemena\kanimation.h
+1755310047 d:\projects\kemena3d\kemena3d\output\include\kemena\kanimation.h
 	"kdatatype.h"
 	"kmesh.h"
 	"kbone.h"
@@ -12039,7 +12039,7 @@
 1753472312 d:\projects\kemena3d\kemena3d\output\include\assimp\postprocess.h
 	<assimp/types.h>
 
-1749118976 d:\projects\kemena3d\kemena3d\output\include\kemena\kanimator.h
+1755310066 d:\projects\kemena3d\kemena3d\output\include\kemena\kanimator.h
 	"kdatatype.h"
 	"kanimation.h"
 	"kbone.h"
@@ -12099,7 +12099,7 @@
 	<cstdarg>
 	<cstdio>
 
-1749065622 d:\projects\kemena3d\kemena3d\output\include\kemena\kcamera.h
+1755310077 d:\projects\kemena3d\kemena3d\output\include\kemena\kcamera.h
 	<iostream>
 	<string>
 	<vector>
@@ -12109,11 +12109,11 @@
 	"kdatatype.h"
 	"kmesh.h"
 
-1753031501 d:\projects\kemena3d\kemena3d\output\include\kemena\klight.h
+1755310082 d:\projects\kemena3d\kemena3d\output\include\kemena\klight.h
 	"kexport.h"
 	"kobject.h"
 
-1753031604 d:\projects\kemena3d\kemena3d\output\include\kemena\kscene.h
+1755310101 d:\projects\kemena3d\kemena3d\output\include\kemena\kscene.h
 	"kexport.h"
 	<string>
 	<iostream>
@@ -12127,7 +12127,7 @@
 	"kcamera.h"
 	"klight.h"
 
-1750276210 d:\projects\kemena3d\kemena3d\output\include\kemena\kassetmanager.h
+1755310072 d:\projects\kemena3d\kemena3d\output\include\kemena\kassetmanager.h
 	<SDL3/SDL_filesystem.h>
 	<string>
 	<iostream>
@@ -12149,7 +12149,7 @@
 	"kanimation.h"
 	"kanimator.h"
 
-1753031339 d:\projects\kemena3d\kemena3d\output\include\kemena\kworld.h
+1755310118 d:\projects\kemena3d\kemena3d\output\include\kemena\kworld.h
 	<string>
 	<iostream>
 	<vector>
@@ -12347,8 +12347,13 @@
 	"MainWindow.h"
 	"ScriptPane.h"
 
-1755136524 source:d:\projects\kemena3d\kemena3d-studio\main.cpp
+1755329601 source:d:\projects\kemena3d\kemena3d-studio\main.cpp
 	"kemena/kemena.h"
+	"MainMenu.h"
+	"Panel_Inspector.h"
+	"Panel_Hierarchy.h"
+	"Panel_Project.h"
+	"Panel_Console.h"
 
 1746031945 d:\projects\kemena3d\kemena3d-studio\mainmenu.h
 	<wx/wx.h>
@@ -18670,7 +18675,7 @@
 	"wx/gdicmn.h"
 	"wx/colour.h"
 
-1755136494 d:\projects\kemena3d\kemena3d\output\include\kemena\kguimanager.h
+1755353540 d:\projects\kemena3d\kemena3d\output\include\kemena\kguimanager.h
 	"kexport.h"
 	"kdatatype.h"
 	"krenderer.h"
@@ -18708,4 +18713,34 @@
 1755092925 d:\projects\kemena3d\kemena3d\output\include\backends\imgui_impl_opengl3.h
 	"imgui.h"
 	<TargetConditionals.h>
+
+1755319710 d:\projects\kemena3d\kemena3d-studio\include\panel_inspector.h
+	"kemena/kemena.h"
+
+1755319708 d:\projects\kemena3d\kemena3d-studio\include\panel_hierarchy.h
+	"kemena/kemena.h"
+	<imgui.h>
+	<vector>
+	<string>
+	<memory>
+	<algorithm>
+
+1755365457 d:\projects\kemena3d\kemena3d-studio\include\mainmenu.h
+	"kemena/kemena.h"
+
+1755319738 d:\projects\kemena3d\kemena3d-studio\include\panel_project.h
+	"kemena/kemena.h"
+	<imgui.h>
+	<vector>
+	<string>
+	<memory>
+	<algorithm>
+
+1755319780 d:\projects\kemena3d\kemena3d-studio\include\panel_console.h
+	"kemena/kemena.h"
+	<imgui.h>
+	<vector>
+	<string>
+	<cstring>
+	<cstdarg>
 
