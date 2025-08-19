@@ -11231,7 +11231,7 @@
 	"kexport.h"
 	<chrono>
 
-1755310099 d:\projects\kemena3d\kemena3d\output\include\kemena\krenderer.h
+1755626596 d:\projects\kemena3d\kemena3d\output\include\kemena\krenderer.h
 	"kexport.h"
 	"kwindow.h"
 	"kdatatype.h"
@@ -12347,9 +12347,10 @@
 	"MainWindow.h"
 	"ScriptPane.h"
 
-1755329601 source:d:\projects\kemena3d\kemena3d-studio\main.cpp
+1755628418 source:d:\projects\kemena3d\kemena3d-studio\main.cpp
 	"kemena/kemena.h"
 	"MainMenu.h"
+	"Panel_Scene.h"
 	"Panel_Inspector.h"
 	"Panel_Hierarchy.h"
 	"Panel_Project.h"
@@ -18725,8 +18726,9 @@
 	<memory>
 	<algorithm>
 
-1755365457 d:\projects\kemena3d\kemena3d-studio\include\mainmenu.h
+1755627938 d:\projects\kemena3d\kemena3d-studio\include\mainmenu.h
 	"kemena/kemena.h"
+	<SDL3/SDL_dialog.h>
 
 1755319738 d:\projects\kemena3d\kemena3d-studio\include\panel_project.h
 	"kemena/kemena.h"
@@ -18736,11 +18738,15 @@
 	<memory>
 	<algorithm>
 
-1755319780 d:\projects\kemena3d\kemena3d-studio\include\panel_console.h
+1755628386 d:\projects\kemena3d\kemena3d-studio\include\panel_console.h
 	"kemena/kemena.h"
 	<imgui.h>
 	<vector>
 	<string>
 	<cstring>
 	<cstdarg>
+
+1755626957 d:\projects\kemena3d\kemena3d-studio\include\panel_scene.h
+	<algorithm>
+	"kemena/kemena.h"
 

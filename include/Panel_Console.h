@@ -36,6 +36,11 @@ namespace console
 
 	bool opened = true;
 
+	void init(kGuiManager* gui)
+	{
+	    addLog("Kemena3D Studio started", inputBuf);
+	}
+
 	void draw(kGuiManager* gui)
 	{
 		if (opened)

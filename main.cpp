@@ -2,6 +2,7 @@
 
 #include "MainMenu.h"
 
+#include "Panel_Scene.h"
 #include "Panel_Inspector.h"
 #include "Panel_Hierarchy.h"
 #include "Panel_Project.h"
@@ -14,7 +15,8 @@ int main()
 	// Create window and renderer
 	kWindow* window = createWindow(1024, 768, "Kemena3D Studio", true);
 	kRenderer* renderer = createRenderer(window);
-	renderer->setClearColor(vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	renderer->setEnableScreenBuffer(true);
+	renderer->setClearColor(vec4(0.2f, 0.4f, 0.6f, 1.0f));
 
 	// Create the asset manager, world and scene
 	kAssetManager* assetManager = createAssetManager();
@@ -28,6 +30,7 @@ int main()
 	// Setup GUI
 	hierarchy::init(gui);
 	project::init(gui);
+	console::init(gui);
 
 	// Game loop
 	kSystemEvent event;
@@ -43,12 +46,14 @@ int main()
 			}
 		}
 
-		//renderer->render(scene, 0, 0, window->getWindowWidth(), window->getWindowHeight(), window->getTimer()->getDeltaTime(), false);
+		renderer->render(scene, 0, 0, window->getWindowWidth(), window->getWindowHeight(), window->getTimer()->getDeltaTime(), false);
 
 		gui->canvasStart();
 		gui->dockSpaceStart("MainDockSpace");
 
-		mainmenu::draw(gui);
+		mainmenu::draw(gui, window);
+
+		scene::draw(gui, renderer);
 		inspector::draw(gui);
 		hierarchy::draw(gui);
 		project::draw(gui);

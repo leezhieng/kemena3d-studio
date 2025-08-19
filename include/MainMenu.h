@@ -3,11 +3,49 @@
 
 #include "kemena/kemena.h"
 
+#include <SDL3/SDL_dialog.h>
+
 using namespace kemena;
 
 namespace mainmenu
 {
-	void draw(kGuiManager* gui)
+	static void SDLCALL saveWorkspaceCallback(void* userdata, const char* const* filelist, int filter)
+	{
+		if (!filelist)
+		{
+			SDL_Log("Save dialog error: %s", SDL_GetError());
+		}
+		else if (!*filelist)
+		{
+			SDL_Log("Save dialog cancelled");
+		}
+		else
+		{
+			const char* path = filelist[0];
+			SDL_Log("Saving layout to: %s", path);
+			ImGui::SaveIniSettingsToDisk(path);
+		}
+	}
+
+	static void SDLCALL loadWorkspaceCallback(void* userdata, const char* const* filelist, int filter)
+	{
+		if (!filelist)
+		{
+			SDL_Log("Load dialog error: %s", SDL_GetError());
+		}
+		else if (!*filelist)
+		{
+			SDL_Log("Load dialog cancelled");
+		}
+		else
+		{
+			const char* path = filelist[0];
+			SDL_Log("Loading layout from: %s", path);
+			ImGui::LoadIniSettingsFromDisk(path);
+		}
+	}
+
+	void draw(kGuiManager* gui, kWindow* window)
 	{
 		if (gui->menuBar())
 		{
@@ -71,7 +109,7 @@ namespace mainmenu
 			// Assets Menu
 			if (gui->menu("Assets"))
 			{
-			    if (gui->menuItem("Create", "", false, false)) {}
+				if (gui->menuItem("Create", "", false, false)) {}
 				if (gui->menuItem("Show In Explorer", "", false, false)) {}
 				if (gui->menuItem("Open", "", false, false)) {}
 				if (gui->menuItem("Delete", "", false, false)) {}
@@ -91,7 +129,7 @@ namespace mainmenu
 			// Object Menu
 			if (gui->menu("Object"))
 			{
-			    if (gui->menuItem("Create Empty Parent", "", false, false)) {}
+				if (gui->menuItem("Create Empty Parent", "", false, false)) {}
 				if (gui->menuItem("Create Empty Child", "", false, false)) {}
 				if (gui->menuItem("Create Empty", "", false, false)) {}
 				if (gui->menuItem("3D Object", "", false, false)) {}
@@ -108,7 +146,7 @@ namespace mainmenu
 			// Component Menu
 			if (gui->menu("Component"))
 			{
-			    if (gui->menuItem("Audio", "", false, false)) {}
+				if (gui->menuItem("Audio", "", false, false)) {}
 				if (gui->menuItem("Effect", "", false, false)) {}
 				if (gui->menuItem("Mesh", "", false, false)) {}
 				if (gui->menuItem("Physics", "", false, false)) {}
@@ -120,58 +158,91 @@ namespace mainmenu
 			// Window menu
 			if (gui->menu("Window"))
 			{
-			    if (gui->menu("General"))
-                {
-                    static bool showInspector = true;
-                    if (gui->menuItem("Inspector", "", showInspector))
-                        showInspector = !showInspector;
+				if (gui->menu("General"))
+				{
+					static bool showInspector = true;
+					if (gui->menuItem("Inspector", "", showInspector))
+						showInspector = !showInspector;
 
-                    static bool showHierarchy = true;
-                    if (gui->menuItem("Hierarchy", "", showHierarchy))
-                        showHierarchy = !showHierarchy;
+					static bool showHierarchy = true;
+					if (gui->menuItem("Hierarchy", "", showHierarchy))
+						showHierarchy = !showHierarchy;
 
-                    static bool showProject = true;
-                    if (gui->menuItem("Project", "", showProject))
-                        showProject = !showProject;
+					static bool showProject = true;
+					if (gui->menuItem("Project", "", showProject))
+						showProject = !showProject;
 
-                    static bool showScript = true;
-                    if (gui->menuItem("Script", "", showScript))
-                        showScript = !showScript;
+					static bool showScript = true;
+					if (gui->menuItem("Script", "", showScript))
+						showScript = !showScript;
 
-                    static bool showConsole = true;
-                    if (gui->menuItem("Console", "", showConsole))
-                        showConsole = !showConsole;
+					static bool showConsole = true;
+					if (gui->menuItem("Console", "", showConsole))
+						showConsole = !showConsole;
 
-                    gui->menuEnd();
-                }
+					gui->menuEnd();
+				}
 
-                static bool showRendering = true;
-                if (gui->menuItem("Rendering", "", showRendering))
-                    showRendering = !showRendering;
+				static bool showRendering = true;
+				if (gui->menuItem("Rendering", "", showRendering))
+					showRendering = !showRendering;
 
-                static bool showAnimation = true;
-                if (gui->menuItem("Animation", "", showAnimation))
-                    showAnimation = !showAnimation;
+				static bool showAnimation = true;
+				if (gui->menuItem("Animation", "", showAnimation))
+					showAnimation = !showAnimation;
 
-                static bool showAudio = true;
-                if (gui->menuItem("Audio", "", showAudio))
-                    showAudio = !showAudio;
+				static bool showAudio = true;
+				if (gui->menuItem("Audio", "", showAudio))
+					showAudio = !showAudio;
 
-                static bool showSequencing = true;
-                if (gui->menuItem("Sequencing", "", showSequencing))
-                    showSequencing = !showSequencing;
+				static bool showSequencing = true;
+				if (gui->menuItem("Sequencing", "", showSequencing))
+					showSequencing = !showSequencing;
 
-                gui->separator();
+				gui->separator();
 
-                if (gui->menu("Workspace"))
-                {
-                    if (gui->menuItem("Save", "")) {}
-                    if (gui->menuItem("Load", "")) {}
-                    gui->separator();
-                    if (gui->menuItem("Reset", "")) {}
+				if (gui->menu("Workspace"))
+				{
+					if (gui->menuItem("Save", ""))
+					{
+						SDL_DialogFileFilter filters[] =
+						{
+							{ "Ini files", "ini" },
+							{ "All files", "*" }
+						};
+						SDL_ShowSaveFileDialog(
+							saveWorkspaceCallback,
+							nullptr,              // userdata
+							window->getSdlWindow(),
+							filters,
+							SDL_arraysize(filters),
+							"layout.ini"          // default filename
+						);
+					}
+					if (gui->menuItem("Load", ""))
+					{
+						SDL_DialogFileFilter filters[] =
+						{
+							{ "Ini files", "ini" },
+							{ "All files", "*" }
+						};
+						SDL_ShowOpenFileDialog(
+							loadWorkspaceCallback,
+							nullptr,              // userdata
+							window->getSdlWindow(),
+							filters,
+							SDL_arraysize(filters),
+							"layout.ini",          // default start file/dir
+							false
+						);
+					}
+					gui->separator();
+					if (gui->menuItem("Reset", ""))
+					{
+					}
 
-                    gui->menuEnd();
-                }
+					gui->menuEnd();
+				}
 
 				gui->menuEnd();
 			}
@@ -179,14 +250,14 @@ namespace mainmenu
 			// Help Menu
 			if (gui->menu("Help"))
 			{
-			    if (gui->menuItem("About", "")) {}
-			    gui->separator();
-			    if (gui->menuItem("Manual", "")) {}
-			    if (gui->menuItem("Scripting Reference", "")) {}
-			    gui->separator();
-			    if (gui->menuItem("Release Notes", "")) {}
-			    if (gui->menuItem("Software Licenses", "")) {}
-			    if (gui->menuItem("Report a Bug", "")) {}
+				if (gui->menuItem("About", "")) {}
+				gui->separator();
+				if (gui->menuItem("Manual", "")) {}
+				if (gui->menuItem("Scripting Reference", "")) {}
+				gui->separator();
+				if (gui->menuItem("Release Notes", "")) {}
+				if (gui->menuItem("Software Licenses", "")) {}
+				if (gui->menuItem("Report a Bug", "")) {}
 
 				gui->menuEnd();
 			}
