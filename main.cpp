@@ -1,7 +1,7 @@
 #include "kemena/kemena.h"
 
+#include "filemanager.h"
 #include "MainMenu.h"
-
 #include "Panel_Scene.h"
 #include "Panel_Inspector.h"
 #include "Panel_Hierarchy.h"
@@ -10,27 +10,40 @@
 
 using namespace kemena;
 
+const string windowTitle = "Kemena3D Studio";
+
+// Project config
+std::string projectName    = "New Game";
+std::string developerName  = "My Company";
+std::string projectVersion = "0.0.1";
+bool projectSaved = true;
+string worldName = "";
+
 int main()
 {
 	// Create window and renderer
-	kWindow* window = createWindow(1024, 768, "Kemena3D Studio", true);
+	kWindow* window = createWindow(1024, 768, windowTitle, true);
 	kRenderer* renderer = createRenderer(window);
 	renderer->setEnableScreenBuffer(true);
 	renderer->setClearColor(vec4(0.2f, 0.4f, 0.6f, 1.0f));
 
-	// Create the asset manager, world and scene
-	kAssetManager* assetManager = createAssetManager();
-	kWorld* world = createWorld(assetManager);
-	kScene* scene = world->createScene("My Scene");
-
-	kCamera* camera = scene->addCamera(glm::vec3(-20.0f, 5.0f, 20.0f), glm::vec3(0.0f, 0.5f, 0.0f), kCameraType::CAMERA_TYPE_LOCKED);
-
-	kGuiManager* gui = createGuiManager(renderer);
-
 	// Setup GUI
+	kGuiManager* gui = createGuiManager(renderer);
 	hierarchy::init(gui);
 	project::init(gui);
 	console::init(gui);
+
+	ImGui::LoadIniSettingsFromDisk("layout.ini");
+
+	// File manager
+    FileManager* fileManager = new FileManager();
+
+	// Create the asset manager, world and scene
+	kAssetManager* assetManager = createAssetManager();
+	kWorld* world = createWorld(assetManager);
+	kScene* scene = world->createScene("Scene");
+
+	kCamera* camera = scene->addCamera(glm::vec3(-20.0f, 5.0f, 20.0f), glm::vec3(0.0f, 0.5f, 0.0f), kCameraType::CAMERA_TYPE_LOCKED);
 
 	// Game loop
 	kSystemEvent event;
@@ -51,7 +64,7 @@ int main()
 		gui->canvasStart();
 		gui->dockSpaceStart("MainDockSpace");
 
-		mainmenu::draw(gui, window);
+		mainmenu::draw(gui, window, fileManager);
 
 		scene::draw(gui, renderer);
 		inspector::draw(gui);
@@ -59,7 +72,7 @@ int main()
 		project::draw(gui);
 		console::draw(gui);
 
-        gui->dockSpaceEnd();
+		gui->dockSpaceEnd();
 		gui->canvasEnd();
 
 		window->swap();

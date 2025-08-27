@@ -9750,22 +9750,24 @@
 	<wx/dcbuffer.h>
 	<wx/aui/framemanager.h>
 
-1746565547 source:d:\projects\kemena3d\kemena3d-studio\src\filemanager.cpp
-	"FileManager.h"
+1756064910 source:d:\projects\kemena3d\kemena3d-studio\src\filemanager.cpp
+	"filemanager.h"
 
-1746565640 d:\projects\kemena3d\kemena3d-studio\include\filemanager.h
+1756064866 d:\projects\kemena3d\kemena3d-studio\include\filemanager.h
 	<string>
 	<vector>
 	<map>
 	<random>
 	<iostream>
-	<wx/string.h>
-	<wx/dir.h>
-	<wx/log.h>
-	<wx/stdpaths.h>
-	<wx/filename.h>
-	<wx/msgdlg.h>
+	<filesystem>
+	<fstream>
+	<kemena/kwindow.h>
+	<portable-file-dialogs.h>
 	"Md5.h"
+	<windows.h>
+	<mach-o/dyld.h>
+	<unistd.h>
+	<limits.h>
 
 1744917394 d:\projects\kemena3d\kemena3d-studio\include\md5.h
 	<string>
@@ -12347,8 +12349,9 @@
 	"MainWindow.h"
 	"ScriptPane.h"
 
-1755628418 source:d:\projects\kemena3d\kemena3d-studio\main.cpp
+1756065015 source:d:\projects\kemena3d\kemena3d-studio\main.cpp
 	"kemena/kemena.h"
+	"filemanager.h"
 	"MainMenu.h"
 	"Panel_Scene.h"
 	"Panel_Inspector.h"
@@ -18726,7 +18729,7 @@
 	<memory>
 	<algorithm>
 
-1755627938 d:\projects\kemena3d\kemena3d-studio\include\mainmenu.h
+1756064869 d:\projects\kemena3d\kemena3d-studio\include\mainmenu.h
 	"kemena/kemena.h"
 	<SDL3/SDL_dialog.h>
 
@@ -18749,4 +18752,27 @@
 1755626957 d:\projects\kemena3d\kemena3d-studio\include\panel_scene.h
 	<algorithm>
 	"kemena/kemena.h"
+
+1594889372 d:\projects\kemena3d\kemena3d-studio\dep\portable-file-dialogs-0.1.0\portable-file-dialogs.h
+	<windows.h>
+	<commdlg.h>
+	<shlobj.h>
+	<shellapi.h>
+	<strsafe.h>
+	<future>
+	<emscripten.h>
+	<cstdio>
+	<cstdlib>
+	<fcntl.h>
+	<unistd.h>
+	<csignal>
+	<sys/wait.h>
+	<string>
+	<memory>
+	<iostream>
+	<map>
+	<unordered_set>
+	<regex>
+	<thread>
+	<chrono>
 

@@ -35,6 +35,7 @@
 			<Add option="-std=gnu++17" />
 			<Add option="-DKEMENA3D_STATIC" />
 			<Add directory="D:/Projects/Kemena3D/kemena3d/Output/include" />
+			<Add directory="dep/portable-file-dialogs-0.1.0" />
 		</Compiler>
 		<Linker>
 			<Add option="-static-libstdc++" />
@@ -61,12 +62,13 @@
 		<ExtraCommands>
 			<Add after='cmd /c copy &quot;$(PROJECT_DIR)res\fonts\inter.ttf&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)fonts\inter.ttf&quot;' />
 		</ExtraCommands>
-		<Unit filename="include/MainMenu.h" />
-		<Unit filename="include/Md5.h" />
-		<Unit filename="include/Panel_Console.h" />
-		<Unit filename="include/Panel_Hierarchy.h" />
-		<Unit filename="include/Panel_Inspector.h" />
-		<Unit filename="include/Panel_Project.h" />
+		<Unit filename="include/filemanager.h" />
+		<Unit filename="include/mainmenu.h" />
+		<Unit filename="include/md5.h" />
+		<Unit filename="include/panel_console.h" />
+		<Unit filename="include/panel_hierarchy.h" />
+		<Unit filename="include/panel_inspector.h" />
+		<Unit filename="include/panel_project.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="res/fonts/inter.ttf" />
 		<Unit filename="res/fonts/opensans.ttf" />
@@ -100,6 +102,7 @@
 		<Unit filename="resources.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
+		<Unit filename="src/filemanager.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 			<wxsmith version="1">

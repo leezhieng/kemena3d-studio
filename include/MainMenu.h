@@ -45,7 +45,7 @@ namespace mainmenu
 		}
 	}
 
-	void draw(kGuiManager* gui, kWindow* window)
+	void draw(kGuiManager* gui, kWindow* window, FileManager* file)
 	{
 		if (gui->menuBar())
 		{
@@ -59,8 +59,8 @@ namespace mainmenu
 				if (gui->menuItem("Save", "", false, false)) {}
 				if (gui->menuItem("Save As...", "", false, false)) {}
 				gui->separator();
-				if (gui->menuItem("New Project", "")) {}
-				if (gui->menuItem("Open Project", "")) {}
+				if (gui->menuItem("New Project", "")) { file->newProject(); }
+				if (gui->menuItem("Open Project", "")) { file->openProject(); }
 				if (gui->menuItem("Save Project", "", false, false)) {}
 				gui->separator();
 				if (gui->menuItem("Build Settings", "", false, false)) {}
