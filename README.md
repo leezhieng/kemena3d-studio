@@ -10,4 +10,4 @@ You can find the latest release, tutorials and additional information at: https:
 
 ## Screenshots
 
-![Editor Screenshot](https://kemena3d.com/site/wp-content/uploads/2025/05/image_2025-05-23_012541805.png)
+![Editor Screenshot](https://kemena3d.com/site/wp-content/uploads/2025/08/kemena3d_editor.png)
