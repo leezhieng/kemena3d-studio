@@ -1,12 +1,12 @@
 #include "kemena/kemena.h"
 
 #include "filemanager.h"
-#include "MainMenu.h"
-#include "Panel_Scene.h"
-#include "Panel_Inspector.h"
-#include "Panel_Hierarchy.h"
-#include "Panel_Project.h"
-#include "Panel_Console.h"
+#include "mainmenu.h"
+#include "panel_world.h"
+#include "panel_inspector.h"
+#include "panel_hierarchy.h"
+#include "panel_project.h"
+#include "panel_console.h"
 
 using namespace kemena;
 
@@ -16,8 +16,6 @@ const string windowTitle = "Kemena3D Studio";
 std::string projectName    = "New Game";
 std::string developerName  = "My Company";
 std::string projectVersion = "0.0.1";
-bool projectSaved = true;
-string worldName = "";
 
 int main()
 {
@@ -36,7 +34,7 @@ int main()
 	ImGui::LoadIniSettingsFromDisk("layout.ini");
 
 	// File manager
-    FileManager* fileManager = new FileManager();
+    FileManager* fileManager = new FileManager(window);
 
 	// Create the asset manager, world and scene
 	kAssetManager* assetManager = createAssetManager();
@@ -66,7 +64,7 @@ int main()
 
 		mainmenu::draw(gui, window, fileManager);
 
-		scene::draw(gui, renderer);
+		world::draw(gui, renderer);
 		inspector::draw(gui);
 		hierarchy::draw(gui);
 		project::draw(gui);

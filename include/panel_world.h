@@ -1,5 +1,5 @@
-#ifndef PANEL_SCENE_H
-#define PANEL_SCENE_H
+#ifndef PANEL_WORLD_H
+#define PANEL_WORLD_H
 
 #include <algorithm>
 
@@ -7,11 +7,11 @@
 
 using namespace kemena;
 
-namespace scene
+namespace world
 {
     void draw(kGuiManager* gui, kRenderer* renderer)
     {
-        ImGui::Begin("Scene");
+        ImGui::Begin("World");
 
         // (Optional) allow user to size the preview
         ImVec2 avail = ImGui::GetContentRegionAvail();

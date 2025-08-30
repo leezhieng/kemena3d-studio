@@ -12,7 +12,7 @@
 #include <kemena/kwindow.h>
 #include <portable-file-dialogs.h>
 
-#include "Md5.h"
+#include "md5.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -37,7 +37,7 @@ struct FileItem
 class FileManager
 {
 public:
-    FileManager();
+    FileManager(kWindow* setWindow);
     virtual ~FileManager();
 
     std::string getCurrentDirPath();
@@ -48,15 +48,28 @@ public:
     bool newProject();
     bool openProject();
 
+    void refreshWindowTitle();
+
     // Editor path and directory
     std::string exePath;
     std::string baseDir;
+
+    // Project info
+    std::string projectName;
+    bool projectOpened = false;
+    bool projectSaved = true;
 
     // Project path and directory
     std::string projectPath;
     std::vector<std::string> currentDir;
 
+    // World info
+    string worldName = "";
+
 private:
+    kWindow* window;
+    std::string initialWindowTitle;
+
     int initialResizeCount = 0;
 
     // Check project files

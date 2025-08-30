@@ -52,19 +52,19 @@ namespace mainmenu
 			// File menu
 			if (gui->menu("File"))
 			{
-				if (gui->menuItem("New Scene", "", false, false)) {}
-				if (gui->menuItem("Open Scene", "", false, false)) {}
-				if (gui->menuItem("Open Recent Scene", "", false, false)) {}
+				if (gui->menuItem("New Scene", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Open Scene", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Open Recent Scene", "", false, file->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Save", "", false, false)) {}
-				if (gui->menuItem("Save As...", "", false, false)) {}
+				if (gui->menuItem("Save", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Save As...", "", false, file->projectOpened)) {}
 				gui->separator();
 				if (gui->menuItem("New Project", "")) { file->newProject(); }
 				if (gui->menuItem("Open Project", "")) { file->openProject(); }
-				if (gui->menuItem("Save Project", "", false, false)) {}
+				if (gui->menuItem("Save Project", "", false, file->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Build Settings", "", false, false)) {}
-				if (gui->menuItem("Build And Run", "", false, false)) {}
+				if (gui->menuItem("Build Settings", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Build And Run", "", false, file->projectOpened)) {}
 				gui->separator();
 				if (gui->menuItem("Exit")) {}
 
@@ -74,34 +74,34 @@ namespace mainmenu
 			// Edit menu
 			if (gui->menu("Edit"))
 			{
-				if (gui->menuItem("Undo", "Ctrl+Z", false, false)) {}
-				if (gui->menuItem("Redo", "Ctrl+Y", false, false)) {}
-				if (gui->menuItem("Undo History", "", false, false)) {}
+				if (gui->menuItem("Undo", "Ctrl+Z", false, file->projectOpened)) {}
+				if (gui->menuItem("Redo", "Ctrl+Y", false, file->projectOpened)) {}
+				if (gui->menuItem("Undo History", "", false, file->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Select All", "", false, false)) {}
-				if (gui->menuItem("Deselect All", "", false, false)) {}
-				if (gui->menuItem("Select Children", "", false, false)) {}
-				if (gui->menuItem("Select Prefab Root", "", false, false)) {}
-				if (gui->menuItem("Invert Selection", "", false, false)) {}
+				if (gui->menuItem("Select All", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Deselect All", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Select Children", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Select Prefab Root", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Invert Selection", "", false, file->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Cut", "Ctrl+X", false, false)) {}
-				if (gui->menuItem("Copy", "Ctrl+C", false, false)) {}
-				if (gui->menuItem("Paste", "Ctrl+V", false, false)) {}
-				if (gui->menuItem("Paste As Child", "", false, false)) {}
+				if (gui->menuItem("Cut", "Ctrl+X", false, file->projectOpened)) {}
+				if (gui->menuItem("Copy", "Ctrl+C", false, file->projectOpened)) {}
+				if (gui->menuItem("Paste", "Ctrl+V", false, file->projectOpened)) {}
+				if (gui->menuItem("Paste As Child", "", false, file->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Frame Selected", "", false, false)) {}
-				if (gui->menuItem("Lock View To Selected", "", false, false)) {}
+				if (gui->menuItem("Frame Selected", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Lock View To Selected", "", false, file->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Play", "", false, false)) {}
-				if (gui->menuItem("Pause", "", false, false)) {}
+				if (gui->menuItem("Play", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Pause", "", false, file->projectOpened)) {}
 				gui->separator();
 				if (gui->menuItem("Sign In", "")) {}
 				if (gui->menuItem("Sign Out", "")) {}
 				gui->separator();
-				if (gui->menuItem("Project Settings", "", false, false)) {}
+				if (gui->menuItem("Project Settings", "", false, file->projectOpened)) {}
 				if (gui->menuItem("Preferences", "")) {}
 				if (gui->menuItem("Shortcuts", "")) {}
-				if (gui->menuItem("Clear All PlayerPrefs", "", false, false)) {}
+				if (gui->menuItem("Clear All PlayerPrefs", "", false, file->projectOpened)) {}
 
 				gui->menuEnd();
 			}
@@ -109,19 +109,19 @@ namespace mainmenu
 			// Assets Menu
 			if (gui->menu("Assets"))
 			{
-				if (gui->menuItem("Create", "", false, false)) {}
-				if (gui->menuItem("Show In Explorer", "", false, false)) {}
-				if (gui->menuItem("Open", "", false, false)) {}
-				if (gui->menuItem("Delete", "", false, false)) {}
-				if (gui->menuItem("Rename", "", false, false)) {}
-				if (gui->menuItem("Copy Path", "", false, false)) {}
+				if (gui->menuItem("Create", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Show In Explorer", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Open", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Delete", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Rename", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Copy Path", "", false, file->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Refresh", "", false, false)) {}
-				if (gui->menuItem("Reimport", "", false, false)) {}
+				if (gui->menuItem("Refresh", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Reimport", "", false, file->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Reimport All", "", false, false)) {}
+				if (gui->menuItem("Reimport All", "", false, file->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Generate Lighting", "", false, false)) {}
+				if (gui->menuItem("Generate Lighting", "", false, file->projectOpened)) {}
 
 				gui->menuEnd();
 			}
@@ -129,16 +129,16 @@ namespace mainmenu
 			// Object Menu
 			if (gui->menu("Object"))
 			{
-				if (gui->menuItem("Create Empty Parent", "", false, false)) {}
-				if (gui->menuItem("Create Empty Child", "", false, false)) {}
-				if (gui->menuItem("Create Empty", "", false, false)) {}
-				if (gui->menuItem("3D Object", "", false, false)) {}
-				if (gui->menuItem("Effects", "", false, false)) {}
-				if (gui->menuItem("Light", "", false, false)) {}
-				if (gui->menuItem("Audio", "", false, false)) {}
-				if (gui->menuItem("Video", "", false, false)) {}
-				if (gui->menuItem("UI", "", false, false)) {}
-				if (gui->menuItem("Camera", "", false, false)) {}
+				if (gui->menuItem("Create Empty Parent", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Create Empty Child", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Create Empty", "", false, file->projectOpened)) {}
+				if (gui->menuItem("3D Object", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Effects", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Light", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Audio", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Video", "", false, file->projectOpened)) {}
+				if (gui->menuItem("UI", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Camera", "", false, file->projectOpened)) {}
 
 				gui->menuEnd();
 			}
@@ -146,11 +146,11 @@ namespace mainmenu
 			// Component Menu
 			if (gui->menu("Component"))
 			{
-				if (gui->menuItem("Audio", "", false, false)) {}
-				if (gui->menuItem("Effect", "", false, false)) {}
-				if (gui->menuItem("Mesh", "", false, false)) {}
-				if (gui->menuItem("Physics", "", false, false)) {}
-				if (gui->menuItem("Scripts", "", false, false)) {}
+				if (gui->menuItem("Audio", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Effect", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Mesh", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Physics", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Scripts", "", false, file->projectOpened)) {}
 
 				gui->menuEnd();
 			}

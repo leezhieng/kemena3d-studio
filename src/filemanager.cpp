@@ -2,8 +2,11 @@
 
 namespace fs = std::filesystem;
 
-FileManager::FileManager()
+FileManager::FileManager(kWindow* setWindow)
 {
+    window = setWindow;
+    initialWindowTitle = window->getWindowTitle();
+
 	try
 	{
 #ifdef _WIN32
@@ -149,7 +152,12 @@ bool FileManager::newProject()
 {
 	auto path = pfd::select_folder("Select project folder").result();
 
-	if (path.empty() || !fs::exists(path) || !fs::is_directory(path))
+	if (path.empty())
+    {
+        return false;
+    }
+
+	if (!fs::exists(path) || !fs::is_directory(path))
 	{
 		std::string msg = "Directory does not exist:\n" + path;
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING,
@@ -174,6 +182,16 @@ bool FileManager::newProject()
 							 ("Project created at: " + fullPath.string()).c_str(),
 							 nullptr);
 
+    // Extract the folder name
+    projectName = fullPath.filename().string();
+	projectOpened = true;
+	projectSaved = false;
+	refreshWindowTitle();
+
+	projectPath = path;
+	currentDir.clear();
+	currentDir.push_back("Assets");
+
 	// TODO: Create project config file
 
 	return true;
@@ -183,7 +201,12 @@ bool FileManager::openProject()
 {
 	auto path = pfd::select_folder("Select project folder").result();
 
-	if (path.empty() || !fs::exists(path) || !fs::is_directory(path))
+	if (path.empty())
+    {
+        return false;
+    }
+
+	if (!fs::exists(path) || !fs::is_directory(path))
 	{
 		std::string msg = "Directory does not exist:\n" + path;
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING,
@@ -193,9 +216,11 @@ bool FileManager::openProject()
 		return false;
 	}
 
-	fs::path assetsPath  = fs::path(path) / "Assets";
-	fs::path libraryPath = fs::path(path) / "Library";
-	fs::path configPath  = fs::path(path) / "Config";
+	fs::path fullPath = fs::path(path);
+
+	fs::path assetsPath  = fullPath / "Assets";
+	fs::path libraryPath = fullPath / "Library";
+	fs::path configPath  = fullPath / "Config";
 
 	if (!(fs::exists(assetsPath) && fs::exists(libraryPath) && fs::exists(configPath)))
 	{
@@ -207,6 +232,12 @@ bool FileManager::openProject()
 		return false;
 	}
 
+	// Extract the folder name
+    projectName = fullPath.filename().string();
+	projectOpened = true;
+	projectSaved = false;
+	refreshWindowTitle();
+
 	projectPath = path;
 	currentDir.clear();
 	currentDir.push_back("Assets");
@@ -214,4 +245,22 @@ bool FileManager::openProject()
 	// TODO: check project config file
 
 	return true;
+}
+
+void FileManager::refreshWindowTitle()
+{
+    if (!projectOpened)
+    {
+        window->setWindowTitle(initialWindowTitle);
+    }
+    else
+    {
+        if (worldName == "")
+            window->setWindowTitle(initialWindowTitle + " - " + projectName + " - Untitled");
+        else
+            window->setWindowTitle(initialWindowTitle + " - " + projectName + " - " + worldName);
+
+        if (!projectSaved)
+            window->setWindowTitle(window->getWindowTitle() + "*");
+    }
 }
