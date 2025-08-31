@@ -22,7 +22,6 @@ namespace project
 		Node(const std::string& n) : name(n) {}
 	};
 
-	bool opened = true;
 	Node root("Assets");
 
 	void deselectAll(Node& root)
@@ -61,27 +60,33 @@ namespace project
 		}
 	}
 
-	void drawProjectPanel(Node& root, bool* pOpen)
+	void drawProjectPanel(Node& root, bool* opened, bool* enabled)
 	{
-		if (ImGui::Begin("Project", pOpen))
+	    if (!enabled)
+            ImGui::BeginDisabled(true);
+
+		if (ImGui::Begin("Project", opened))
 		{
 			drawNode(root, root);
 		}
 		ImGui::End();
+
+		if (!enabled)
+            ImGui::EndDisabled();
 	}
 
 	void init(kGuiManager* gui)
 	{
-		root.children.push_back(std::make_unique<Node>("Mesh"));
+		/*root.children.push_back(std::make_unique<Node>("Mesh"));
 		root.children.push_back(std::make_unique<Node>("Texture"));
 		root.children.push_back(std::make_unique<Node>("Audio"));
-		root.children.push_back(std::make_unique<Node>("Script"));
+		root.children.push_back(std::make_unique<Node>("Script"));*/
 	}
 
-	void draw(kGuiManager* gui)
+	void draw(kGuiManager* gui, bool& opened, bool enabled)
 	{
 	    if (opened)
-            drawProjectPanel(root, &opened);
+            drawProjectPanel(root, &opened, &enabled);
 	}
 }
 

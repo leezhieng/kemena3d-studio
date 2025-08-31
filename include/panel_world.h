@@ -9,8 +9,11 @@ using namespace kemena;
 
 namespace world
 {
-    void draw(kGuiManager* gui, kRenderer* renderer)
+    void draw(kGuiManager* gui, bool& opened, bool enabled, kRenderer* renderer)
     {
+        if (!enabled)
+            ImGui::BeginDisabled(true);
+
         ImGui::Begin("World");
 
         // (Optional) allow user to size the preview
@@ -22,6 +25,9 @@ namespace world
         ImGui::Image(tex_id, preview, ImVec2(0,1), ImVec2(1,0)); // flip Y so it appears right-side-up
 
         ImGui::End();
+
+        if (!enabled)
+            ImGui::EndDisabled();
     }
 }
 

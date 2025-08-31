@@ -35,7 +35,7 @@
 			<Add option="-std=gnu++17" />
 			<Add option="-DKEMENA3D_STATIC" />
 			<Add directory="D:/Projects/Kemena3D/kemena3d/Output/include" />
-			<Add directory="dep/portable-file-dialogs-0.1.0" />
+			<Add directory="dep/portable-file-dialogs" />
 		</Compiler>
 		<Linker>
 			<Add option="-static-libstdc++" />
@@ -69,6 +69,7 @@
 		<Unit filename="include/panel_hierarchy.h" />
 		<Unit filename="include/panel_inspector.h" />
 		<Unit filename="include/panel_project.h" />
+		<Unit filename="include/panel_world.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="res/fonts/inter.ttf" />
 		<Unit filename="res/fonts/opensans.ttf" />

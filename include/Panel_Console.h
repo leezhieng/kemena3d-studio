@@ -34,17 +34,18 @@ namespace console
 		return 0;
 	}
 
-	bool opened = true;
-
 	void init(kGuiManager* gui)
 	{
 	    addLog("Kemena3D Studio started", inputBuf);
 	}
 
-	void draw(kGuiManager* gui)
+	void draw(kGuiManager* gui, bool& opened, bool enabled)
 	{
 		if (opened)
 		{
+		    if (!enabled)
+                ImGui::BeginDisabled(true);
+
 			ImGui::Begin("Console", &opened);
 
 			// Main log display
@@ -82,6 +83,9 @@ namespace console
 			ImGui::PopItemWidth();
 
 			ImGui::End();
+
+			if (!enabled)
+                ImGui::EndDisabled();
 		}
 	}
 }

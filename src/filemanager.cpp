@@ -209,10 +209,7 @@ bool FileManager::openProject()
 	if (!fs::exists(path) || !fs::is_directory(path))
 	{
 		std::string msg = "Directory does not exist:\n" + path;
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING,
-								 "Invalid Directory",
-								 msg.c_str(),
-								 nullptr);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Invalid Directory", msg.c_str(), nullptr);
 		return false;
 	}
 
@@ -225,10 +222,7 @@ bool FileManager::openProject()
 	if (!(fs::exists(assetsPath) && fs::exists(libraryPath) && fs::exists(configPath)))
 	{
 		std::string msg = "Failed to open project. Invalid directory structure.\n";
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING,
-								 "Invalid Directory",
-								 msg.c_str(),
-								 nullptr);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Invalid Directory", msg.c_str(), nullptr);
 		return false;
 	}
 

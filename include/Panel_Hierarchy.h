@@ -22,7 +22,6 @@ namespace hierarchy
 		Node(const std::string& n) : name(n) {}
 	};
 
-	bool opened = true;
 	Node root("World");
 
 	void deselectAll(Node& root)
@@ -61,27 +60,30 @@ namespace hierarchy
 		}
 	}
 
-	void drawHierarchyPanel(Node& root, bool* pOpen)
+	void drawHierarchyPanel(Node& root, bool* opened, bool enabled)
 	{
-		if (ImGui::Begin("Hierarchy", pOpen))
+	    if (!enabled)
+            ImGui::BeginDisabled(true);
+
+		if (ImGui::Begin("Hierarchy", opened))
 		{
 			drawNode(root, root);
 		}
 		ImGui::End();
+
+		if (!enabled)
+            ImGui::EndDisabled();
 	}
 
 	void init(kGuiManager* gui)
 	{
-		root.children.push_back(std::make_unique<Node>("Cube"));
-		root.children.push_back(std::make_unique<Node>("Cube2"));
-		root.children.push_back(std::make_unique<Node>("Cube3"));
-		root.children.push_back(std::make_unique<Node>("Cube4"));
+		//root.children.push_back(std::make_unique<Node>("Scene"));
 	}
 
-	void draw(kGuiManager* gui)
+	void draw(kGuiManager* gui, bool& opened, bool enabled)
 	{
 	    if (opened)
-            drawHierarchyPanel(root, &opened);
+            drawHierarchyPanel(root, &opened, &enabled);
 	}
 }
 

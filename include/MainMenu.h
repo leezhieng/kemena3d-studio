@@ -52,9 +52,9 @@ namespace mainmenu
 			// File menu
 			if (gui->menu("File"))
 			{
-				if (gui->menuItem("New Scene", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Open Scene", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Open Recent Scene", "", false, file->projectOpened)) {}
+				if (gui->menuItem("New World", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Open World", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Open Recent World", "", false, file->projectOpened)) {}
 				gui->separator();
 				if (gui->menuItem("Save", "", false, file->projectOpened)) {}
 				if (gui->menuItem("Save As...", "", false, file->projectOpened)) {}
@@ -129,6 +129,8 @@ namespace mainmenu
 			// Object Menu
 			if (gui->menu("Object"))
 			{
+			    if (gui->menuItem("Create Scene", "", false, file->projectOpened)) {}
+				gui->separator();
 				if (gui->menuItem("Create Empty Parent", "", false, file->projectOpened)) {}
 				if (gui->menuItem("Create Empty Child", "", false, file->projectOpened)) {}
 				if (gui->menuItem("Create Empty", "", false, file->projectOpened)) {}
@@ -239,6 +241,8 @@ namespace mainmenu
 					gui->separator();
 					if (gui->menuItem("Reset", ""))
 					{
+					    string filePath = file->baseDir + "/layout.ini";
+					    ImGui::LoadIniSettingsFromDisk(filePath.c_str());
 					}
 
 					gui->menuEnd();
@@ -252,7 +256,10 @@ namespace mainmenu
 			{
 				if (gui->menuItem("About", "")) {}
 				gui->separator();
-				if (gui->menuItem("Manual", "")) {}
+				if (gui->menuItem("Manual", ""))
+                {
+                    SDL_OpenURL("https://kemena3d.com/manual");
+                }
 				if (gui->menuItem("Scripting Reference", "")) {}
 				gui->separator();
 				if (gui->menuItem("Release Notes", "")) {}
