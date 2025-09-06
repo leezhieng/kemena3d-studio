@@ -34,6 +34,9 @@ class PanelHierarchy
 			bool isSelected = false;
 			std::vector<std::unique_ptr<Node>> children;
 
+			std::string guid;
+			ImTextureID icon;
+
 			Node(const std::string& n) : name(n) {}
 		};
 

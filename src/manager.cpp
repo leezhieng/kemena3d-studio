@@ -149,6 +149,25 @@ std::string Manager::getRandomString(int stringLength)
 	return randomString;
 }
 
+std::string Manager::generateGuid()
+{
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<uint32_t> dist(0, 0xFFFFFFFF);
+
+    auto to_hex = [](uint32_t value, int width) {
+        std::stringstream ss;
+        ss << std::hex << std::setfill('0') << std::setw(width) << value;
+        return ss.str();
+    };
+
+    return to_hex(dist(gen), 8) + "-" +
+           to_hex(dist(gen) >> 16, 4) + "-" +
+           to_hex(dist(gen) >> 16, 4) + "-" +
+           to_hex(dist(gen) >> 16, 4) + "-" +
+           to_hex(dist(gen), 12);
+}
+
 void Manager::openFolder(string name)
 {
 	currentDir.push_back(name);

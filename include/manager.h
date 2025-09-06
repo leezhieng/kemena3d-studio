@@ -9,6 +9,9 @@
 #include <filesystem>
 #include <fstream>
 
+#include <sstream>
+#include <iomanip>
+
 #include <kemena/kwindow.h>
 #include <kemena/kworld.h>
 #include <portable-file-dialogs.h>
@@ -51,6 +54,7 @@ public:
     void checkAssetsChange(const std::string& path, bool recursive = true);
     std::string fileChecksum(const std::string& fileName);
     std::string getRandomString(int stringLength);
+    std::string generateGuid();
 
     void openFolder(string name);
     void closeFolder();

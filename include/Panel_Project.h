@@ -52,17 +52,22 @@ class PanelProject
 			bool isSelected = false;
 			std::vector<std::unique_ptr<Node>> children;
 
-			Node(const std::string& n) : name(n) {}
+			std::string guid;
+			ImTextureRef icon = nullptr;
+			int type = 0; // 0 - Folder, 1 - File
+
+			Node(const std::string& n, const std::string& g, ImTextureRef i = nullptr, int t = 0) : name(n), guid(g), icon(i), type(t) {}
 		};
 
 		Node root;
+		bool needRefreshList = false;
 
 	public:
 	    PanelProject();
 
 		void init(Manager* setManager, kAssetManager* assetManager);
 		void deselectAll(Node& root);
-		void drawNode(Node& node, Node& root);
+		void drawNode(Node& node, Node& root, int level = 0);
 		void drawProjectPanel(Node& root, bool* opened, bool enabled);
 		void draw(kGuiManager* gui, bool& opened, bool enabled);
 		void refreshList();

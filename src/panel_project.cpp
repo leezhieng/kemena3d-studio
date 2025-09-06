@@ -3,7 +3,7 @@
 using namespace kemena;
 
 PanelProject::PanelProject()
-    : root("Assets")
+    : root("Assets", "", nullptr, 0)
 {
 }
 
@@ -62,6 +62,8 @@ void PanelProject::init(Manager* setManager, kAssetManager* assetManager)
 
 	kTexture2D* tex_other = assetManager->loadTexture2DFromResource("ICON_OTHER_FILE", "icon", kTextureFormat::TEX_FORMAT_RGBA);
 	iconOther = (ImTextureRef)(intptr_t)tex_other->getTextureID();
+
+	root = Node("Asset", "", (ImTextureID)(intptr_t)tex_folder->getTextureID(), 0);
 }
 
 void PanelProject::deselectAll(Node& root)
@@ -73,19 +75,39 @@ void PanelProject::deselectAll(Node& root)
 	}
 }
 
-void PanelProject::drawNode(Node& node, Node& root)
+void PanelProject::drawNode(Node& node, Node& root, int level)
 {
-	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen;
 	if (node.isSelected) flags |= ImGuiTreeNodeFlags_Selected;
 	if (node.children.empty()) flags |= ImGuiTreeNodeFlags_Leaf;
 
-	bool nodeOpen = ImGui::TreeNodeEx(node.name.c_str(), flags);
+	// Draw the icon
+    ImGui::Image(node.icon, ImVec2(16, 16));
+
+    ImGui::SameLine();
+
+	//bool nodeOpen = ImGui::TreeNodeEx(node.guid.c_str(), flags, "%s", node.name.c_str());
+	bool nodeOpen = ImGui::TreeNodeEx(node.name.c_str(), flags, "%s", node.name.c_str());
 
 	// Detect double-click on this tree node
 	if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 	{
 		// Handle double-click
-		printf("Double-clicked: %s\n", node.name.c_str());
+		//std::cout << "Double-clicked: " << node.name.c_str() << " ,Level:" << level << std::endl;
+
+		if (node.type == 0)
+        {
+            if (level == 0)
+            {
+                manager->closeFolder();
+                needRefreshList = true;
+            }
+            else if (level == 1)
+            {
+                manager->openFolder(node.name);
+                needRefreshList = true;
+            }
+        }
 	}
 
 	if (ImGui::IsItemClicked())
@@ -99,9 +121,11 @@ void PanelProject::drawNode(Node& node, Node& root)
 
 	if (nodeOpen)
 	{
+	    level++;
+
 		for (auto& child : node.children)
 		{
-			drawNode(*child, root);
+			drawNode(*child, root, level);
 		}
 		ImGui::TreePop();
 	}
@@ -128,6 +152,9 @@ void PanelProject::drawProjectPanel(Node& root, bool* opened, bool enabled)
 								   ImVec4(0, 0, 0, 0), // Background color
 								   upTint)) // Tint color
 			{
+			    // Move up directory
+			    manager->closeFolder();
+                needRefreshList = true;
 			}
 			upTint = ImGui::IsItemActive() ? ImVec4(1,1,1,0.5f) : ImVec4(1,1,1,1);
 		}
@@ -245,7 +272,12 @@ void PanelProject::drawProjectPanel(Node& root, bool* opened, bool enabled)
 void PanelProject::draw(kGuiManager* gui, bool& opened, bool enabled)
 {
 	if (opened)
-		drawProjectPanel(root, &opened, enabled);
+    {
+        if (needRefreshList)
+            refreshList();
+
+        drawProjectPanel(root, &opened, enabled);
+    }
 }
 
 void PanelProject::refreshList()
@@ -266,7 +298,13 @@ void PanelProject::refreshList()
 			std::string lastFolder = path.filename().string();
 			//std::cout << "Last folder: " << lastFolder << "\n";
 
-			root = Node(lastFolder);
+            // Reset root safely
+			root.name = lastFolder;
+            root.guid = "";
+            root.icon = iconFolder;
+            root.type = 0;
+            root.isSelected = false;
+            root.children.clear();
 		}
 
 		// Loop through all the folders and files in path
@@ -276,29 +314,63 @@ void PanelProject::refreshList()
 			return;
 		}
 
-		for (const auto& entry : fs::directory_iterator(path))
+		// Do directory first
 		{
-			if (entry.is_directory())
-			{
-				//std::cout << "[DIR]  " << entry.path().filename().string() << "\n";
+		    if (!fs::is_empty(path))
+            {
+                for (const auto& entry : fs::directory_iterator(path))
+                {
+                    if (entry.is_directory())
+                    {
+                        //std::cout << "[DIR]  " << entry.path().filename().string() << "\n";
 
-				// Add to list
-				root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string()));
-			}
-			else if (entry.is_regular_file())
-			{
-				//std::cout << "[FILE] " << entry.path().filename().string() << "\n";
+                        // Add to list
+                        root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconFolder, 0));
+                    }
+                }
+            }
+		}
 
-				auto ext = entry.path().extension().string();
-				if (ext == ".png" || ext == ".jpg") {}
+		// Do files
+		{
+		    if (!fs::is_empty(path))
+            {
+                for (const auto& entry : fs::directory_iterator(path))
+                {
+                    if (entry.is_regular_file())
+                    {
+                        //std::cout << "[FILE] " << entry.path().filename().string() << "\n";
 
-				// Add to list
-				root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string()));
-			}
-			else
-			{
-				// Don't display anything if it's not a folder or file (could be symlink, drive, etc.)
-			}
+                        auto ext = entry.path().extension().string();
+
+                        // Add to list
+                        if (ext == ".txt" || ext == ".json")
+                            root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconText, 1));
+                        else if (ext == ".jpg" || ext == ".png" || ext == ".tga")
+                            root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconImage, 1));
+                        else if (ext == ".as")
+                            root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconScript, 1));
+                        else if (ext == ".mp3" || ext == ".wav" || ext == ".ogg")
+                            root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconAudio, 1));
+                        else if (ext == ".mp4" || ext == ".avi" || ext == ".mov")
+                            root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconVideo, 1));
+                        else if (ext == ".fbx" || ext == ".obj" || ext == ".gltf" || ext == ".glb")
+                            root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconModel, 1));
+                        else if (ext == ".pfb")
+                            root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconPrefab, 1));
+                        else if (ext == ".world")
+                            root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconWorld, 1));
+                        else if (ext == ".mat")
+                            root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconMaterial, 1));
+                        else
+                            root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconOther, 1));
+                    }
+                    else
+                    {
+                        // Don't display anything if it's not a folder or file (could be symlink, drive, etc.)
+                    }
+                }
+            }
 		}
 	}
 }
