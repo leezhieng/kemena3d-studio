@@ -1,9 +1,45 @@
 APP_ICON ICON "res/icons/app.ico"
 
+// Fonts
+FONT_OPENSANS RCDATA "res/fonts/opensans.ttf"
+
+// Default skybox
+TEXTURE_SKYBOX_LEFT RCDATA "res/textures/skybox/left.tga"
+TEXTURE_SKYBOX_RIGHT RCDATA "res/textures/skybox/right.tga"
+TEXTURE_SKYBOX_FRONT RCDATA "res/textures/skybox/front.tga"
+TEXTURE_SKYBOX_BACK RCDATA "res/textures/skybox/back.tga"
+TEXTURE_SKYBOX_TOP RCDATA "res/textures/skybox/top.tga"
+TEXTURE_SKYBOX_BOTTOM RCDATA "res/textures/skybox/bottom.tga"
+
+// Shaders
+SHADER_VERTEX_GRID RCDATA "res/shaders/grid.vert"
+SHADER_FRAGMENT_GRID RCDATA "res/shaders/grid.frag"
+
+// Button icons
 ICON_FOLDER_UP_BUTTON RCDATA "res/icons/button/folder_up.png"
-ICON_FOLDER_UP_BUTTON_PRESSED RCDATA "res/icons/button/folder_up_pr.png"
 ICON_ADD_ROUND_BUTTON RCDATA "res/icons/button/add.png"
-ICON_ADD_ROUND_BUTTON_PRESSED RCDATA "res/icons/button/add_pr.png"
+
+// Label icons
+ICON_MAGNIFIER_LABEL RCDATA "res/icons/label/magnifier.png"
+ICON_SCENE_LABEL RCDATA "res/icons/label/scene.png"
+ICON_HIERARCHY_LABEL RCDATA "res/icons/label/hierarchy.png"
+
+// File icons
+ICON_FOLDER_FILE RCDATA "res/icons/file/folder.png"
+ICON_TEXT_FILE RCDATA "res/icons/file/text.png"
+ICON_IMAGE_FILE RCDATA "res/icons/file/image.png"
+ICON_SCRIPT_FILE RCDATA "res/icons/file/script.png"
+ICON_AUDIO_FILE RCDATA "res/icons/file/audio.png"
+ICON_VIDEO_FILE RCDATA "res/icons/file/video.png"
+ICON_MODEL_FILE RCDATA "res/icons/file/model.png"
+ICON_PREFAB_FILE RCDATA "res/icons/file/prefab.png"
+ICON_WORLD_FILE RCDATA "res/icons/file/world.png"
+ICON_MATERIAL_FILE RCDATA "res/icons/file/material.png"
+ICON_OTHER_FILE RCDATA "res/icons/file/file.png"
+
+
+
+
 
 ICON_DETACH_BUTTON RCDATA "res/icons/button/detach.png"
 ICON_MAXIMIZE_BUTTON RCDATA "res/icons/button/scalability.png"
@@ -13,8 +49,6 @@ ICON_PLAY_BUTTON ICON "res/icons/button/play.ico"
 ICON_SETTINGS_BUTTON ICON "res/icons/button/gear.ico"
 
 ICON_FOLDER_LABEL RCDATA "res/icons/label/folder.png"
-ICON_HIERARCHY_LABEL RCDATA "res/icons/label/hierarchy.png"
-ICON_SCENE_LABEL RCDATA "res/icons/label/scene.png"
 ICON_INFO_LABEL RCDATA "res/icons/label/info.png"
 ICON_TERMINAL_LABEL RCDATA "res/icons/label/terminal.png"
 ICON_SCRIPT_LABEL RCDATA "res/icons/label/script.png"
@@ -24,15 +58,3 @@ ICON_MESH_LABEL RCDATA "res/icons/label/cube.png"
 ICON_PREFAB_LABEL RCDATA "res/icons/label/cube-black.png"
 ICON_LIGHT_LABEL RCDATA "res/icons/label/light.png"
 ICON_CAMERA_LABEL RCDATA "res/icons/label/camera.png"
-
-ICON_FOLDER_FILE RCDATA "res/icons/file/folder.png"
-ICON_TEXT_FILE ICON "res/icons/file/text.ico"
-ICON_IMAGE_FILE RCDATA "res/icons/file/image.png"
-ICON_SCRIPT_FILE RCDATA "res/icons/file/script.png"
-ICON_AUDIO_FILE RCDATA "res/icons/file/audio.png"
-ICON_VIDEO_FILE RCDATA "res/icons/file/video.png"
-ICON_MODEL_FILE RCDATA "res/icons/file/model.png"
-ICON_PREFAB_FILE RCDATA "res/icons/file/prefab.png"
-ICON_WORLD_FILE RCDATA "res/icons/file/world.png"
-ICON_MATERIAL_FILE RCDATA "res/icons/file/material.png"
-ICON_OTHER_FILE ICON "res/icons/file/file.ico"

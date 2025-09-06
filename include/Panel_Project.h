@@ -3,6 +3,8 @@
 
 #include "kemena/kemena.h"
 
+#include "manager.h"
+
 #include <imgui.h>
 #include <vector>
 #include <string>
@@ -11,84 +13,60 @@
 
 using namespace kemena;
 
-namespace project
+class Manager;
+
+class PanelProject
 {
-	struct Node
-	{
-		std::string name;
-		bool isSelected = false;
-		std::vector<std::unique_ptr<Node>> children;
+	private:
+		Manager* manager;
 
-		Node(const std::string& n) : name(n) {}
-	};
+		ImTextureRef iconUp;
+		ImTextureRef iconAdd;
+		ImTextureRef iconMag;
 
-	Node root("Assets");
+		ImTextureRef iconFolder;
+		ImTextureRef iconText;
+		ImTextureRef iconImage;
+		ImTextureRef iconScript;
+		ImTextureRef iconAudio;
+		ImTextureRef iconVideo;
+		ImTextureRef iconModel;
+		ImTextureRef iconPrefab;
+		ImTextureRef iconWorld;
+		ImTextureRef iconMaterial;
+		ImTextureRef iconOther;
 
-	void deselectAll(Node& root)
-	{
-		root.isSelected = false;
-		for (auto& child : root.children)
+		char searchBuffer[128] = "";
+
+		ImVec4 upTint = ImVec4(1, 1, 1, 1);
+		ImVec4 addTint = ImVec4(1, 1, 1, 1);
+
+		ImTextureRef iconList;
+		ImTextureRef iconThumbnail;
+
+		bool displayThumbnail = false;
+
+		struct Node
 		{
-			deselectAll(*child);
-		}
-	}
+			std::string name;
+			bool isSelected = false;
+			std::vector<std::unique_ptr<Node>> children;
 
-	void drawNode(Node& node, Node& root)
-	{
-		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-		if (node.isSelected) flags |= ImGuiTreeNodeFlags_Selected;
-		if (node.children.empty()) flags |= ImGuiTreeNodeFlags_Leaf;
+			Node(const std::string& n) : name(n) {}
+		};
 
-		bool nodeOpen = ImGui::TreeNodeEx(node.name.c_str(), flags);
+		Node root;
 
-		if (ImGui::IsItemClicked())
-		{
-			if (!ImGui::GetIO().KeyShift)
-			{
-				deselectAll(root);
-			}
-			node.isSelected = !node.isSelected || ImGui::GetIO().KeyShift;
-		}
+	public:
+	    PanelProject();
 
-		if (nodeOpen)
-		{
-			for (auto& child : node.children)
-			{
-				drawNode(*child, root);
-			}
-			ImGui::TreePop();
-		}
-	}
-
-	void drawProjectPanel(Node& root, bool* opened, bool* enabled)
-	{
-	    if (!enabled)
-            ImGui::BeginDisabled(true);
-
-		if (ImGui::Begin("Project", opened))
-		{
-			drawNode(root, root);
-		}
-		ImGui::End();
-
-		if (!enabled)
-            ImGui::EndDisabled();
-	}
-
-	void init(kGuiManager* gui)
-	{
-		/*root.children.push_back(std::make_unique<Node>("Mesh"));
-		root.children.push_back(std::make_unique<Node>("Texture"));
-		root.children.push_back(std::make_unique<Node>("Audio"));
-		root.children.push_back(std::make_unique<Node>("Script"));*/
-	}
-
-	void draw(kGuiManager* gui, bool& opened, bool enabled)
-	{
-	    if (opened)
-            drawProjectPanel(root, &opened, &enabled);
-	}
-}
+		void init(Manager* setManager, kAssetManager* assetManager);
+		void deselectAll(Node& root);
+		void drawNode(Node& node, Node& root);
+		void drawProjectPanel(Node& root, bool* opened, bool enabled);
+		void draw(kGuiManager* gui, bool& opened, bool enabled);
+		void refreshList();
+};
 
 #endif
 

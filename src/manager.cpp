@@ -1,11 +1,12 @@
-#include "filemanager.h"
+#include "manager.h"
 
 namespace fs = std::filesystem;
 
-FileManager::FileManager(kWindow* setWindow)
+Manager::Manager(kWindow* setWindow, kWorld* setWorld)
 {
-    window = setWindow;
-    initialWindowTitle = window->getWindowTitle();
+	window = setWindow;
+	world = setWorld;
+	initialWindowTitle = window->getWindowTitle();
 
 	try
 	{
@@ -50,9 +51,9 @@ FileManager::FileManager(kWindow* setWindow)
 	}
 }
 
-FileManager::~FileManager() = default;
+Manager::~Manager() = default;
 
-std::string FileManager::getCurrentDirPath()
+std::string Manager::getCurrentDirPath()
 {
 	fs::path path = projectPath;
 
@@ -64,7 +65,7 @@ std::string FileManager::getCurrentDirPath()
 	return path.string();
 }
 
-void FileManager::checkAssetsChange(const std::string& path, bool recursive)
+void Manager::checkAssetsChange(const std::string& path, bool recursive)
 {
 	if (!fs::exists(path) || !fs::is_directory(path))
 	{
@@ -104,7 +105,7 @@ void FileManager::checkAssetsChange(const std::string& path, bool recursive)
 	}
 }
 
-std::string FileManager::fileChecksum(const std::string& fileName)
+std::string Manager::fileChecksum(const std::string& fileName)
 {
 	std::ifstream file(fileName, std::ios::binary);
 	if (!file.is_open())
@@ -128,7 +129,7 @@ std::string FileManager::fileChecksum(const std::string& fileName)
 	return md5.final();
 }
 
-std::string FileManager::getRandomString(int stringLength)
+std::string Manager::getRandomString(int stringLength)
 {
 	const std::string possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
 
@@ -148,14 +149,58 @@ std::string FileManager::getRandomString(int stringLength)
 	return randomString;
 }
 
-bool FileManager::newProject()
+void Manager::openFolder(string name)
 {
+	currentDir.push_back(name);
+}
+
+void Manager::closeFolder()
+{
+	if (currentDir.size() > 1)
+	{
+		currentDir.pop_back();
+	}
+}
+
+bool Manager::newProject()
+{
+	// Check if project is saved
+	if (!projectSaved)
+	{
+		const SDL_MessageBoxButtonData buttons[] =
+		{
+			{ SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "No"  },
+			{ SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Yes" }
+		};
+
+		const SDL_MessageBoxData messageboxdata =
+		{
+			SDL_MESSAGEBOX_WARNING,
+			window->getSdlWindow(),
+			"Unsaved Project",
+			"You have unsaved changes. Do you want to create a new project without saving?",
+			SDL_arraysize(buttons),
+			buttons,
+			nullptr // no custom colors
+		};
+
+		int buttonid = -1;
+		if (!SDL_ShowMessageBox(&messageboxdata, &buttonid))
+		{
+			SDL_Log("Error showing message box: %s", SDL_GetError());
+			return false;
+		}
+
+		if (buttonid != 1)
+			return false;
+	}
+
 	auto path = pfd::select_folder("Select project folder").result();
 
 	if (path.empty())
-    {
-        return false;
-    }
+	{
+		return false;
+	}
 
 	if (!fs::exists(path) || !fs::is_directory(path))
 	{
@@ -182,8 +227,8 @@ bool FileManager::newProject()
 							 ("Project created at: " + fullPath.string()).c_str(),
 							 nullptr);
 
-    // Extract the folder name
-    projectName = fullPath.filename().string();
+	// Extract the folder name
+	projectName = fullPath.filename().string();
 	projectOpened = true;
 	projectSaved = false;
 	refreshWindowTitle();
@@ -194,17 +239,56 @@ bool FileManager::newProject()
 
 	// TODO: Create project config file
 
+	if (panelProject != nullptr)
+        panelProject->refreshList();
+
+	// WIP: Load scenes of the world
+
+	if (panelHierarchy != nullptr)
+        panelHierarchy->refreshList();
+
 	return true;
 }
 
-bool FileManager::openProject()
+bool Manager::openProject()
 {
+	// Check if project is saved
+	if (!projectSaved)
+	{
+		const SDL_MessageBoxButtonData buttons[] =
+		{
+			{ SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "No"  },
+			{ SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Yes" }
+		};
+
+		const SDL_MessageBoxData messageboxdata =
+		{
+			SDL_MESSAGEBOX_WARNING,
+			window->getSdlWindow(),
+			"Unsaved Project",
+			"You have unsaved changes. Do you want to open a new project without saving?",
+			SDL_arraysize(buttons),
+			buttons,
+			nullptr // no custom colors
+		};
+
+		int buttonid = -1;
+		if (!SDL_ShowMessageBox(&messageboxdata, &buttonid))
+		{
+			SDL_Log("Error showing message box: %s", SDL_GetError());
+			return false;
+		}
+
+		if (buttonid != 1)
+			return false;
+	}
+
 	auto path = pfd::select_folder("Select project folder").result();
 
 	if (path.empty())
-    {
-        return false;
-    }
+	{
+		return false;
+	}
 
 	if (!fs::exists(path) || !fs::is_directory(path))
 	{
@@ -227,7 +311,7 @@ bool FileManager::openProject()
 	}
 
 	// Extract the folder name
-    projectName = fullPath.filename().string();
+	projectName = fullPath.filename().string();
 	projectOpened = true;
 	projectSaved = false;
 	refreshWindowTitle();
@@ -238,23 +322,31 @@ bool FileManager::openProject()
 
 	// TODO: check project config file
 
+	if (panelProject != nullptr)
+        panelProject->refreshList();
+
+	// WIP: Load scenes of the world
+
+	if (panelHierarchy != nullptr)
+        panelHierarchy->refreshList();
+
 	return true;
 }
 
-void FileManager::refreshWindowTitle()
+void Manager::refreshWindowTitle()
 {
-    if (!projectOpened)
-    {
-        window->setWindowTitle(initialWindowTitle);
-    }
-    else
-    {
-        if (worldName == "")
-            window->setWindowTitle(initialWindowTitle + " - " + projectName + " - Untitled");
-        else
-            window->setWindowTitle(initialWindowTitle + " - " + projectName + " - " + worldName);
+	if (!projectOpened)
+	{
+		window->setWindowTitle(initialWindowTitle);
+	}
+	else
+	{
+		if (worldName == "")
+			window->setWindowTitle(initialWindowTitle + " - " + projectName + " - Untitled");
+		else
+			window->setWindowTitle(initialWindowTitle + " - " + projectName + " - " + worldName);
 
-        if (!projectSaved)
-            window->setWindowTitle(window->getWindowTitle() + "*");
-    }
+		if (!projectSaved)
+			window->setWindowTitle(window->getWindowTitle() + "*");
+	}
 }

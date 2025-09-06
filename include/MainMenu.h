@@ -3,6 +3,8 @@
 
 #include "kemena/kemena.h"
 
+#include "datatype.h"
+
 #include <SDL3/SDL_dialog.h>
 
 using namespace kemena;
@@ -41,30 +43,33 @@ namespace mainmenu
 		{
 			const char* path = filelist[0];
 			SDL_Log("Loading layout from: %s", path);
-			ImGui::LoadIniSettingsFromDisk(path);
+			//ImGui::LoadIniSettingsFromDisk(path);
+
+			isReloadLayout = true;
+			layoutFileName = path;
 		}
 	}
 
-	void draw(kGuiManager* gui, kWindow* window, FileManager* file)
+	void draw(kGuiManager* gui, kWindow* window, Manager* manager, ShowPanel& showPanel)
 	{
 		if (gui->menuBar())
 		{
 			// File menu
 			if (gui->menu("File"))
 			{
-				if (gui->menuItem("New World", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Open World", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Open Recent World", "", false, file->projectOpened)) {}
+				if (gui->menuItem("New World", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Open World", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Open Recent World", "", false, manager->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Save", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Save As...", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Save", "Ctrl+S", false, manager->projectOpened)) {}
+				if (gui->menuItem("Save As...", "", false, manager->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("New Project", "")) { file->newProject(); }
-				if (gui->menuItem("Open Project", "")) { file->openProject(); }
-				if (gui->menuItem("Save Project", "", false, file->projectOpened)) {}
+				if (gui->menuItem("New Project", "")) { manager->newProject(); }
+				if (gui->menuItem("Open Project", "")) { manager->openProject(); }
+				if (gui->menuItem("Save Project", "", false, manager->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Build Settings", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Build And Run", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Build Settings", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Build And Run", "", false, manager->projectOpened)) {}
 				gui->separator();
 				if (gui->menuItem("Exit")) {}
 
@@ -74,34 +79,34 @@ namespace mainmenu
 			// Edit menu
 			if (gui->menu("Edit"))
 			{
-				if (gui->menuItem("Undo", "Ctrl+Z", false, file->projectOpened)) {}
-				if (gui->menuItem("Redo", "Ctrl+Y", false, file->projectOpened)) {}
-				if (gui->menuItem("Undo History", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Undo", "Ctrl+Z", false, manager->projectOpened)) {}
+				if (gui->menuItem("Redo", "Ctrl+Y", false, manager->projectOpened)) {}
+				if (gui->menuItem("Undo History", "", false, manager->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Select All", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Deselect All", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Select Children", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Select Prefab Root", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Invert Selection", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Select All", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Deselect All", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Select Children", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Select Prefab Root", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Invert Selection", "", false, manager->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Cut", "Ctrl+X", false, file->projectOpened)) {}
-				if (gui->menuItem("Copy", "Ctrl+C", false, file->projectOpened)) {}
-				if (gui->menuItem("Paste", "Ctrl+V", false, file->projectOpened)) {}
-				if (gui->menuItem("Paste As Child", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Cut", "Ctrl+X", false, manager->projectOpened)) {}
+				if (gui->menuItem("Copy", "Ctrl+C", false, manager->projectOpened)) {}
+				if (gui->menuItem("Paste", "Ctrl+V", false, manager->projectOpened)) {}
+				if (gui->menuItem("Paste As Child", "", false, manager->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Frame Selected", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Lock View To Selected", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Frame Selected", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Lock View To Selected", "", false, manager->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Play", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Pause", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Play", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Pause", "", false, manager->projectOpened)) {}
 				gui->separator();
 				if (gui->menuItem("Sign In", "")) {}
 				if (gui->menuItem("Sign Out", "")) {}
 				gui->separator();
-				if (gui->menuItem("Project Settings", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Project Settings", "", false, manager->projectOpened)) {}
 				if (gui->menuItem("Preferences", "")) {}
 				if (gui->menuItem("Shortcuts", "")) {}
-				if (gui->menuItem("Clear All PlayerPrefs", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Clear All PlayerPrefs", "", false, manager->projectOpened)) {}
 
 				gui->menuEnd();
 			}
@@ -109,19 +114,19 @@ namespace mainmenu
 			// Assets Menu
 			if (gui->menu("Assets"))
 			{
-				if (gui->menuItem("Create", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Show In Explorer", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Open", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Delete", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Rename", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Copy Path", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Create", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Show In Explorer", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Open", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Delete", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Rename", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Copy Path", "", false, manager->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Refresh", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Reimport", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Refresh", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Reimport", "", false, manager->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Reimport All", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Reimport All", "", false, manager->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Generate Lighting", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Generate Lighting", "", false, manager->projectOpened)) {}
 
 				gui->menuEnd();
 			}
@@ -129,18 +134,18 @@ namespace mainmenu
 			// Object Menu
 			if (gui->menu("Object"))
 			{
-			    if (gui->menuItem("Create Scene", "", false, file->projectOpened)) {}
+			    if (gui->menuItem("Create Scene", "", false, manager->projectOpened)) {}
 				gui->separator();
-				if (gui->menuItem("Create Empty Parent", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Create Empty Child", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Create Empty", "", false, file->projectOpened)) {}
-				if (gui->menuItem("3D Object", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Effects", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Light", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Audio", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Video", "", false, file->projectOpened)) {}
-				if (gui->menuItem("UI", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Camera", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Create Empty Parent", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Create Empty Child", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Create Empty", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("3D Object", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Effects", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Light", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Audio", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Video", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("UI", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Camera", "", false, manager->projectOpened)) {}
 
 				gui->menuEnd();
 			}
@@ -148,11 +153,11 @@ namespace mainmenu
 			// Component Menu
 			if (gui->menu("Component"))
 			{
-				if (gui->menuItem("Audio", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Effect", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Mesh", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Physics", "", false, file->projectOpened)) {}
-				if (gui->menuItem("Scripts", "", false, file->projectOpened)) {}
+				if (gui->menuItem("Audio", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Effect", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Mesh", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Physics", "", false, manager->projectOpened)) {}
+				if (gui->menuItem("Scripts", "", false, manager->projectOpened)) {}
 
 				gui->menuEnd();
 			}
@@ -162,44 +167,35 @@ namespace mainmenu
 			{
 				if (gui->menu("General"))
 				{
-					static bool showInspector = true;
-					if (gui->menuItem("Inspector", "", showInspector))
-						showInspector = !showInspector;
+					if (gui->menuItem("Inspector", "", showPanel.inspector))
+						showPanel.inspector = !showPanel.inspector;
 
-					static bool showHierarchy = true;
-					if (gui->menuItem("Hierarchy", "", showHierarchy))
-						showHierarchy = !showHierarchy;
+					if (gui->menuItem("Hierarchy", "", showPanel.hierarchy))
+						showPanel.hierarchy = !showPanel.hierarchy;
 
-					static bool showProject = true;
-					if (gui->menuItem("Project", "", showProject))
-						showProject = !showProject;
+					if (gui->menuItem("Project", "", showPanel.project))
+						showPanel.project = !showPanel.project;
 
-					static bool showScript = true;
-					if (gui->menuItem("Script", "", showScript))
-						showScript = !showScript;
+					//if (gui->menuItem("Script", "", showScript))
+						//showScript = !showScript;
 
-					static bool showConsole = true;
-					if (gui->menuItem("Console", "", showConsole))
-						showConsole = !showConsole;
+					if (gui->menuItem("Console", "", showPanel.console))
+						showPanel.console = !showPanel.console;
 
 					gui->menuEnd();
 				}
 
-				static bool showRendering = true;
-				if (gui->menuItem("Rendering", "", showRendering))
-					showRendering = !showRendering;
+				//if (gui->menuItem("Rendering", "", showRendering))
+					//showRendering = !showRendering;
 
-				static bool showAnimation = true;
-				if (gui->menuItem("Animation", "", showAnimation))
-					showAnimation = !showAnimation;
+				//if (gui->menuItem("Animation", "", showAnimation))
+					//showAnimation = !showAnimation;
 
-				static bool showAudio = true;
-				if (gui->menuItem("Audio", "", showAudio))
-					showAudio = !showAudio;
+				//if (gui->menuItem("Audio", "", showAudio))
+					//showAudio = !showAudio;
 
-				static bool showSequencing = true;
-				if (gui->menuItem("Sequencing", "", showSequencing))
-					showSequencing = !showSequencing;
+				//if (gui->menuItem("Sequencing", "", showSequencing))
+					//showSequencing = !showSequencing;
 
 				gui->separator();
 
@@ -234,15 +230,15 @@ namespace mainmenu
 							window->getSdlWindow(),
 							filters,
 							SDL_arraysize(filters),
-							"layout.ini",          // default start file/dir
+							"layout.ini",          // default start manager/dir
 							false
 						);
 					}
 					gui->separator();
 					if (gui->menuItem("Reset", ""))
 					{
-					    string filePath = file->baseDir + "/layout.ini";
-					    ImGui::LoadIniSettingsFromDisk(filePath.c_str());
+					    isReloadLayout = true;
+					    layoutFileName = "layout.ini";
 					}
 
 					gui->menuEnd();

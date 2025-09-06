@@ -5,7 +5,7 @@
 
 using namespace kemena;
 
-namespace inspector
+namespace panelInspector
 {
     void draw(kGuiManager* gui, bool& opened, bool enabled, std::vector<kObject*> selectedObjects = std::vector<kObject*>())
     {

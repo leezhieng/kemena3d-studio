@@ -11,7 +11,7 @@
 
 using namespace kemena;
 
-namespace console
+namespace panelConsole
 {
 	static std::vector<std::string> consoleItems;
 	static char inputBuf[256];
@@ -36,7 +36,7 @@ namespace console
 
 	void init(kGuiManager* gui)
 	{
-	    addLog("Kemena3D Studio started", inputBuf);
+	    addLog("Welcome to Kemena3D Studio. Create or open a project to get started.", inputBuf);
 	}
 
 	void draw(kGuiManager* gui, bool& opened, bool enabled)

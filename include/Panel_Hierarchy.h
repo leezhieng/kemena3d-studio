@@ -2,6 +2,9 @@
 #define PANEL_HIERARCHY_H
 
 #include "kemena/kemena.h"
+#include "kemena/kworld.h"
+
+#include "manager.h"
 
 #include <imgui.h>
 #include <vector>
@@ -11,81 +14,40 @@
 
 using namespace kemena;
 
-namespace hierarchy
+class Manager;
+
+class PanelHierarchy
 {
-	struct Node
-	{
-		std::string name;
-		bool isSelected = false;
-		std::vector<std::unique_ptr<Node>> children;
+	private:
+		ImTextureRef iconAdd;
+		ImTextureRef iconMag;
 
-		Node(const std::string& n) : name(n) {}
-	};
+		char searchBuffer[128] = "";
 
-	Node root("World");
+		ImVec4 addTint = ImVec4(1, 1, 1, 1);
 
-	void deselectAll(Node& root)
-	{
-		root.isSelected = false;
-		for (auto& child : root.children)
+		kWorld* world;
+
+		struct Node
 		{
-			deselectAll(*child);
-		}
-	}
+			std::string name;
+			bool isSelected = false;
+			std::vector<std::unique_ptr<Node>> children;
 
-	void drawNode(Node& node, Node& root)
-	{
-		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-		if (node.isSelected) flags |= ImGuiTreeNodeFlags_Selected;
-		if (node.children.empty()) flags |= ImGuiTreeNodeFlags_Leaf;
+			Node(const std::string& n) : name(n) {}
+		};
 
-		bool nodeOpen = ImGui::TreeNodeEx(node.name.c_str(), flags);
+		Node root;
 
-		if (ImGui::IsItemClicked())
-		{
-			if (!ImGui::GetIO().KeyShift)
-			{
-				deselectAll(root);
-			}
-			node.isSelected = !node.isSelected || ImGui::GetIO().KeyShift;
-		}
-
-		if (nodeOpen)
-		{
-			for (auto& child : node.children)
-			{
-				drawNode(*child, root);
-			}
-			ImGui::TreePop();
-		}
-	}
-
-	void drawHierarchyPanel(Node& root, bool* opened, bool enabled)
-	{
-	    if (!enabled)
-            ImGui::BeginDisabled(true);
-
-		if (ImGui::Begin("Hierarchy", opened))
-		{
-			drawNode(root, root);
-		}
-		ImGui::End();
-
-		if (!enabled)
-            ImGui::EndDisabled();
-	}
-
-	void init(kGuiManager* gui)
-	{
-		//root.children.push_back(std::make_unique<Node>("Scene"));
-	}
-
-	void draw(kGuiManager* gui, bool& opened, bool enabled)
-	{
-	    if (opened)
-            drawHierarchyPanel(root, &opened, &enabled);
-	}
-}
+	public:
+	    PanelHierarchy();
+		void init(Manager* manager, kAssetManager* assetManager, kWorld* setWorld);
+		void deselectAll(Node& root);
+		void drawNode(Node& node, Node& root);
+		void drawHierarchyPanel(Node& root, bool* opened, bool enabled);
+		void draw(kGuiManager* gui, bool& opened, bool enabled);
+		void refreshList();
+};
 
 #endif
 

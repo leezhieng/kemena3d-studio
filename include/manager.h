@@ -10,9 +10,13 @@
 #include <fstream>
 
 #include <kemena/kwindow.h>
+#include <kemena/kworld.h>
 #include <portable-file-dialogs.h>
 
 #include "md5.h"
+
+#include "panel_project.h"
+#include "panel_hierarchy.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -34,16 +38,22 @@ struct FileItem
     // icon
 };
 
-class FileManager
+class PanelProject;
+class PanelHierarchy;
+
+class Manager
 {
 public:
-    FileManager(kWindow* setWindow);
-    virtual ~FileManager();
+    Manager(kWindow* setWindow, kWorld* setWorld);
+    virtual ~Manager();
 
     std::string getCurrentDirPath();
     void checkAssetsChange(const std::string& path, bool recursive = true);
     std::string fileChecksum(const std::string& fileName);
     std::string getRandomString(int stringLength);
+
+    void openFolder(string name);
+    void closeFolder();
 
     bool newProject();
     bool openProject();
@@ -51,8 +61,8 @@ public:
     void refreshWindowTitle();
 
     // Editor path and directory
-    std::string exePath;
-    std::string baseDir;
+    fs::path exePath;
+    fs::path baseDir;
 
     // Project info
     std::string projectName;
@@ -60,14 +70,19 @@ public:
     bool projectSaved = true;
 
     // Project path and directory
-    std::string projectPath;
+    fs::path projectPath;
     std::vector<std::string> currentDir;
 
     // World info
     string worldName = "";
+    string worldGUID = "";
+
+    PanelProject* panelProject;
+    PanelHierarchy* panelHierarchy;
 
 private:
     kWindow* window;
+    kWorld* world;
     std::string initialWindowTitle;
 
     int initialResizeCount = 0;

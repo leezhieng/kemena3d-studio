@@ -82,8 +82,9 @@
 		<ExtraCommands>
 			<Add after='cmd /c copy &quot;$(PROJECT_DIR)res\fonts\inter.ttf&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)fonts\inter.ttf&quot;' />
 		</ExtraCommands>
-		<Unit filename="include/filemanager.h" />
+		<Unit filename="include/datatype.h" />
 		<Unit filename="include/mainmenu.h" />
+		<Unit filename="include/manager.h" />
 		<Unit filename="include/md5.h" />
 		<Unit filename="include/panel_console.h" />
 		<Unit filename="include/panel_hierarchy.h" />
@@ -123,7 +124,9 @@
 		<Unit filename="resources.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
-		<Unit filename="src/filemanager.cpp" />
+		<Unit filename="src/manager.cpp" />
+		<Unit filename="src/panel_hierarchy.cpp" />
+		<Unit filename="src/panel_project.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 			<wxsmith version="1">

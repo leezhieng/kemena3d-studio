@@ -7,12 +7,17 @@
 
 using namespace kemena;
 
-namespace world
+namespace panelWorld
 {
-    void draw(kGuiManager* gui, bool& opened, bool enabled, kRenderer* renderer)
+    bool enabled = false;
+    bool hovered = false;
+    bool focused = false;
+
+    void draw(kGuiManager* gui, bool& isOpened, bool isEnabled, kRenderer* renderer)
     {
-        if (!enabled)
-            ImGui::BeginDisabled(true);
+        enabled = isEnabled;
+
+        ImGui::BeginDisabled(!enabled);
 
         ImGui::Begin("World");
 
@@ -24,10 +29,12 @@ namespace world
         ImTextureID tex_id = (ImTextureID)(intptr_t)renderer->getFboTexture(); // ImGui OpenGL backend expects this cast
         ImGui::Image(tex_id, preview, ImVec2(0,1), ImVec2(1,0)); // flip Y so it appears right-side-up
 
+        hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
+        focused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+
         ImGui::End();
 
-        if (!enabled)
-            ImGui::EndDisabled();
+        ImGui::EndDisabled();
     }
 }
 
