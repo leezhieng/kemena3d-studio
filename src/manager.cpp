@@ -65,7 +65,7 @@ std::string Manager::getCurrentDirPath()
 	return path.string();
 }
 
-void Manager::checkAssetsChange(const std::string& path, bool recursive)
+/*void Manager::checkAssetsChange(const std::string& path, bool recursive)
 {
 	if (!fs::exists(path) || !fs::is_directory(path))
 	{
@@ -103,7 +103,7 @@ void Manager::checkAssetsChange(const std::string& path, bool recursive)
 			}
 		}
 	}
-}
+}*/
 
 std::string Manager::fileChecksum(const std::string& fileName)
 {
@@ -151,21 +151,22 @@ std::string Manager::getRandomString(int stringLength)
 
 std::string Manager::generateGuid()
 {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_int_distribution<uint32_t> dist(0, 0xFFFFFFFF);
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	static std::uniform_int_distribution<uint32_t> dist(0, 0xFFFFFFFF);
 
-    auto to_hex = [](uint32_t value, int width) {
-        std::stringstream ss;
-        ss << std::hex << std::setfill('0') << std::setw(width) << value;
-        return ss.str();
-    };
+	auto to_hex = [](uint32_t value, int width)
+	{
+		std::stringstream ss;
+		ss << std::hex << std::setfill('0') << std::setw(width) << value;
+		return ss.str();
+	};
 
-    return to_hex(dist(gen), 8) + "-" +
-           to_hex(dist(gen) >> 16, 4) + "-" +
-           to_hex(dist(gen) >> 16, 4) + "-" +
-           to_hex(dist(gen) >> 16, 4) + "-" +
-           to_hex(dist(gen), 12);
+	return to_hex(dist(gen), 8) + "-" +
+		   to_hex(dist(gen) >> 16, 4) + "-" +
+		   to_hex(dist(gen) >> 16, 4) + "-" +
+		   to_hex(dist(gen) >> 16, 4) + "-" +
+		   to_hex(dist(gen), 12);
 }
 
 void Manager::openFolder(string name)
@@ -257,14 +258,15 @@ bool Manager::newProject()
 	currentDir.push_back("Assets");
 
 	// TODO: Create project config file
+	checkDirJson();
 
 	if (panelProject != nullptr)
-        panelProject->refreshList();
+		panelProject->refreshList();
 
 	// WIP: Load scenes of the world
 
 	if (panelHierarchy != nullptr)
-        panelHierarchy->refreshList();
+		panelHierarchy->refreshList();
 
 	return true;
 }
@@ -340,14 +342,15 @@ bool Manager::openProject()
 	currentDir.push_back("Assets");
 
 	// TODO: check project config file
+	checkDirJson();
 
 	if (panelProject != nullptr)
-        panelProject->refreshList();
+		panelProject->refreshList();
 
 	// WIP: Load scenes of the world
 
 	if (panelHierarchy != nullptr)
-        panelHierarchy->refreshList();
+		panelHierarchy->refreshList();
 
 	return true;
 }
@@ -368,4 +371,155 @@ void Manager::refreshWindowTitle()
 		if (!projectSaved)
 			window->setWindowTitle(window->getWindowTitle() + "*");
 	}
+}
+
+// Internal function
+void Manager::checkDirJson()
+{
+	fs::path libraryFolder = projectPath / "Library";
+	fs::path dirJsonFile = libraryFolder / "dir.json";
+	fs::path assetPath = projectPath / "Assets";
+
+	// Check whether file exist
+	try
+	{
+		if (!fs::exists(libraryFolder))
+		{
+			fs::create_directories(libraryFolder);
+			std::cout << "Created Library folder: " << libraryFolder << "\n";
+		}
+
+		if (!fs::exists(dirJsonFile))
+		{
+			json j;
+			j["files"] = json::array();
+
+			std::ofstream ofs(dirJsonFile);
+			ofs << j.dump(4); // pretty print
+			ofs.close();
+
+			std::cout << "Created dir.json at: " << dirJsonFile << "\n";
+		}
+		else
+		{
+			std::cout << "dir.json already exists.\n";
+		}
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "Error: " << e.what() << "\n";
+		return;
+	}
+
+	// Read dir.json
+	// Check whether the files exist or not
+	json j;
+	{
+		std::ifstream ifs(dirJsonFile);
+		ifs >> j;
+	}
+
+	if (!j.contains("files") || !j["files"].is_array())
+	{
+		std::cerr << "Invalid dir.json format\n";
+		return;
+	}
+
+	if (!j["files"].empty())
+	{
+		for (auto it = j["files"].begin(); it != j["files"].end();)
+		{
+			std::string guid = (*it)["guid"].get<std::string>();
+			std::string relPath = (*it)["name"].get<std::string>();   // path/name.ext
+			std::string checksum = (*it).value("checksum", "");
+			int type = (*it).value("type", 0);
+
+			fs::path filePath = assetPath / relPath;
+
+			if (!fs::exists(filePath))
+			{
+				// File missing -> remove from JSON
+				std::cout << "Missing: " << relPath << " (removed from list)\n";
+				it = j["files"].erase(it);
+				continue;
+			}
+
+			fileMD5[relPath] = checksum;
+			fileGUID[guid] = relPath;
+			fileType[relPath] = type;
+
+			++it;
+		}
+	}
+
+	// Check all the files and compare with
+	for (auto &p : fs::recursive_directory_iterator(assetPath))
+	{
+		if (!p.is_regular_file()) continue;
+
+		std::string relPath = fs::relative(p.path(), assetPath).generic_string();
+		std::string checksum = fileChecksum(p.path().string());
+
+		if (fileGUID.find(relPath) == fileGUID.end())
+		{
+			// New file
+			std::string guid = generateGuid();
+			int type = checkAssetType(p.path());
+
+			fileGUID[relPath] = guid;
+			fileMD5[relPath] = checksum;
+			fileType[relPath] = type;
+
+			json newEntry =
+			{
+				{"name", relPath},
+				{"guid", guid},
+				{"checksum", checksum},
+				{"type", type}
+			};
+			j["files"].push_back(newEntry);
+
+			std::cout << "New file added: " << relPath << "\n";
+		}
+		else
+		{
+			// Existing file, check checksum
+			if (fileMD5[relPath] != checksum)
+			{
+				std::cout << "File changed: " << relPath << "\n";
+				fileMD5[relPath] = checksum;
+			}
+		}
+	}
+
+	// Save back
+	std::ofstream out(dirJsonFile);
+	out << j.dump(4);
+	std::cout << "dir.json updated.\n";
+}
+
+int Manager::checkAssetType(const fs::path &p)
+{
+	auto ext = p.extension().string();
+
+	if (ext == ".txt" || ext == ".ini" || ext == ".xml" || ext == ".json")
+		return 1;
+	else if (ext == ".jpg" || ext == ".jpeg" || ext == ".bmp" || ext == ".png" || ext == ".gif" || ext == ".tiff" || ext == ".tga")
+		return 2;
+	else if (ext == ".as")
+		return 3;
+	else if (ext == ".mp3" || ext == ".wav" || ext == ".ogg")
+		return 4;
+	else if (ext == ".mp4" || ext == ".mov" || ext == ".avi" || ext == ".webm")
+		return 5;
+	else if (ext == ".obj" || ext == ".fbx" || ext == ".gltf" || ext == ".glb" || ext == ".dae" || ext == ".stl")
+		return 6;
+	else if (ext == ".pfb")
+		return 7;
+	else if (ext == ".world")
+		return 8;
+	else if (ext == ".mat")
+		return 9;
+
+	return 0;     // Unknown
 }

@@ -274,7 +274,10 @@ void PanelProject::draw(kGuiManager* gui, bool& opened, bool enabled)
 	if (opened)
     {
         if (needRefreshList)
+        {
             refreshList();
+            needRefreshList = false;
+        }
 
         drawProjectPanel(root, &opened, enabled);
     }
@@ -297,6 +300,9 @@ void PanelProject::refreshList()
 		{
 			std::string lastFolder = path.filename().string();
 			//std::cout << "Last folder: " << lastFolder << "\n";
+
+			// Check whether GUID already exist for this folder
+			// Generate a GUID if haven't, then save to the list
 
             // Reset root safely
 			root.name = lastFolder;
@@ -344,17 +350,17 @@ void PanelProject::refreshList()
                         auto ext = entry.path().extension().string();
 
                         // Add to list
-                        if (ext == ".txt" || ext == ".json")
+                        if (ext == ".txt" || ext == ".ini" || ext == ".xml" || ext == ".json")
                             root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconText, 1));
-                        else if (ext == ".jpg" || ext == ".png" || ext == ".tga")
+                        else if (ext == ".jpg" || ext == ".jpeg" || ext == ".bmp" || ext == ".png" || ext == ".gif" || ext == ".tiff" || ext == ".tga")
                             root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconImage, 1));
                         else if (ext == ".as")
                             root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconScript, 1));
                         else if (ext == ".mp3" || ext == ".wav" || ext == ".ogg")
                             root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconAudio, 1));
-                        else if (ext == ".mp4" || ext == ".avi" || ext == ".mov")
+                        else if (ext == ".mp4" || ext == ".mov" || ext == ".avi" || ext == ".webm")
                             root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconVideo, 1));
-                        else if (ext == ".fbx" || ext == ".obj" || ext == ".gltf" || ext == ".glb")
+                        else if (ext == ".obj" || ext == ".fbx" || ext == ".gltf" || ext == ".glb" || ext == ".dae" || ext == ".stl")
                             root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconModel, 1));
                         else if (ext == ".pfb")
                             root.children.emplace_back(std::make_unique<Node>(entry.path().filename().string(), "", iconPrefab, 1));

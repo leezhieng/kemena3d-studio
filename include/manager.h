@@ -32,6 +32,7 @@
 
 using namespace kemena;
 namespace fs = std::filesystem;
+using json = nlohmann::json;
 
 struct FileItem
 {
@@ -51,7 +52,7 @@ public:
     virtual ~Manager();
 
     std::string getCurrentDirPath();
-    void checkAssetsChange(const std::string& path, bool recursive = true);
+    //void checkAssetsChange(const std::string& path, bool recursive = true);
     std::string fileChecksum(const std::string& fileName);
     std::string getRandomString(int stringLength);
     std::string generateGuid();
@@ -92,10 +93,15 @@ private:
     int initialResizeCount = 0;
 
     // Check project files
-    std::map<std::string, int> fileGUID;
-    std::map<int, std::string> fileMD5;
-    std::map<int, std::string> fileCache;
+    std::map<std::string, std::string> fileGUID;    // File GUID and its file name (path/filename.ext)
+    std::map<std::string, std::string> fileMD5;     // File GUID and its checksum in MD5 format
+    std::map<std::string, int> fileType;            // File GUID and its type (0 - mesh, 1 - material, etc)
+
+    std::map<std::string, std::string> fileDirty;   // Files that need to be put into fileGUID, or refresh checksum into fileMD5, or regenerate thumbnail etc.
     int latestFileGUID = 0;
+
+    void checkDirJson();
+    int checkAssetType(const fs::path &p);
 };
 
 #endif // FILEMANAGER_H
