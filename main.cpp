@@ -1,6 +1,6 @@
 #include "kemena/kemena.h"
 
-#include "datatype.h"
+//#include "datatype.h"
 
 #include "manager.h"
 #include "mainmenu.h"
@@ -47,20 +47,19 @@ int main()
     Manager* manager = new Manager(window, world);
 
     // Initialize panels
-    PanelProject* panelProject = new PanelProject();
-    panelProject->init(manager, assetManager);
-
-    PanelHierarchy* panelHierarchy = new PanelHierarchy();
-    panelHierarchy->init(manager, assetManager, world);
-
-    panelConsole::init(gui);
+    MainMenu* mainmenu = new MainMenu();
+    PanelWorld* panelWorld = new PanelWorld();
+    PanelInspector* panelInspector = new PanelInspector();
+    PanelProject* panelProject = new PanelProject(manager, assetManager);
+    PanelHierarchy* panelHierarchy = new PanelHierarchy(manager, assetManager, world);
+    PanelConsole* panelConsole = new PanelConsole(gui);
 
     // Load default editor layout
-    registerPanelStateHandler();
+    mainmenu->registerPanelStateHandler();
     ImGui::LoadIniSettingsFromDisk("layout.ini");
 
     // Default skybox
-    kShader* skyShader = assetManager->loadShaderFromFile("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/skybox.vert", "D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/skybox.frag");
+    kShader* skyShader = assetManager->loadShaderFromResource("SHADER_VERTEX_SKYBOX", "SHADER_FRAGMENT_SKYBOX");
     kMaterial* skyMaterial = assetManager->createMaterial(skyShader);
     kTextureCube* skyTexture = assetManager->loadTextureCubeFromResource("TEXTURE_SKYBOX_LEFT",
                                                              "TEXTURE_SKYBOX_RIGHT",
@@ -71,20 +70,37 @@ int main()
                                                              "cubeMap");
     skyMaterial->addTexture(skyTexture);
     skyMaterial->setSingleSided(false);
+    //kMesh* skyMesh = assetManager->loadMeshFromResource("MODEL_SHAPE_CUBE", "obj");
     kMesh* skyMesh = assetManager->loadMesh("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shape/cube.obj");
     skyMesh->setMaterial(skyMaterial);
     scene->setSkybox(skyMaterial, skyMesh);
 
     // Editor grid
-    kMesh* grid = sceneEditor->addMesh("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shape/plane.obj");
-    kShader* gridShader = assetManager->loadShaderFromFile("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/grid.vert", "D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/grid.frag");
+    //kMesh* gridMesh = assetManager->loadMeshFromResource("MODEL_SHAPE_PLANE", "obj");
+    kMesh* gridMesh = sceneEditor->addMesh("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shape/plane.obj");
+    sceneEditor->addMesh(gridMesh);
+    kShader* gridShader = assetManager->loadShaderFromResource("SHADER_VERTEX_GRID", "SHADER_FRAGMENT_GRID");
+    //kShader* gridShader = assetManager->loadShaderFromFile("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/grid.vert", "D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/grid.frag");
     kMaterial* gridMat = assetManager->createMaterial(gridShader);
     gridMat->setTransparent(kTransparentType::TRANSP_TYPE_BLEND);
     gridMat->setSingleSided(false);
-    grid->setMaterial(gridMat);
+    gridMesh->setMaterial(gridMat);
+
+
+    //kMesh* test = assetManager->loadMeshFromResource("MODEL_SHAPE_CUBE", "obj");
+    kMesh* test = assetManager->loadMesh("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shape/cube.obj");
+    test->setName("test");
+    test->setPosition(vec3(0.0f, 1.0f, 0.0f));
+    scene->addMesh(test);
+    kShader* testShader = assetManager->loadShaderFromResource("SHADER_VERTEX_FLAT", "SHADER_FRAGMENT_FLAT");
+    //kShader* testShader = assetManager->loadShaderFromFile("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/flat.vert", "D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/flat.frag");
+    kMaterial* testMaterial = assetManager->createMaterial(testShader);
+    test->setMaterial(testMaterial);
+
 
     // Editor camera
-    kCamera* cameraEditor = sceneEditor->addCamera(glm::vec3(-20.0f, 10.0f, 20.0f), glm::vec3(0.0f, 1.0f, 0.0f), kCameraType::CAMERA_TYPE_FREE);
+    kCamera* cameraEditor = sceneEditor->addCamera(glm::vec3(0.0f, 5.0f, 10.0f), glm::vec3(0.0f, 2.5f, 0.0f), kCameraType::CAMERA_TYPE_LOCKED);
+    cameraEditor->setFOV(60.0f);
     scene->setMainCamera(cameraEditor);
 
     bool dragging = false;
@@ -118,7 +134,7 @@ int main()
             }
             else if (eventType == K_EVENT_MOUSEBUTTONDOWN)
             {
-                if (panelWorld::enabled && panelWorld::hovered)
+                if (panelWorld->enabled && panelWorld->hovered)
                 {
                     if (event.getMouseButton() == K_MOUSEBUTTON_LEFT)
                     {
@@ -137,19 +153,20 @@ int main()
             }
             else if (eventType == K_EVENT_MOUSEBUTTONUP)
             {
-                if (panelWorld::enabled && panelWorld::hovered)
+                if (dragging)
+                    dragging = false;
+
+                if (panelWorld->enabled && panelWorld->hovered)
                 {
                     if (event.getMouseButton() == K_MOUSEBUTTON_LEFT)
                     {
-                        dragging = false;
-
                         camRot = cameraEditor->getRotation();
                     }
                 }
             }
             else if (eventType == K_EVENT_MOUSEMOTION)
             {
-                if (panelWorld::enabled && panelWorld::hovered)
+                if (panelWorld->enabled && panelWorld->hovered)
                 {
                     if (dragging)
                     {
@@ -165,7 +182,7 @@ int main()
             }
             else if (eventType == K_EVENT_MOUSEWHEEL)
             {
-                if (panelWorld::enabled && panelWorld::hovered)
+                if (panelWorld->enabled && panelWorld->hovered)
                 {
                     cameraEditor->setPosition(cameraEditor->getPosition() + cameraEditor->calculateForward() * 2.0f * event.getMouseWheelY());
                 }
@@ -183,7 +200,7 @@ int main()
             }
         }
 
-        if (panelWorld::enabled && panelWorld::focused)
+        if (panelWorld->enabled && panelWorld->focused)
         {
             if (event.getKeyDown(K_KEY_W))
             {
@@ -204,19 +221,26 @@ int main()
         }
 
         renderer->clear();
-        renderer->render(scene, 0, 0, window->getWindowWidth(), window->getWindowHeight(), window->getTimer()->getDeltaTime(), false);
-        renderer->render(sceneEditor, 0, 0, window->getWindowWidth(), window->getWindowHeight(), window->getTimer()->getDeltaTime(), false);
+
+        // Fix aspect ratio
+        if (panelWorld->width > 0 && panelWorld->height > 0)
+        {
+            cameraEditor->setAspectRatio(panelWorld->aspectRatio);
+
+            renderer->render(scene, 0, 0, panelWorld->width, panelWorld->height, window->getTimer()->getDeltaTime(), false);
+            renderer->render(sceneEditor, 0, 0, panelWorld->width, panelWorld->height, window->getTimer()->getDeltaTime(), false);
+        }
 
         gui->canvasStart();
         gui->dockSpaceStart("MainDockSpace");
 
-        mainmenu::draw(gui, window, manager, showPanel);
+        mainmenu->draw(gui, window, manager, showPanel);
 
-        panelWorld::draw(gui, showPanel.world, manager->projectOpened, renderer);
-        panelInspector::draw(gui, showPanel.inspector, manager->projectOpened);
+        panelWorld->draw(gui, showPanel.world, manager->projectOpened, renderer, cameraEditor);
+        panelInspector->draw(gui, showPanel.inspector, manager->projectOpened);
         panelHierarchy->draw(gui, showPanel.hierarchy, manager->projectOpened);
         panelProject->draw(gui, showPanel.project, manager->projectOpened);
-        panelConsole::draw(gui, showPanel.console, manager->projectOpened);
+        panelConsole->draw(gui, showPanel.console, manager->projectOpened);
 
         gui->dockSpaceEnd();
         gui->canvasEnd();

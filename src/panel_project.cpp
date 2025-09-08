@@ -2,14 +2,10 @@
 
 using namespace kemena;
 
-PanelProject::PanelProject()
+PanelProject::PanelProject(Manager* setManager, kAssetManager* assetManager)
     : root("Assets", "", nullptr, 0)
 {
-}
-
-void PanelProject::init(Manager* setManager, kAssetManager* assetManager)
-{
-	manager = setManager;
+    manager = setManager;
 	manager->panelProject = this;
 
 	// Button icons

@@ -63,9 +63,8 @@ class PanelProject
 		bool needRefreshList = false;
 
 	public:
-	    PanelProject();
+	    PanelProject(Manager* setManager, kAssetManager* assetManager);
 
-		void init(Manager* setManager, kAssetManager* assetManager);
 		void deselectAll(Node& root);
 		void drawNode(Node& node, Node& root, int level = 0);
 		void drawProjectPanel(Node& root, bool* opened, bool enabled);

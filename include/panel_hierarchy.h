@@ -43,8 +43,7 @@ class PanelHierarchy
 		Node root;
 
 	public:
-	    PanelHierarchy();
-		void init(Manager* manager, kAssetManager* assetManager, kWorld* setWorld);
+	    PanelHierarchy(Manager* manager, kAssetManager* assetManager, kWorld* setWorld);
 		void deselectAll(Node& root);
 		void drawNode(Node& node, Node& root);
 		void drawHierarchyPanel(Node& root, bool* opened, bool enabled);

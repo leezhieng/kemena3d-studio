@@ -2,12 +2,8 @@
 
 using namespace kemena;
 
-PanelHierarchy::PanelHierarchy()
+PanelHierarchy::PanelHierarchy(Manager* manager, kAssetManager* assetManager, kWorld* setWorld)
 	: root("World")
-{
-}
-
-void PanelHierarchy::init(Manager* manager, kAssetManager* assetManager, kWorld* setWorld)
 {
     manager->panelHierarchy = this;
 

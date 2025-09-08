@@ -12,8 +12,26 @@ TEXTURE_SKYBOX_TOP RCDATA "res/textures/skybox/top.tga"
 TEXTURE_SKYBOX_BOTTOM RCDATA "res/textures/skybox/bottom.tga"
 
 // Shaders
+SHADER_VERTEX_FLAT RCDATA "res/shaders/flat.vert"
+SHADER_FRAGMENT_FLAT RCDATA "res/shaders/flat.frag"
+
 SHADER_VERTEX_GRID RCDATA "res/shaders/grid.vert"
 SHADER_FRAGMENT_GRID RCDATA "res/shaders/grid.frag"
+
+SHADER_VERTEX_ICON RCDATA "res/shaders/icon.vert"
+SHADER_FRAGMENT_ICON RCDATA "res/shaders/icon.frag"
+
+SHADER_VERTEX_SKYBOX RCDATA "res/shaders/skybox.vert"
+SHADER_FRAGMENT_SKYBOX RCDATA "res/shaders/skybox.frag"
+
+// Shapes
+MODEL_SHAPE_CONE RCDATA "res/models/shape/cone.obj"
+MODEL_SHAPE_CUBE RCDATA "res/models/shape/cube.obj"
+MODEL_SHAPE_CYLINDER RCDATA "res/models/shape/cylinder.obj"
+MODEL_SHAPE_MONKEY RCDATA "res/models/shape/monkey.obj"
+MODEL_SHAPE_PLANE RCDATA "res/models/shape/plane.obj"
+MODEL_SHAPE_SPHERE RCDATA "res/models/shape/sphere.obj"
+MODEL_SHAPE_TORUS RCDATA "res/models/shape/torus.obj"
 
 // Button icons
 ICON_FOLDER_UP_BUTTON RCDATA "res/icons/button/folder_up.png"
