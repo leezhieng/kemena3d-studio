@@ -1,7 +1,5 @@
 #include "kemena/kemena.h"
 
-//#include "datatype.h"
-
 #include "manager.h"
 #include "mainmenu.h"
 #include "panel_world.h"
@@ -86,7 +84,6 @@ int main()
     gridMat->setSingleSided(false);
     gridMesh->setMaterial(gridMat);
 
-
     //kMesh* test = assetManager->loadMeshFromResource("MODEL_SHAPE_CUBE", "obj");
     kMesh* test = assetManager->loadMesh("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shape/cube.obj");
     test->setName("test");
@@ -99,7 +96,7 @@ int main()
 
 
     // Editor camera
-    kCamera* cameraEditor = sceneEditor->addCamera(glm::vec3(0.0f, 5.0f, 10.0f), glm::vec3(0.0f, 2.5f, 0.0f), kCameraType::CAMERA_TYPE_LOCKED);
+    kCamera* cameraEditor = sceneEditor->addCamera(glm::vec3(0.0f, 5.0f, 10.0f), glm::vec3(0.0f, 2.5f, 0.0f), kCameraType::CAMERA_TYPE_FREE);
     cameraEditor->setFOV(60.0f);
     scene->setMainCamera(cameraEditor);
 

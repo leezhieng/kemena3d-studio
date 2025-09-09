@@ -124,9 +124,13 @@
 		<Unit filename="resources.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
+		<Unit filename="src/mainmenu.cpp" />
 		<Unit filename="src/manager.cpp" />
+		<Unit filename="src/panel_console.cpp" />
 		<Unit filename="src/panel_hierarchy.cpp" />
+		<Unit filename="src/panel_inspector.cpp" />
 		<Unit filename="src/panel_project.cpp" />
+		<Unit filename="src/panel_world.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 			<wxsmith version="1">

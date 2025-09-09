@@ -10,8 +10,10 @@
 #include <string>
 #include <memory>
 #include <algorithm>
+#include <filesystem>
 
 using namespace kemena;
+namespace fs = std::filesystem;
 
 class Manager;
 
@@ -44,7 +46,7 @@ class PanelProject
 		ImTextureRef iconList;
 		ImTextureRef iconThumbnail;
 
-		bool displayThumbnail = false;
+		bool displayThumbnail = true;
 
 		struct Node
 		{
@@ -52,24 +54,32 @@ class PanelProject
 			bool isSelected = false;
 			std::vector<std::unique_ptr<Node>> children;
 
-			std::string guid;
+			std::string uuid;
 			ImTextureRef icon = nullptr;
 			int type = 0; // 0 - Folder, 1 - File
 
-			Node(const std::string& n, const std::string& g, ImTextureRef i = nullptr, int t = 0) : name(n), guid(g), icon(i), type(t) {}
+			Node(const std::string& n, const std::string& g, ImTextureRef i = nullptr, int t = 0) : name(n), uuid(g), icon(i), type(t) {}
 		};
 
-		Node root;
+		Node rootTree;
+		Node rootThumbnail;
 		bool needRefreshList = false;
 
 	public:
 	    PanelProject(Manager* setManager, kAssetManager* assetManager);
 
 		void deselectAll(Node& root);
-		void drawNode(Node& node, Node& root, int level = 0);
-		void drawProjectPanel(Node& root, bool* opened, bool enabled);
+
+		void drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* opened, bool enabled);
 		void draw(kGuiManager* gui, bool& opened, bool enabled);
-		void refreshList();
+
+		void refreshTreeList();
+		void drawTreeNode(Node& node, Node& rootTree, int level = 0);
+		void populateTree(Node& parent, const fs::path& path);
+
+		void refreshThumbnailList();
+		void drawThumbnailNode(const Node& currentDir);
+		void drawBreadcrumb();
 };
 
 #endif

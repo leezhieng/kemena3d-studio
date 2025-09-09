@@ -16,8 +16,6 @@
 #include <kemena/kworld.h>
 #include <portable-file-dialogs.h>
 
-#include "md5.h"
-
 #include "panel_project.h"
 #include "panel_hierarchy.h"
 
@@ -53,9 +51,6 @@ public:
 
     std::string getCurrentDirPath();
     //void checkAssetsChange(const std::string& path, bool recursive = true);
-    std::string fileChecksum(const std::string& fileName);
-    std::string getRandomString(int stringLength);
-    std::string generateGuid();
 
     void openFolder(string name);
     void closeFolder();
@@ -80,7 +75,7 @@ public:
 
     // World info
     string worldName = "";
-    string worldGUID = "";
+    string worldUuid = "";
 
     PanelProject* panelProject;
     PanelHierarchy* panelHierarchy;
@@ -93,12 +88,12 @@ private:
     int initialResizeCount = 0;
 
     // Check project files
-    std::map<std::string, std::string> fileGUID;    // File GUID and its file name (path/filename.ext)
-    std::map<std::string, std::string> fileMD5;     // File GUID and its checksum in MD5 format
-    std::map<std::string, int> fileType;            // File GUID and its type (0 - mesh, 1 - material, etc)
+    std::map<std::string, std::string> fileUuid;        // File GUID and its file name (path/filename.ext)
+    std::map<std::string, std::string> fileChecksum;    // File GUID and its checksum in MD5 format
+    std::map<std::string, int> fileType;                // File GUID and its type (0 - mesh, 1 - material, etc)
 
     std::map<std::string, std::string> fileDirty;   // Files that need to be put into fileGUID, or refresh checksum into fileMD5, or regenerate thumbnail etc.
-    int latestFileGUID = 0;
+    std::string latestFileUuid = "";
 
     void checkDirJson();
     int checkAssetType(const fs::path &p);

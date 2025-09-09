@@ -105,70 +105,6 @@ std::string Manager::getCurrentDirPath()
 	}
 }*/
 
-std::string Manager::fileChecksum(const std::string& fileName)
-{
-	std::ifstream file(fileName, std::ios::binary);
-	if (!file.is_open())
-		return {};
-
-	const size_t bufferSize = 8192;
-	std::vector<uint8_t> buffer(bufferSize);
-
-	MD5 md5;
-
-	while (file)
-	{
-		file.read(reinterpret_cast<char*>(buffer.data()), bufferSize);
-		std::streamsize bytesRead = file.gcount();
-		if (bytesRead > 0)
-		{
-			md5.update(buffer.data(), static_cast<size_t>(bytesRead));
-		}
-	}
-
-	return md5.final();
-}
-
-std::string Manager::getRandomString(int stringLength)
-{
-	const std::string possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-
-	std::string randomString;
-	randomString.reserve(stringLength);
-
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_int_distribution<> dist(0, (int)possibleCharacters.length() - 1);
-
-	for (int i = 0; i < stringLength; ++i)
-	{
-		char nextChar = possibleCharacters.at(dist(gen));
-		randomString.push_back(nextChar);
-	}
-
-	return randomString;
-}
-
-std::string Manager::generateGuid()
-{
-	static std::random_device rd;
-	static std::mt19937 gen(rd());
-	static std::uniform_int_distribution<uint32_t> dist(0, 0xFFFFFFFF);
-
-	auto to_hex = [](uint32_t value, int width)
-	{
-		std::stringstream ss;
-		ss << std::hex << std::setfill('0') << std::setw(width) << value;
-		return ss.str();
-	};
-
-	return to_hex(dist(gen), 8) + "-" +
-		   to_hex(dist(gen) >> 16, 4) + "-" +
-		   to_hex(dist(gen) >> 16, 4) + "-" +
-		   to_hex(dist(gen) >> 16, 4) + "-" +
-		   to_hex(dist(gen), 12);
-}
-
 void Manager::openFolder(string name)
 {
 	currentDir.push_back(name);
@@ -261,7 +197,10 @@ bool Manager::newProject()
 	checkDirJson();
 
 	if (panelProject != nullptr)
-		panelProject->refreshList();
+    {
+		panelProject->refreshTreeList();
+		panelProject->refreshThumbnailList();
+    }
 
 	// WIP: Load scenes of the world
 
@@ -345,7 +284,10 @@ bool Manager::openProject()
 	checkDirJson();
 
 	if (panelProject != nullptr)
-		panelProject->refreshList();
+    {
+		panelProject->refreshTreeList();
+		panelProject->refreshThumbnailList();
+    }
 
 	// WIP: Load scenes of the world
 
@@ -429,7 +371,7 @@ void Manager::checkDirJson()
 	{
 		for (auto it = j["files"].begin(); it != j["files"].end();)
 		{
-			std::string guid = (*it)["guid"].get<std::string>();
+			std::string uuid = (*it)["uuid"].get<std::string>();
 			std::string relPath = (*it)["name"].get<std::string>();   // path/name.ext
 			std::string checksum = (*it).value("checksum", "");
 			int type = (*it).value("type", 0);
@@ -444,8 +386,8 @@ void Manager::checkDirJson()
 				continue;
 			}
 
-			fileMD5[relPath] = checksum;
-			fileGUID[guid] = relPath;
+			fileChecksum[relPath] = checksum;
+			fileUuid[uuid] = relPath;
 			fileType[relPath] = type;
 
 			++it;
@@ -458,22 +400,22 @@ void Manager::checkDirJson()
 		if (!p.is_regular_file()) continue;
 
 		std::string relPath = fs::relative(p.path(), assetPath).generic_string();
-		std::string checksum = fileChecksum(p.path().string());
+		std::string checksum = generateFileChecksum(p.path().string());
 
-		if (fileGUID.find(relPath) == fileGUID.end())
+		if (fileUuid.find(relPath) == fileUuid.end())
 		{
 			// New file
-			std::string guid = generateGuid();
+			std::string uuid = generateUuid();
 			int type = checkAssetType(p.path());
 
-			fileGUID[relPath] = guid;
-			fileMD5[relPath] = checksum;
+			fileUuid[relPath] = uuid;
+			fileChecksum[relPath] = checksum;
 			fileType[relPath] = type;
 
 			json newEntry =
 			{
 				{"name", relPath},
-				{"guid", guid},
+				{"uuid", uuid},
 				{"checksum", checksum},
 				{"type", type}
 			};
@@ -484,10 +426,10 @@ void Manager::checkDirJson()
 		else
 		{
 			// Existing file, check checksum
-			if (fileMD5[relPath] != checksum)
+			if (fileChecksum[relPath] != checksum)
 			{
 				std::cout << "File changed: " << relPath << "\n";
-				fileMD5[relPath] = checksum;
+				fileChecksum[relPath] = checksum;
 			}
 		}
 	}
