@@ -158,8 +158,8 @@ void PanelProject::drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* o
 			{
 				if (displayThumbnail)
 				{
-					if (ImGui::ImageButton("list",
-										   iconList,
+					if (ImGui::ImageButton("thumbnail",
+										   iconThumbnail,
 										   ImVec2(16, 16),
 										   ImVec2(0,0), ImVec2(1,1), // UVs
 										   ImVec4(0, 0, 0, 0), // Background color
@@ -170,8 +170,8 @@ void PanelProject::drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* o
 				}
 				else
 				{
-					if (ImGui::ImageButton("thumbnail",
-										   iconThumbnail,
+					if (ImGui::ImageButton("list",
+										   iconList,
 										   ImVec2(16, 16),
 										   ImVec2(0,0), ImVec2(1,1), // UVs
 										   ImVec4(0, 0, 0, 0), // Background color
@@ -199,7 +199,7 @@ void PanelProject::drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* o
 			// Child region with border for drawTreeNode
 			ImGui::BeginChild("ProjectThumbnail", ImVec2(0, availableHeight), true, ImGuiWindowFlags_HorizontalScrollbar);
 			{
-			    drawBreadcrumb();
+				drawBreadcrumb();
 				drawThumbnailNode(rootThumbnail);
 			}
 			ImGui::EndChild();
@@ -439,65 +439,65 @@ void PanelProject::refreshThumbnailList()
 		{
 			if (!fs::is_empty(path))
 			{
-			    // Do for folders
-			    {
-                    for (const auto& entry : fs::directory_iterator(path))
-                    {
-                        if (entry.is_directory())
-                        {
-                            rootThumbnail.children.emplace_back(std::make_unique<Node>(
-                                                                    entry.path().filename().string(),
-                                                                    "",
-                                                                    iconFolder,
-                                                                    0
-                                                                ));
-                        }
-                    }
-			    }
+				// Do for folders
+				{
+					for (const auto& entry : fs::directory_iterator(path))
+					{
+						if (entry.is_directory())
+						{
+							rootThumbnail.children.emplace_back(std::make_unique<Node>(
+																	entry.path().filename().string(),
+																	"",
+																	iconFolder,
+																	0
+																));
+						}
+					}
+				}
 
-			    // Do for files
-			    {
-                    for (const auto& entry : fs::directory_iterator(path))
-                    {
-                        if (entry.is_regular_file())
-                        {
-                            auto ext = entry.path().extension().string();
-                            ImTextureRef icon;
+				// Do for files
+				{
+					for (const auto& entry : fs::directory_iterator(path))
+					{
+						if (entry.is_regular_file())
+						{
+							auto ext = entry.path().extension().string();
+							ImTextureRef icon;
 
-                            if (ext == ".txt" || ext == ".ini" || ext == ".xml" || ext == ".json")
-                                icon = iconText;
-                            else if (ext == ".jpg" || ext == ".jpeg" || ext == ".bmp" || ext == ".png" || ext == ".gif" || ext == ".tiff" || ext == ".tga")
-                                icon = iconImage;
-                            else if (ext == ".as")
-                                icon = iconScript;
-                            else if (ext == ".mp3" || ext == ".wav" || ext == ".ogg")
-                                icon = iconAudio;
-                            else if (ext == ".mp4" || ext == ".mov" || ext == ".avi" || ext == ".webm")
-                                icon = iconVideo;
-                            else if (ext == ".obj" || ext == ".fbx" || ext == ".gltf" || ext == ".glb" || ext == ".dae" || ext == ".stl")
-                                icon = iconModel;
-                            else if (ext == ".pfb")
-                                icon = iconPrefab;
-                            else if (ext == ".world")
-                                icon = iconWorld;
-                            else if (ext == ".mat")
-                                icon = iconMaterial;
-                            else
-                                icon = iconOther;
+							if (ext == ".txt" || ext == ".ini" || ext == ".xml" || ext == ".json")
+								icon = iconText;
+							else if (ext == ".jpg" || ext == ".jpeg" || ext == ".bmp" || ext == ".png" || ext == ".gif" || ext == ".tiff" || ext == ".tga")
+								icon = iconImage;
+							else if (ext == ".as")
+								icon = iconScript;
+							else if (ext == ".mp3" || ext == ".wav" || ext == ".ogg")
+								icon = iconAudio;
+							else if (ext == ".mp4" || ext == ".mov" || ext == ".avi" || ext == ".webm")
+								icon = iconVideo;
+							else if (ext == ".obj" || ext == ".fbx" || ext == ".gltf" || ext == ".glb" || ext == ".dae" || ext == ".stl")
+								icon = iconModel;
+							else if (ext == ".pfb")
+								icon = iconPrefab;
+							else if (ext == ".world")
+								icon = iconWorld;
+							else if (ext == ".mat")
+								icon = iconMaterial;
+							else
+								icon = iconOther;
 
-                            rootThumbnail.children.emplace_back(std::make_unique<Node>(
-                                                                    entry.path().filename().string(),
-                                                                    "",
-                                                                    icon,
-                                                                    1
-                                                                ));
-                        }
-                        else
-                        {
-                            // Don't display anything if it's not a folder or file (could be symlink, drive, etc.)
-                        }
-                    }
-			    }
+							rootThumbnail.children.emplace_back(std::make_unique<Node>(
+																	entry.path().filename().string(),
+																	"",
+																	icon,
+																	1
+																));
+						}
+						else
+						{
+							// Don't display anything if it's not a folder or file (could be symlink, drive, etc.)
+						}
+					}
+				}
 			}
 		}
 	}
@@ -505,72 +505,132 @@ void PanelProject::refreshThumbnailList()
 
 void PanelProject::drawThumbnailNode(const Node& currentDir)
 {
-	float thumbSize   = 48.0f;   // icon + padding
-	float cellPadding = 8.0f;   // spacing between columns
-	float cellWidth   = thumbSize + cellPadding;
-
-	float panelWidth  = ImGui::GetContentRegionAvail().x;
-	int columns = (int)(panelWidth / cellWidth);
-	if (columns < 1) columns = 1; // at least one column
-
-	ImGui::Columns(columns, nullptr, false);
-
-	for (auto& child : currentDir.children)
+	if (manager->projectOpened)
 	{
-		// Draw icon
-		ImGui::Image(child->icon, ImVec2(thumbSize, thumbSize));
+		float thumbSize   = 48.0f;   // icon size
+		float cellPadding = 12.0f;   // spacing between columns
+		float cellWidth   = thumbSize + cellPadding;
 
-		// Double-click to open folder
-		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+		float panelWidth  = ImGui::GetContentRegionAvail().x;
+		int columns = (int)(panelWidth / cellWidth);
+		if (columns < 1) columns = 1;
+
+		if (currentDir.children.size() > 0)
 		{
-			// Folder
-			if (child->type == 0)
+			ImGui::Columns(columns, nullptr, false);
+
+			for (auto& child : currentDir.children)
 			{
-				manager->openFolder(child->name);
-				needRefreshList = true;
+				ImGui::BeginGroup();
+				ImGui::PushID(child.get());
 
-				ImGui::Columns(1); // reset columns before returning
-				return;
+				float columnWidth = ImGui::GetColumnWidth();
+				float cellHeight  = thumbSize + ImGui::GetTextLineHeight() + 4.0f; // total cell height
+
+				// Full-cell selectable
+				bool selected = child->isSelected;
+				if (ImGui::Selectable("##thumb", selected, 0, ImVec2(columnWidth, cellHeight)))
+				{
+					child->isSelected = !child->isSelected;
+				}
+
+				// Double-click to open folder
+				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && child->type == 0)
+				{
+					manager->openFolder(child->name);
+					needRefreshList = true;
+					ImGui::Columns(1); // reset columns before returning
+					ImGui::PopID();
+					ImGui::EndGroup();
+					return;
+				}
+
+				std::string displayName = fitTextWithEllipsisUtf8(child->name, columnWidth - 4.0f);
+
+				// Show tooltip only if text was truncated
+				if (displayName != child->name && ImGui::IsItemHovered())
+				{
+					ImGui::BeginTooltip();
+					ImGui::TextUnformatted(child->name.c_str()); // full name
+					ImGui::EndTooltip();
+				}
+
+				// Draw icon centered in selectable
+				ImVec2 cellPos  = ImGui::GetItemRectMin();
+				float iconX = cellPos.x + (columnWidth - thumbSize) * 0.5f;
+				float iconY = cellPos.y;
+				ImGui::SetCursorScreenPos(ImVec2(iconX, iconY));
+				ImGui::Image(child->icon, ImVec2(thumbSize, thumbSize));
+
+				// Draw text centered under icon
+				float textWidth = ImGui::CalcTextSize(displayName.c_str()).x;
+				float textX = cellPos.x + (columnWidth - textWidth) * 0.5f;
+				float textY = iconY + thumbSize + 2.0f; // padding below icon
+				ImGui::SetCursorScreenPos(ImVec2(textX, textY));
+				ImGui::TextUnformatted(displayName.c_str());
+
+				ImGui::PopID();
+				ImGui::EndGroup();
+				ImGui::NextColumn();
 			}
+
+			ImGui::Columns(1); // reset
 		}
+		else
+		{
+			std::string text = "Empty folder";
+			float textWidth = ImGui::CalcTextSize(text.c_str()).x;
+			float columnWidth = ImGui::GetColumnWidth();
+			float textX = ImGui::GetCursorPosX() + (columnWidth - textWidth) * 0.5f; // center horizontally
+			ImGui::SetCursorPosX(textX);
 
-		// Show name under icon
-		ImGui::TextWrapped("%s", child->name.c_str());
-
-		ImGui::NextColumn();
+			ImGui::Text(text.c_str());
+		}
 	}
+	else
+	{
+		std::string text = "No project found";
+		float textWidth = ImGui::CalcTextSize(text.c_str()).x;
+		float columnWidth = ImGui::GetColumnWidth();
+		float textX = ImGui::GetCursorPosX() + (columnWidth - textWidth) * 0.5f; // center horizontally
+		ImGui::SetCursorPosX(textX);
 
-	ImGui::Columns(1); // reset
+		ImGui::Text(text.c_str());
+	}
 }
 
 void PanelProject::drawBreadcrumb()
 {
-    if (manager->currentDir.size() > 0)
-    {
-        // Start from project root
-        fs::path basePath = manager->projectPath;
+	if (manager->currentDir.size() > 0)
+	{
+		// Start from project root
+		fs::path basePath = manager->projectPath;
 
-        // Draw Assets folder
-        if (ImGui::Button("Assets"))
-        {
-            manager->currentDir.erase(manager->currentDir.begin() + 1, manager->currentDir.end());
-            needRefreshList = true;
-        }
+		// Draw Assets folder
+		if (ImGui::Button("Assets"))
+		{
+			manager->currentDir.erase(manager->currentDir.begin() + 1, manager->currentDir.end());
+			needRefreshList = true;
+		}
 
-        // Draw each folder in currentDir, ignore Assets
-        for (size_t i = 1; i < manager->currentDir.size(); ++i)
-        {
-            ImGui::SameLine();
-            ImGui::Text(">"); // separator
-            ImGui::SameLine();
+		// Draw each folder in currentDir, ignore Assets
+		for (size_t i = 1; i < manager->currentDir.size(); ++i)
+		{
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 3.0f);
+			ImGui::Text(">"); // separator
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 4.0f);
 
-            if (ImGui::Button(manager->currentDir[i].c_str()))
-            {
-                // Go up to this folder
-                manager->currentDir.erase(manager->currentDir.begin() + i + 1, manager->currentDir.end());
-                needRefreshList = true;
-            }
-        }
-    }
+			if (ImGui::Button(manager->currentDir[i].c_str()))
+			{
+				// Go up to this folder
+				manager->currentDir.erase(manager->currentDir.begin() + i + 1, manager->currentDir.end());
+				needRefreshList = true;
+			}
+		}
+
+		ImGui::Dummy(ImVec2(0.0f, 4.0f));
+	}
 }
 

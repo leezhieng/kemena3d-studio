@@ -4,6 +4,7 @@
 #include "kemena/kemena.h"
 
 #include "manager.h"
+#include "util.h"
 
 #include <imgui.h>
 #include <vector>

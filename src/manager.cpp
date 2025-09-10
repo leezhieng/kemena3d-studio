@@ -123,31 +123,14 @@ bool Manager::newProject()
 	// Check if project is saved
 	if (!projectSaved)
 	{
-		const SDL_MessageBoxButtonData buttons[] =
-		{
-			{ SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "No"  },
-			{ SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Yes" }
-		};
+		auto result = pfd::message(
+						  "Unsaved Changes",
+						  "You have unsaved changes. Do you want to create a new project without saving?",
+						  pfd::choice::yes_no,
+						  pfd::icon::warning
+					  ).result();
 
-		const SDL_MessageBoxData messageboxdata =
-		{
-			SDL_MESSAGEBOX_WARNING,
-			window->getSdlWindow(),
-			"Unsaved Project",
-			"You have unsaved changes. Do you want to create a new project without saving?",
-			SDL_arraysize(buttons),
-			buttons,
-			nullptr // no custom colors
-		};
-
-		int buttonid = -1;
-		if (!SDL_ShowMessageBox(&messageboxdata, &buttonid))
-		{
-			SDL_Log("Error showing message box: %s", SDL_GetError());
-			return false;
-		}
-
-		if (buttonid != 1)
+		if (result == pfd::button::no)
 			return false;
 	}
 
@@ -161,10 +144,14 @@ bool Manager::newProject()
 	if (!fs::exists(path) || !fs::is_directory(path))
 	{
 		std::string msg = "Directory does not exist:\n" + path;
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING,
-								 "Invalid Directory",
-								 msg.c_str(),
-								 nullptr);
+
+		pfd::message(
+			"Invalid Directory",     // title
+			msg,                     // message
+			pfd::choice::ok,         // only an OK button
+			pfd::icon::warning       // warning icon
+		).result();
+
 		return false;
 	}
 
@@ -197,10 +184,10 @@ bool Manager::newProject()
 	checkDirJson();
 
 	if (panelProject != nullptr)
-    {
+	{
 		panelProject->refreshTreeList();
 		panelProject->refreshThumbnailList();
-    }
+	}
 
 	// WIP: Load scenes of the world
 
@@ -215,31 +202,14 @@ bool Manager::openProject()
 	// Check if project is saved
 	if (!projectSaved)
 	{
-		const SDL_MessageBoxButtonData buttons[] =
-		{
-			{ SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "No"  },
-			{ SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Yes" }
-		};
+		auto result = pfd::message(
+						  "Unsaved Changes",
+						  "You have unsaved changes. Do you want to open a new project without saving?",
+						  pfd::choice::yes_no,
+						  pfd::icon::warning
+					  ).result();
 
-		const SDL_MessageBoxData messageboxdata =
-		{
-			SDL_MESSAGEBOX_WARNING,
-			window->getSdlWindow(),
-			"Unsaved Project",
-			"You have unsaved changes. Do you want to open a new project without saving?",
-			SDL_arraysize(buttons),
-			buttons,
-			nullptr // no custom colors
-		};
-
-		int buttonid = -1;
-		if (!SDL_ShowMessageBox(&messageboxdata, &buttonid))
-		{
-			SDL_Log("Error showing message box: %s", SDL_GetError());
-			return false;
-		}
-
-		if (buttonid != 1)
+		if (result == pfd::button::no)
 			return false;
 	}
 
@@ -266,7 +236,14 @@ bool Manager::openProject()
 	if (!(fs::exists(assetsPath) && fs::exists(libraryPath) && fs::exists(configPath)))
 	{
 		std::string msg = "Failed to open project. Invalid directory structure.\n";
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Invalid Directory", msg.c_str(), nullptr);
+
+		pfd::message(
+			"Invalid Directory",     // title
+			msg,                     // message
+			pfd::choice::ok,         // only an OK button
+			pfd::icon::warning       // warning icon
+		).result();
+
 		return false;
 	}
 
@@ -284,10 +261,10 @@ bool Manager::openProject()
 	checkDirJson();
 
 	if (panelProject != nullptr)
-    {
+	{
 		panelProject->refreshTreeList();
 		panelProject->refreshThumbnailList();
-    }
+	}
 
 	// WIP: Load scenes of the world
 

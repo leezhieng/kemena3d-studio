@@ -84,7 +84,14 @@ void PanelInspector::draw(kGuiManager* gui, bool& opened, bool enabled, std::vec
 		else
 		{
 			gui->spacing();
-			gui->text("No object selected");
+
+			std::string text = "No object selected";
+            float textWidth = ImGui::CalcTextSize(text.c_str()).x;
+            float columnWidth = ImGui::GetColumnWidth();
+            float textX = ImGui::GetCursorPosX() + (columnWidth - textWidth) * 0.5f; // center horizontally
+            ImGui::SetCursorPosX(textX);
+
+            ImGui::Text(text.c_str());
 		}
 
 		gui->windowEnd();

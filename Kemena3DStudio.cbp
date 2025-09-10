@@ -82,15 +82,14 @@
 		<ExtraCommands>
 			<Add after='cmd /c copy &quot;$(PROJECT_DIR)res\fonts\inter.ttf&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)fonts\inter.ttf&quot;' />
 		</ExtraCommands>
-		<Unit filename="include/datatype.h" />
 		<Unit filename="include/mainmenu.h" />
 		<Unit filename="include/manager.h" />
-		<Unit filename="include/md5.h" />
 		<Unit filename="include/panel_console.h" />
 		<Unit filename="include/panel_hierarchy.h" />
 		<Unit filename="include/panel_inspector.h" />
 		<Unit filename="include/panel_project.h" />
 		<Unit filename="include/panel_world.h" />
+		<Unit filename="include/util.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="res/fonts/inter.ttf" />
 		<Unit filename="res/fonts/opensans.ttf" />
