@@ -32,12 +32,10 @@ using namespace kemena;
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
-struct FileItem
-{
-    std::string name;
-    bool isFile;
-    std::string extension;
-    // icon
+struct FileInfo {
+    std::string path;   // path/name.ext
+    std::string checksum;
+    std::string type;   // model, texture, prefab, etc.
 };
 
 class PanelProject;
@@ -50,13 +48,14 @@ public:
     virtual ~Manager();
 
     std::string getCurrentDirPath();
-    //void checkAssetsChange(const std::string& path, bool recursive = true);
 
     void openFolder(string name);
     void closeFolder();
 
     bool newProject();
     bool openProject();
+
+    void checkAssetJson();
 
     void refreshWindowTitle();
 
@@ -88,15 +87,12 @@ private:
     int initialResizeCount = 0;
 
     // Check project files
-    std::map<std::string, std::string> fileUuid;        // File GUID and its file name (path/filename.ext)
-    std::map<std::string, std::string> fileChecksum;    // File GUID and its checksum in MD5 format
-    std::map<std::string, int> fileType;                // File GUID and its type (0 - mesh, 1 - material, etc)
+    std::unordered_map<std::string, FileInfo> fileMap; // key = uuid
 
     std::map<std::string, std::string> fileDirty;   // Files that need to be put into fileGUID, or refresh checksum into fileMD5, or regenerate thumbnail etc.
     std::string latestFileUuid = "";
 
-    void checkDirJson();
-    int checkAssetType(const fs::path &p);
+    std::string checkAssetType(const fs::path &p);
 };
 
 #endif // FILEMANAGER_H

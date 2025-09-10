@@ -145,6 +145,12 @@ int main()
 					window->setRunning(false);
 				}
 			}
+			else if (eventType == SDL_EVENT_WINDOW_FOCUS_GAINED)
+            {
+                // Check asset changes
+                if (manager->projectOpened)
+                    manager->checkAssetJson();
+            }
 			else if (eventType == K_EVENT_MOUSEBUTTONDOWN)
 			{
 				if (panelWorld->enabled && panelWorld->hovered)
