@@ -1,6 +1,21 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <assimp/Importer.hpp>
+#include <assimp/Exporter.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+#include <string>
+#include <vector>
+#include <future>
+#include <atomic>
+#include <mutex>
+
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
 // Decode next UTF-8 codepoint starting at 'it'. Advances 'it'.
 // Returns 0xFFFD (replacement char) on error.
 inline uint32_t utf8Next(const char*& it, const char* end)
@@ -97,6 +112,50 @@ inline std::string fitTextWithEllipsisUtf8(const std::string& text, float maxWid
 
 	out += ell;
 	return out;
+}
+
+inline bool convertMeshToGlb(const fs::path& inputPath, const fs::path& outputPath)
+{
+	Assimp::Importer importer;
+
+	// Ensure we load all necessary data, including animations
+	const aiScene* scene = importer.ReadFile(
+							   inputPath.string(),
+							   aiProcess_Triangulate            |
+							   aiProcess_GenNormals             |
+							   aiProcess_JoinIdenticalVertices  |
+							   aiProcess_LimitBoneWeights       |
+							   aiProcess_SortByPType            |
+							   aiProcess_ImproveCacheLocality   |
+							   aiProcess_ValidateDataStructure
+						   );
+
+	if (!scene)
+	{
+		std::cerr << "Assimp failed to load " << inputPath
+				  << ": " << importer.GetErrorString() << "\n";
+		return false;
+	}
+
+	// Check if scene has animations
+	if (scene->mNumAnimations > 0)
+	{
+		std::cout << inputPath << " contains " << scene->mNumAnimations
+				  << " animation(s). They will be exported.\n";
+	}
+
+	Assimp::Exporter exporter;
+	aiReturn ret = exporter.Export(scene, "glb2", outputPath.string());
+
+	if (ret != AI_SUCCESS)
+	{
+		std::cerr << "Assimp failed to export " << outputPath
+				  << ": " << exporter.GetErrorString() << "\n";
+		return false;
+	}
+
+	std::cout << "Converted: " << inputPath << " -> " << outputPath << "\n";
+	return true;
 }
 
 #endif // header guard

@@ -128,12 +128,12 @@ int main()
 			{
 				if (!manager->projectSaved)
 				{
-				    auto result = pfd::message(
-                        "Unsaved Changes",
-                        "Project not saved. Do you really want to quit?",
-                        pfd::choice::yes_no,
-                        pfd::icon::warning
-                    ).result();
+					auto result = pfd::message(
+									  "Unsaved Changes",
+									  "Project not saved. Do you really want to quit?",
+									  pfd::choice::yes_no,
+									  pfd::icon::warning
+								  ).result();
 
 					if (result == pfd::button::yes)
 					{
@@ -146,11 +146,13 @@ int main()
 				}
 			}
 			else if (eventType == SDL_EVENT_WINDOW_FOCUS_GAINED)
-            {
-                // Check asset changes
-                if (manager->projectOpened)
+			{
+				// Check asset changes
+				if (manager->projectOpened && !manager->showImportPopup)
+                {
                     manager->checkAssetJson();
-            }
+                }
+			}
 			else if (eventType == K_EVENT_MOUSEBUTTONDOWN)
 			{
 				if (panelWorld->enabled && panelWorld->hovered)
@@ -261,6 +263,14 @@ int main()
 		panelHierarchy->draw(gui, showPanel.hierarchy, manager->projectOpened);
 		panelProject->draw(gui, showPanel.project, manager->projectOpened);
 		panelConsole->draw(gui, showPanel.console, manager->projectOpened);
+
+		// If there's a need to import assets
+		manager->drawImportPopup(panelConsole);
+		if (!manager->importTasks.empty())
+        {
+            ImGui::OpenPopup("Importing Assets...");
+            manager->showImportPopup = true;   // <--- only set flag
+        }
 
 		gui->dockSpaceEnd();
 		gui->canvasEnd();

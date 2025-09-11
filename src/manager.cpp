@@ -231,23 +231,23 @@ bool Manager::openProject()
 	currentDir.clear();
 	currentDir.push_back("Assets");
 
-	// TODO: check project config file
-	checkAssetJson();
-
 	// Create other essential folders if don't exist
 	std::error_code ec;
 
 	fs::path metadataPath = fullPath / "Library" / "Metadata";
 	if (!(fs::exists(metadataPath)))
-        fs::create_directories(fullPath / "Library" / "Metadata", ec);
+		fs::create_directories(fullPath / "Library" / "Metadata", ec);
 
 	fs::path thumbnailsPath = fullPath / "Library" / "Thumbnails";
 	if (!(fs::exists(thumbnailsPath)))
-        fs::create_directories(fullPath / "Library" / "Thumbnails", ec);
+		fs::create_directories(fullPath / "Library" / "Thumbnails", ec);
 
 	fs::path importedAssetsPath = fullPath / "Library" / "ImportedAssets";
 	if (!(fs::exists(importedAssetsPath)))
-        fs::create_directories(fullPath / "Library" / "ImportedAssets", ec);
+		fs::create_directories(fullPath / "Library" / "ImportedAssets", ec);
+
+	// TODO: check project config file
+	checkAssetJson();
 
 	if (panelProject != nullptr)
 	{
@@ -303,9 +303,28 @@ void Manager::checkAssetJson()
 	// Read assets.json
 	// Check whether the files exist or not
 	json j;
+	// Check if file is empty
+	if (fs::is_empty(assetsJsonFile))
+	{
+		std::cout << "assets.json is empty, reinitializing...\n";
+		j["files"] = json::array();
+
+		std::ofstream ofs(assetsJsonFile);
+		ofs << j.dump(4);
+		ofs.close();
+	}
+	else
 	{
 		std::ifstream ifs(assetsJsonFile);
-		ifs >> j;
+		try
+		{
+			ifs >> j;
+		}
+		catch (const std::exception& e)
+		{
+			std::cerr << "Failed to parse assets.json: " << e.what() << "\n";
+			j["files"] = json::array(); // reset to valid state
+		}
 	}
 
 	if (!j.contains("files") || !j["files"].is_array())
@@ -315,164 +334,207 @@ void Manager::checkAssetJson()
 	}
 
 	if (!j["files"].empty())
-    {
-        for (auto it = j["files"].begin(); it != j["files"].end();)
-        {
-            std::string uuid = (*it)["uuid"].get<std::string>();
-            std::string relPath = (*it)["name"].get<std::string>();
-            std::string checksum = (*it).value("checksum", "");
-            std::string type = (*it)["type"].get<std::string>();
+	{
+		for (auto it = j["files"].begin(); it != j["files"].end();)
+		{
+			std::string uuid = (*it)["uuid"].get<std::string>();
+			std::string relPath = (*it)["name"].get<std::string>();
+			std::string checksum = (*it).value("checksum", "");
+			std::string type = (*it)["type"].get<std::string>();
 
-            fs::path filePath = assetPath / relPath;
+			fs::path filePath = assetPath / relPath;
 
-            if (!fs::exists(filePath))
-            {
-                std::cout << "Missing: " << relPath << " (removed from list)\n";
-                it = j["files"].erase(it);
+			if (!fs::exists(filePath))
+			{
+				std::cout << "Missing: " << relPath << " (removed from list)\n";
+				it = j["files"].erase(it);
 
-                // Delete metadata, thumbnail and imported asset?
-                // Delete metadata
-                fs::path metadataFile = libraryFolder / "Metadata" / (uuid + ".json");
-                if (fs::exists(metadataFile))
-                {
-                    try
-                    {
-                        if (fs::remove(metadataFile))
-                        {
-                            std::cout << "Deleted file: " << metadataFile << "\n";
-                        }
-                        else
-                        {
-                            std::cout << "Failed to delete file (unknown reason): " << metadataFile << "\n";
-                        }
-                    }
-                    catch (const fs::filesystem_error& e)
-                    {
-                        std::cerr << "Error deleting file: " << e.what() << "\n";
-                    }
-                }
-                else
-                {
-                    std::cout << "File does not exist: " << metadataFile << "\n";
-                }
+				// Delete metadata, thumbnail and imported asset?
+				// Delete metadata
+				fs::path metadataFile = libraryFolder / "Metadata" / (uuid + ".json");
+				if (fs::exists(metadataFile))
+				{
+					try
+					{
+						if (fs::remove(metadataFile))
+						{
+							std::cout << "Deleted file: " << metadataFile << "\n";
+						}
+						else
+						{
+							std::cout << "Failed to delete file (unknown reason): " << metadataFile << "\n";
+						}
+					}
+					catch (const fs::filesystem_error& e)
+					{
+						std::cerr << "Error deleting file: " << e.what() << "\n";
+					}
+				}
+				else
+				{
+					std::cout << "File does not exist: " << metadataFile << "\n";
+				}
 
-                continue;
-            }
+				continue;
+			}
 
-            // Fill struct and store in map
-            FileInfo info{ relPath, checksum, type };
-            fileMap[uuid] = info;
+			// Fill struct and store in map
+			FileInfo info{ relPath, checksum, type };
+			fileMap[uuid] = info;
 
-            ++it;
-        }
-    }
+			++it;
+		}
+	}
 
 	// Build a reverse lookup from path -> uuid for convenience
-    std::unordered_map<std::string, std::string> relPathToUuid;
-    for (const auto& [uuid, info] : fileMap)
-        relPathToUuid[info.path] = uuid;
+	std::unordered_map<std::string, std::string> relPathToUuid;
+	for (const auto& [uuid, info] : fileMap)
+		relPathToUuid[info.path] = uuid;
 
-    // Check all files in the asset folder
-    for (auto &p : fs::recursive_directory_iterator(assetPath))
-    {
-        if (!p.is_regular_file()) continue;
+	// Check all files in the Assets folder
+	for (auto &p : fs::recursive_directory_iterator(assetPath))
+	{
+		if (!p.is_regular_file()) continue;
 
-        std::string relPath = fs::relative(p.path(), assetPath).generic_string();
-        std::string checksum = generateFileChecksum(p.path().string());
+		std::string relPath = fs::relative(p.path(), assetPath).generic_string();
+		std::string checksum = generateFileChecksum(p.path().string());
 
-        std::string fileUuid;
-        std::string fileType;
+		std::string fileUuid;
+		std::string fileType;
+		bool needImport = false;
 
-        // Check with assets.json
-        auto it = relPathToUuid.find(relPath);
-        if (it == relPathToUuid.end())
-        {
-            // New file
-            std::string uuid = generateUuid();
-            std::string type = checkAssetType(p.path());
+		// Check with assets.json
+		auto it = relPathToUuid.find(relPath);
+		if (it == relPathToUuid.end())
+		{
+			// New file
+			std::string uuid = generateUuid();
+			std::string type = checkAssetType(p.path());
 
-            fileUuid = uuid;
-            fileType = type;
+			fileUuid = uuid;
+			fileType = type;
+			needImport = true;  // Need import
 
-            FileInfo info{ relPath, checksum, type };
-            fileMap[uuid] = info;
-            relPathToUuid[relPath] = uuid;
+			FileInfo info{ relPath, checksum, type };
+			fileMap[uuid] = info;
+			relPathToUuid[relPath] = uuid;
 
-            json newEntry = {
-                {"name", relPath},
-                {"uuid", uuid},
-                {"checksum", checksum},
-                {"type", type}
-            };
-            j["files"].push_back(newEntry);
+			json newEntry =
+			{
+				{"name", relPath},
+				{"uuid", uuid},
+				{"checksum", checksum},
+				{"type", type}
+			};
+			j["files"].push_back(newEntry);
 
-            std::cout << "New file added: " << relPath << "\n";
-        }
-        else
-        {
-            // Existing file, check checksum
-            std::string uuid = it->second;
-            FileInfo& info = fileMap[uuid];
+			std::cout << "New file added: " << relPath << "\n";
+		}
+		else
+		{
+			// Existing file, check checksum
+			std::string uuid = it->second;
+			FileInfo& info = fileMap[uuid];
 
-            fileUuid = uuid;
-            fileType = info.type;
+			fileUuid = uuid;
+			fileType = info.type;
 
-            if (info.checksum != checksum)
-            {
-                std::cout << "File changed: " << relPath << "\n";
-                info.checksum = checksum;
+			// Different checksum
+			if (info.checksum != checksum)
+			{
+				std::cout << "File changed: " << relPath << "\n";
+				info.checksum = checksum;
+				needImport = true;  // Need import
 
-                // Update JSON as well
-                for (auto& entry : j["files"])
-                {
-                    if (entry["uuid"] == uuid)
-                    {
-                        entry["checksum"] = checksum;
-                        break;
-                    }
-                }
-            }
-        }
+				// Update JSON as well
+				for (auto& entry : j["files"])
+				{
+					if (entry["uuid"] == uuid)
+					{
+						entry["checksum"] = checksum;
+						break;
+					}
+				}
+			}
+		}
 
-        // Check whether metadata exist or not
-        if (!fileUuid.empty() && !fileType.empty())
-        {
-            fs::path metaPath = libraryFolder / "Metadata" / (fileUuid + ".json");
+		if (!fileUuid.empty() && !fileType.empty())
+		{
+			// Check whether metadata exist or not
+			fs::path metaPath = libraryFolder / "Metadata" / (fileUuid + ".json");
 
-            if (!fs::exists(metaPath))
-            {
-                std::cout << "Missing meta file for UUID " << fileUuid << std::endl;
+			if (!fs::exists(metaPath))
+			{
+				std::cout << "Missing meta file for UUID " << fileUuid << std::endl;
 
-                // Create new meta file
-                nlohmann::json metaJson;
+				// Create new meta file
+				nlohmann::json metaJson;
 
-                // Populate the JSON with engine version and type, ignore properties for now
-                metaJson["version"] = kemena::engineVersion;
-                metaJson["type"] = fileType;
+				// Populate the JSON with engine version and type, ignore properties for now
+				metaJson["version"] = kemena::engineVersion;
+				metaJson["type"] = fileType;
 
-                // Write JSON to file
-                std::ofstream file(metaPath);
-                if (!file)
-                {
-                    std::cerr << "Failed to create metadata file: " << metaPath << "\n";
-                    return;
-                }
+				// Write JSON to file
+				std::ofstream file(metaPath);
+				if (!file)
+				{
+					std::cerr << "Failed to create metadata file: " << metaPath << "\n";
+					return;
+				}
 
-                file << metaJson.dump(4); // Pretty print with 4-space indent
-                file.close();
-            }
-            else
-            {
-                // Meta exists, you can optionally read it
-                // e.g., json metaJson = loadJson(metaPath);
-            }
-        }
-    }
+				file << metaJson.dump(4); // Pretty print with 4-space indent
+				file.close();
+			}
+			else
+			{
+				// Meta exists, you can optionally read it
+				// e.g., json metaJson = loadJson(metaPath);
+			}
+
+			// Fixed extension
+			string uuidExt;
+
+			if (fileType == "mesh")
+				uuidExt = ".glb";
+			else if (fileType == "image")
+				uuidExt = ".ktx2";
+
+			// Check whether imported asset exist or not
+			fs::path importedAssetPath = libraryFolder / "ImportedAssets" / (fileUuid + uuidExt);
+			if (!fs::exists(importedAssetPath))
+				needImport = true;  // Need import
+
+			// Check imported asset exist or not
+			if (needImport)
+			{
+				// Only import if it is mesh, image, etc.
+				if (fileType == "mesh" || fileType == "image")
+				{
+					fs::path from(assetPath / relPath);
+					fs::path to(libraryFolder / "ImportedAssets" / (fileUuid + uuidExt));
+
+					std:: cout << from << " -> " << to << std::endl;
+
+					importTasks.push_back(
+					{
+						from,
+						to,
+						fileType,
+						false,
+						false
+					});
+				}
+			}
+		}
+	}
 
 	// Save back
 	std::ofstream out(assetsJsonFile);
 	out << j.dump(4);
 	std::cout << "assets.json updated.\n";
+
+	// Begin batch imports
+	startBatchImport(importTasks);
 }
 
 void Manager::refreshWindowTitle()
@@ -517,4 +579,102 @@ std::string Manager::checkAssetType(const fs::path &p)
 		return "material";
 
 	return "unknown";     // Unknown
+}
+
+void Manager::startBatchImport(const std::vector<ImportTask>& tasks)
+{
+	{
+		std::scoped_lock lock(queueMutex);
+		importQueue = tasks;
+	}
+
+	filesProcessed = 0;
+	batchDone = false;
+
+	importFuture = std::async(std::launch::async, [this]()
+	{
+		for (auto& task : importQueue)
+		{
+			if (task.type == "mesh")
+			{
+				task.success = convertMeshToGlb(task.inputPath, task.outputPath);
+			}
+			else
+			{
+				// Not handled yet -> mark as skipped
+				task.success = false;
+				std::cout << "Skipping: " << task.inputPath
+						  << " (type=" << task.type << " not supported yet)\n";
+			}
+
+			filesProcessed++;
+		}
+		batchDone = true;
+	});
+}
+
+void Manager::drawImportPopup(PanelConsole* console)
+{
+	if (showImportPopup)
+	{
+	    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+		if (ImGui::BeginPopupModal("Importing Assets...", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			int totalFiles = (int)importQueue.size();
+			int processed  = filesProcessed.load();
+
+			float progress = (totalFiles > 0) ? (float)processed / (float)totalFiles : 0.0f;
+
+			if (!batchDone)
+			{
+				ImGui::Text("Converting files...");
+				ImGui::ProgressBar(progress, ImVec2(250.f, 0.f));
+				ImGui::Text("Processed %d / %d", processed, totalFiles);
+				ImGui::EndPopup();
+			}
+			else
+			{
+				// Record the time conversion finished
+				if (importEndTime.time_since_epoch().count() == 0)
+				{
+					importEndTime = std::chrono::steady_clock::now();
+				}
+
+				ImGui::Text("Import complete!");
+				//ImGui::Separator();
+
+				ImGui::ProgressBar(progress, ImVec2(250.f, 0.f));
+				ImGui::Text("Processed %d / %d", processed, totalFiles);
+
+				for (auto& task : importQueue)
+				{
+					/*ImGui::Text("%s -> %s [%s]",
+								task.inputPath.string().c_str(),
+								task.outputPath.string().c_str(),
+								task.success ? "OK" : "FAIL");*/
+
+                    if (!task.success && !task.reported)
+                    {
+                        console->addLog((string("Failed to import asset: ") + task.inputPath.string()).c_str());
+                        task.reported = true;
+                    }
+				}
+
+				// Auto-close after 2 seconds
+				auto now = std::chrono::steady_clock::now();
+				if (std::chrono::duration_cast<std::chrono::seconds>(now - importEndTime).count() >= 2)
+				{
+					ImGui::CloseCurrentPopup();
+					showImportPopup = false;
+					importEndTime = {}; // reset for next run
+				}
+
+				ImGui::EndPopup();
+
+				importTasks.clear();
+			}
+		}
+	}
 }

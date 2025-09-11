@@ -18,6 +18,7 @@
 
 #include "panel_project.h"
 #include "panel_hierarchy.h"
+#include "panel_console.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -32,10 +33,22 @@ using namespace kemena;
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
-struct FileInfo {
+// For project panel
+struct FileInfo
+{
     std::string path;   // path/name.ext
     std::string checksum;
-    std::string type;   // model, texture, prefab, etc.
+    std::string type;   // model, image, prefab, etc.
+};
+
+// For converting meshes or images
+struct ImportTask
+{
+    fs::path inputPath;
+    fs::path outputPath;
+    std::string type;   // model, image, etc.
+    bool success = false;
+    bool reported = false;
 };
 
 class PanelProject;
@@ -74,25 +87,40 @@ public:
 
     // World info
     string worldName = "";
-    string worldUuid = "";
+    //string worldUuid = "";
 
     PanelProject* panelProject;
     PanelHierarchy* panelHierarchy;
+
+    std::vector<ImportTask> importQueue;
+    std::future<void> importFuture;
+    std::atomic<int> filesProcessed{0};
+    std::atomic<bool> batchDone{false};
+    std::mutex queueMutex;
+
+    // For batch import
+    bool showImportPopup = false;
+    std::chrono::steady_clock::time_point importEndTime;
+
+    void drawImportPopup(PanelConsole* console);
+
+    std::vector<ImportTask> importTasks;
 
 private:
     kWindow* window;
     kWorld* world;
     std::string initialWindowTitle;
 
-    int initialResizeCount = 0;
+    //int initialResizeCount = 0;
 
     // Check project files
     std::unordered_map<std::string, FileInfo> fileMap; // key = uuid
 
-    std::map<std::string, std::string> fileDirty;   // Files that need to be put into fileGUID, or refresh checksum into fileMD5, or regenerate thumbnail etc.
-    std::string latestFileUuid = "";
+    //std::map<std::string, std::string> fileDirty;   // Files that need to be put into fileGUID, or refresh checksum into fileMD5, or regenerate thumbnail etc.
+    //std::string latestFileUuid = "";
 
     std::string checkAssetType(const fs::path &p);
+    void startBatchImport(const std::vector<ImportTask>& tasks);
 };
 
 #endif // FILEMANAGER_H
