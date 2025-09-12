@@ -2,10 +2,11 @@
 
 using namespace kemena;
 
-PanelHierarchy::PanelHierarchy(Manager* manager, kAssetManager* assetManager, kWorld* setWorld)
+PanelHierarchy::PanelHierarchy(Manager* setManager, kAssetManager* assetManager, kWorld* setWorld)
 	: root("World")
 {
-    manager->panelHierarchy = this;
+	manager = setManager;
+	manager->panelHierarchy = this;
 
 	kTexture2D* tex_add = assetManager->loadTexture2DFromResource("ICON_ADD_ROUND_BUTTON", "icon", kTextureFormat::TEX_FORMAT_RGBA);
 	iconAdd = (ImTextureRef)(intptr_t)tex_add->getTextureID();
@@ -121,7 +122,20 @@ void PanelHierarchy::drawHierarchyPanel(Node& root, bool* opened, bool enabled)
 
 			ImGui::BeginChild("HierarchyTree", ImVec2(0, availableHeight), true, ImGuiWindowFlags_HorizontalScrollbar);
 			{
-				drawNode(root, root);
+				if (manager->projectOpened)
+				{
+					drawNode(root, root);
+				}
+				else
+				{
+					std::string text = "No active world";
+					float textWidth = ImGui::CalcTextSize(text.c_str()).x;
+					float columnWidth = ImGui::GetColumnWidth();
+					float textX = ImGui::GetCursorPosX() + (columnWidth - textWidth) * 0.5f; // center horizontally
+					ImGui::SetCursorPosX(textX);
+
+					ImGui::Text(text.c_str());
+				}
 			}
 			ImGui::EndChild();
 		}

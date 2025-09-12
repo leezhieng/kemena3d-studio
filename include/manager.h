@@ -68,9 +68,10 @@ public:
     bool newProject();
     bool openProject();
 
-    void checkAssetJson();
+    void checkAssetChange();
 
     void refreshWindowTitle();
+    void closeEditor();
 
     // Editor path and directory
     fs::path exePath;
@@ -97,6 +98,9 @@ public:
     std::atomic<int> filesProcessed{0};
     std::atomic<bool> batchDone{false};
     std::mutex queueMutex;
+
+    // Prevents asset checks from running while a message box is open, even if the application remains focused
+    bool showingMessageBox = false;
 
     // For batch import
     bool showImportPopup = false;

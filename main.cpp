@@ -126,31 +126,14 @@ int main()
 
 			if (eventType == K_EVENT_QUIT)
 			{
-				if (!manager->projectSaved)
-				{
-					auto result = pfd::message(
-									  "Unsaved Changes",
-									  "Project not saved. Do you really want to quit?",
-									  pfd::choice::yes_no,
-									  pfd::icon::warning
-								  ).result();
-
-					if (result == pfd::button::yes)
-					{
-						window->setRunning(false); // user confirmed quit
-					}
-				}
-				else
-				{
-					window->setRunning(false);
-				}
+				manager->closeEditor();
 			}
 			else if (eventType == SDL_EVENT_WINDOW_FOCUS_GAINED)
 			{
 				// Check asset changes
 				if (manager->projectOpened && !manager->showImportPopup)
                 {
-                    manager->checkAssetJson();
+                    manager->checkAssetChange();
                 }
 			}
 			else if (eventType == K_EVENT_MOUSEBUTTONDOWN)

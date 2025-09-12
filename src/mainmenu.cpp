@@ -70,7 +70,7 @@ void MainMenu::draw(kGuiManager* gui, kWindow* window, Manager* manager, ShowPan
 			if (gui->menuItem("Build Settings", "", false, manager->projectOpened)) {}
 			if (gui->menuItem("Build And Run", "", false, manager->projectOpened)) {}
 			gui->separator();
-			if (gui->menuItem("Exit")) {}
+			if (gui->menuItem("Exit")) { manager->closeEditor(); }
 
 			gui->menuEnd();
 		}
