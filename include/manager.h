@@ -106,9 +106,12 @@ public:
     bool showImportPopup = false;
     std::chrono::steady_clock::time_point importEndTime;
 
+    std::vector<ImportTask> importTasks;
     void drawImportPopup(PanelConsole* console);
 
-    std::vector<ImportTask> importTasks;
+    // Check project files
+    std::unordered_map<std::string, FileInfo> fileMap; // key = uuid
+    std::unordered_map<std::string, std::string> uuidMap; // reverse lookup, key = filename
 
 private:
     kWindow* window;
@@ -116,9 +119,6 @@ private:
     std::string initialWindowTitle;
 
     //int initialResizeCount = 0;
-
-    // Check project files
-    std::unordered_map<std::string, FileInfo> fileMap; // key = uuid
 
     //std::map<std::string, std::string> fileDirty;   // Files that need to be put into fileGUID, or refresh checksum into fileMD5, or regenerate thumbnail etc.
     //std::string latestFileUuid = "";

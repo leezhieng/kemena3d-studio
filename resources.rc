@@ -55,7 +55,14 @@ ICON_WORLD_FILE RCDATA "res/icons/file/world.png"
 ICON_MATERIAL_FILE RCDATA "res/icons/file/material.png"
 ICON_OTHER_FILE RCDATA "res/icons/file/file.png"
 
-
+// Object
+ICON_OBJECT_WORLD RCDATA "res/icons/label/world.png"
+ICON_OBJECT_MESH RCDATA "res/icons/label/cube.png"
+ICON_OBJECT_SCENE RCDATA "res/icons/label/scene.png"
+ICON_OBJECT_EMPTY RCDATA "res/icons/label/axis.png"
+ICON_OBJECT_LIGHT RCDATA "res/icons/label/light.png"
+ICON_OBJECT_CAMERA RCDATA "res/icons/label/camera.png"
+ICON_OBJECT_PREFAB RCDATA "res/icons/label/cube-black.png"
 
 
 
@@ -70,9 +77,3 @@ ICON_FOLDER_LABEL RCDATA "res/icons/label/folder.png"
 ICON_INFO_LABEL RCDATA "res/icons/label/info.png"
 ICON_TERMINAL_LABEL RCDATA "res/icons/label/terminal.png"
 ICON_SCRIPT_LABEL RCDATA "res/icons/label/script.png"
-ICON_WORLD_LABEL RCDATA "res/icons/label/world.png"
-ICON_EMPTY_LABEL RCDATA "res/icons/label/axis.png"
-ICON_MESH_LABEL RCDATA "res/icons/label/cube.png"
-ICON_PREFAB_LABEL RCDATA "res/icons/label/cube-black.png"
-ICON_LIGHT_LABEL RCDATA "res/icons/label/light.png"
-ICON_CAMERA_LABEL RCDATA "res/icons/label/camera.png"

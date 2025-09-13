@@ -76,7 +76,7 @@ class PanelProject
 
 		void refreshTreeList();
 		void drawTreeNode(Node& node, Node& rootTree, int level = 0);
-		void populateTree(Node& parent, const fs::path& path);
+		void populateTree(Node& parent, const fs::path& fullPath);
 
 		void refreshThumbnailList();
 		void drawThumbnailNode(const Node& currentDir);

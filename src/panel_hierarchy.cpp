@@ -3,7 +3,7 @@
 using namespace kemena;
 
 PanelHierarchy::PanelHierarchy(Manager* setManager, kAssetManager* assetManager, kWorld* setWorld)
-	: root("World")
+	: root("World", "world", nullptr, "world")
 {
 	manager = setManager;
 	manager->panelHierarchy = this;
@@ -14,7 +14,31 @@ PanelHierarchy::PanelHierarchy(Manager* setManager, kAssetManager* assetManager,
 	kTexture2D* tex_mag = assetManager->loadTexture2DFromResource("ICON_MAGNIFIER_LABEL", "icon", kTextureFormat::TEX_FORMAT_RGBA);
 	iconMag = (ImTextureRef)(intptr_t)tex_mag->getTextureID();
 
+	// Object type icons
+    kTexture2D* tex_world = assetManager->loadTexture2DFromResource("ICON_OBJECT_WORLD", "icon", kTextureFormat::TEX_FORMAT_RGBA);
+	iconWorld = (ImTextureRef)(intptr_t)tex_world->getTextureID();
+
+	kTexture2D* tex_scene = assetManager->loadTexture2DFromResource("ICON_OBJECT_SCENE", "icon", kTextureFormat::TEX_FORMAT_RGBA);
+	iconScene = (ImTextureRef)(intptr_t)tex_scene->getTextureID();
+
+	kTexture2D* tex_mesh = assetManager->loadTexture2DFromResource("ICON_OBJECT_MESH", "icon", kTextureFormat::TEX_FORMAT_RGBA);
+	iconMesh = (ImTextureRef)(intptr_t)tex_mesh->getTextureID();
+
+	kTexture2D* tex_empty = assetManager->loadTexture2DFromResource("ICON_OBJECT_EMPTY", "icon", kTextureFormat::TEX_FORMAT_RGBA);
+	iconEmpty = (ImTextureRef)(intptr_t)tex_empty->getTextureID();
+
+	kTexture2D* tex_light = assetManager->loadTexture2DFromResource("ICON_OBJECT_LIGHT", "icon", kTextureFormat::TEX_FORMAT_RGBA);
+	iconLight = (ImTextureRef)(intptr_t)tex_light->getTextureID();
+
+	kTexture2D* tex_camera = assetManager->loadTexture2DFromResource("ICON_OBJECT_CAMERA", "icon", kTextureFormat::TEX_FORMAT_RGBA);
+	iconCamera = (ImTextureRef)(intptr_t)tex_camera->getTextureID();
+
+	kTexture2D* tex_prefab = assetManager->loadTexture2DFromResource("ICON_OBJECT_PREFAB", "icon", kTextureFormat::TEX_FORMAT_RGBA);
+	iconPrefab = (ImTextureRef)(intptr_t)tex_prefab->getTextureID();
+
 	world = setWorld;
+
+	root = Node("World", "world", iconWorld, "world");
 }
 
 void PanelHierarchy::deselectAll(Node& root)
@@ -26,11 +50,22 @@ void PanelHierarchy::deselectAll(Node& root)
 	}
 }
 
-void PanelHierarchy::drawNode(Node& node, Node& root)
+void PanelHierarchy::drawNode(Node& node, Node& root, int level)
 {
-	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen;
+	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 	if (node.isSelected) flags |= ImGuiTreeNodeFlags_Selected;
 	if (node.children.empty()) flags |= ImGuiTreeNodeFlags_Leaf;
+
+	// Only expand world and scene by default
+	if (level <= 1)
+	{
+		flags |= ImGuiTreeNodeFlags_DefaultOpen;
+	}
+
+	// Draw the icon
+	ImGui::Image(node.icon, ImVec2(16, 16));
+
+	ImGui::SameLine();
 
 	bool nodeOpen = ImGui::TreeNodeEx(node.name.c_str(), flags);
 
@@ -45,9 +80,11 @@ void PanelHierarchy::drawNode(Node& node, Node& root)
 
 	if (nodeOpen)
 	{
+	    level++;
+
 		for (auto& child : node.children)
 		{
-			drawNode(*child, root);
+			drawNode(*child, root, level);
 		}
 		ImGui::TreePop();
 	}
@@ -67,7 +104,7 @@ void PanelHierarchy::drawHierarchyPanel(Node& root, bool* opened, bool enabled)
 
 		// Add button
 		{
-			if (ImGui::ImageButton("add",
+			if (ImGui::ImageButton("AddButton",
 								   iconAdd,
 								   ImVec2(16, 16),
 								   ImVec2(0, 0), ImVec2(1, 1), // UVs
@@ -106,7 +143,7 @@ void PanelHierarchy::drawHierarchyPanel(Node& root, bool* opened, bool enabled)
 
 			// Input aligned with button height
 			ImGui::SetNextItemWidth(-FLT_MIN);
-			ImGui::InputTextWithHint("##search", "Search...", searchBuffer, IM_ARRAYSIZE(searchBuffer));
+			ImGui::InputTextWithHint("##SearchHierarchy", "Search...", searchBuffer, IM_ARRAYSIZE(searchBuffer));
 		}
 		ImGui::EndGroup();
 
@@ -124,7 +161,7 @@ void PanelHierarchy::drawHierarchyPanel(Node& root, bool* opened, bool enabled)
 			{
 				if (manager->projectOpened)
 				{
-					drawNode(root, root);
+					drawNode(root, root, 0);
 				}
 				else
 				{
@@ -160,7 +197,7 @@ void PanelHierarchy::refreshList()
 			kScene* scene = world->getScenes().at(i);
 
 			// Add scene to root
-			auto& sceneNode = root.children.emplace_back(std::make_unique<Node>(scene->getName()));
+			auto& sceneNode = root.children.emplace_back(std::make_unique<Node>(scene->getName(), scene->getUuid(), iconScene, "scene"));
 
 			// Loop through objects in the scene
 			kObject* rootNode = scene->getRootNode();
@@ -169,35 +206,42 @@ void PanelHierarchy::refreshList()
 				for (size_t j = 0; j < rootNode->getChildren().size(); ++j)
 				{
 					kObject* childNode = rootNode->getChildren().at(j);
-					//int icon;
+					ImTextureRef icon;
+					string type = "";
 
 					// WIP: Save the list item to the kObject?
 
 					if (childNode->getType() == kNodeType::NODE_TYPE_OBJECT)
 					{
 						// Empty node
-						//icon = hierarchyPane->iconIndexObject;
+						icon = iconEmpty;
+						type = "object";
 					}
 					else if (childNode->getType() == kNodeType::NODE_TYPE_MESH)
 					{
 						// Mesh
-						//icon = hierarchyPane->iconIndexMesh;
+						icon = iconMesh;
+						type = "mesh";
 					}
 					else if (childNode->getType() == kNodeType::NODE_TYPE_LIGHT)
 					{
 						// Light
-						//icon = hierarchyPane->iconIndexLight;
+						icon = iconLight;
+						type = "light";
 					}
 					else if (childNode->getType() == kNodeType::NODE_TYPE_CAMERA)
 					{
 						// Camera
-						//icon = hierarchyPane->iconIndexCamera;
+						icon = iconCamera;
+						type = "camera";
 					}
 					else
 					{
+					    icon = iconEmpty;
+						type = "unknown";
 					}
 
-					sceneNode->children.push_back(std::make_unique<Node>(childNode->getName()));
+					sceneNode->children.push_back(std::make_unique<Node>(childNode->getName(), childNode->getUuid(), icon, type));
 				}
 			}
 		}

@@ -3,7 +3,7 @@
 using namespace kemena;
 
 PanelProject::PanelProject(Manager* setManager, kAssetManager* assetManager)
-	: rootTree("Assets", "", nullptr, 0), rootThumbnail("Assets", "", nullptr, 0)
+	: rootTree("Assets", "asset", nullptr, 0), rootThumbnail("Assets", "asset", nullptr, 0)
 {
 	manager = setManager;
 	manager->panelProject = this;
@@ -59,8 +59,8 @@ PanelProject::PanelProject(Manager* setManager, kAssetManager* assetManager)
 	kTexture2D* tex_other = assetManager->loadTexture2DFromResource("ICON_OTHER_FILE", "icon", kTextureFormat::TEX_FORMAT_RGBA);
 	iconOther = (ImTextureRef)(intptr_t)tex_other->getTextureID();
 
-	rootTree = Node("Asset", "", (ImTextureID)(intptr_t)tex_folder->getTextureID(), 0);
-	rootThumbnail = Node("Asset", "", (ImTextureID)(intptr_t)tex_folder->getTextureID(), 0);
+	rootTree = Node("Asset", "asset", (ImTextureID)(intptr_t)tex_folder->getTextureID(), 0);
+	rootThumbnail = Node("Asset", "asset", (ImTextureID)(intptr_t)tex_folder->getTextureID(), 0);
 }
 
 void PanelProject::deselectAll(Node& root)
@@ -86,7 +86,7 @@ void PanelProject::drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* o
 
 		// Up button
 		{
-			if (ImGui::ImageButton("up",
+			if (ImGui::ImageButton("UpButton",
 								   iconUp, // Size
 								   ImVec2(16, 16),
 								   ImVec2(0, 0), ImVec2(1,1), // UVs
@@ -98,6 +98,12 @@ void PanelProject::drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* o
 				needRefreshList = true;
 			}
 			upTint = ImGui::IsItemActive() ? ImVec4(1,1,1,0.5f) : ImVec4(1,1,1,1);
+
+			// Add tooltip
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Go to parent directory");
+            }
 		}
 
 		// Put next item on the same line
@@ -105,7 +111,7 @@ void PanelProject::drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* o
 
 		// Add button
 		{
-			if (ImGui::ImageButton("add",
+			if (ImGui::ImageButton("AddButton",
 								   iconAdd,
 								   ImVec2(16, 16),
 								   ImVec2(0, 0), ImVec2(1,1), // UVs
@@ -114,6 +120,12 @@ void PanelProject::drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* o
 			{
 			}
 			addTint = ImGui::IsItemActive() ? ImVec4(1, 1, 1, 0.5f) : ImVec4(1, 1, 1, 1);
+
+			// Add tooltip
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Import assets to project");
+            }
 		}
 
 		ImGui::PopStyleVar(); // Restore spacing
@@ -149,7 +161,7 @@ void PanelProject::drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* o
 			// Search input
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(iconSize + 8, 3));
 			ImGui::SetNextItemWidth(searchWidth);
-			ImGui::InputTextWithHint("##search", "Search...", searchBuffer, IM_ARRAYSIZE(searchBuffer));
+			ImGui::InputTextWithHint("##SearchProject", "Search...", searchBuffer, IM_ARRAYSIZE(searchBuffer));
 			ImGui::PopStyleVar();
 
 			ImGui::SameLine(0.0f, 8.0f);
@@ -158,8 +170,8 @@ void PanelProject::drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* o
 			{
 				if (displayThumbnail)
 				{
-					if (ImGui::ImageButton("thumbnail",
-										   iconThumbnail,
+					if (ImGui::ImageButton("ListButton",
+										   iconList,
 										   ImVec2(16, 16),
 										   ImVec2(0,0), ImVec2(1,1), // UVs
 										   ImVec4(0, 0, 0, 0), // Background color
@@ -167,11 +179,17 @@ void PanelProject::drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* o
 					{
 						displayThumbnail = false;
 					}
+
+					// Add tooltip
+                    if (ImGui::IsItemHovered())
+                    {
+                        ImGui::SetTooltip("Switch to list view");
+                    }
 				}
 				else
 				{
-					if (ImGui::ImageButton("list",
-										   iconList,
+					if (ImGui::ImageButton("ThumbnailButton",
+										   iconThumbnail,
 										   ImVec2(16, 16),
 										   ImVec2(0,0), ImVec2(1,1), // UVs
 										   ImVec4(0, 0, 0, 0), // Background color
@@ -179,6 +197,12 @@ void PanelProject::drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* o
 					{
 						displayThumbnail = true;
 					}
+
+					// Add tooltip
+                    if (ImGui::IsItemHovered())
+                    {
+                        ImGui::SetTooltip("Switch to thumbnail view");
+                    }
 				}
 			}
 		}
@@ -242,26 +266,26 @@ void PanelProject::refreshTreeList()
 	if (!manager->projectOpened)
 		return;
 
-	fs::path path = manager->projectPath;
-	path /= "Assets"; // Tree view always show the full project structure
+	fs::path fullPath = manager->projectPath;
+	fullPath /= "Assets"; // Tree view always show the full project structure
 
-	if (!fs::exists(path) || !fs::is_directory(path))
+	if (!fs::exists(fullPath) || !fs::is_directory(fullPath))
 	{
-		std::cerr << "Path does not exist or is not a directory: " << path << "\n";
+		std::cerr << "Path does not exist or is not a directory: " << fullPath << "\n";
 		return;
 	}
 
 	// Root node setup
-	std::string lastFolder = path.filename().string();
-	rootTree.name = lastFolder;
-	rootTree.uuid = "";
+	std::string folderName = fullPath.filename().string();
+	rootTree.name = folderName;
+	rootTree.uuid = "asset";
 	rootTree.icon = iconFolder;
 	rootTree.type = 0;
 	rootTree.isSelected = false;
 	rootTree.children.clear();
 
 	// Fill recursively
-	populateTree(rootTree, path);
+	populateTree(rootTree, fullPath);
 }
 
 void PanelProject::drawTreeNode(Node& node, Node& rootTree, int level)
@@ -281,31 +305,18 @@ void PanelProject::drawTreeNode(Node& node, Node& rootTree, int level)
 
 	ImGui::SameLine();
 
-	//bool nodeOpen = ImGui::TreeNodeEx(node.uuid.c_str(), flags, "%s", node.name.c_str());
-	bool nodeOpen = ImGui::TreeNodeEx(node.name.c_str(), flags, "%s", node.name.c_str());
+	bool nodeOpen = ImGui::TreeNodeEx(node.uuid.c_str(), flags, "%s", node.name.c_str());
 
 	// Detect double-click on this tree node
 	if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 	{
 		// Handle double-click
-		//std::cout << "Double-clicked: " << node.name.c_str() << " ,Level:" << level << std::endl;
+		std::cout << "Double-clicked: " << node.uuid.c_str() << " ,Level:" << level << std::endl;
 
 		// Folder
 		if (node.type == 0)
 		{
 			// Toggle open/close
-			// WIP
-
-			if (level == 0)
-			{
-				//manager->closeFolder();
-				//needRefreshList = true;
-			}
-			else if (level == 1)
-			{
-				//manager->openFolder(node.name);
-				//needRefreshList = true;
-			}
 		}
 	}
 
@@ -330,19 +341,21 @@ void PanelProject::drawTreeNode(Node& node, Node& rootTree, int level)
 	}
 }
 
-void PanelProject::populateTree(Node& parent, const fs::path& path)
+void PanelProject::populateTree(Node& parent, const fs::path& fullPath)
 {
-	if (fs::is_empty(path))
+	if (fs::is_empty(fullPath))
 		return;
 
+    fs::path assetsPath = manager->projectPath / "Assets";
+
 	// --- First: Directories ---
-	for (const auto& entry : fs::directory_iterator(path))
+	for (const auto& entry : fs::directory_iterator(fullPath))
 	{
 		if (entry.is_directory())
 		{
 			auto child = std::make_unique<Node>(
 							 entry.path().filename().string(),
-							 "",
+							 "Folder_" + entry.path().filename().string(),
 							 iconFolder,
 							 0
 						 );
@@ -355,7 +368,7 @@ void PanelProject::populateTree(Node& parent, const fs::path& path)
 	}
 
 	// --- Second: Files ---
-	for (const auto& entry : fs::directory_iterator(path))
+	for (const auto& entry : fs::directory_iterator(fullPath))
 	{
 		if (entry.is_regular_file())
 		{
@@ -383,9 +396,14 @@ void PanelProject::populateTree(Node& parent, const fs::path& path)
 			else
 				icon = iconOther;
 
+            std::string relativePath = fs::relative(entry.path(), assetsPath).generic_string();
+
+            std::string uuid = manager->uuidMap[relativePath];
+            //std::cout << relativePath << " -> " << uuid << std::endl;
+
 			parent.children.emplace_back(std::make_unique<Node>(
 											 entry.path().filename().string(),
-											 "",
+											 uuid,
 											 icon,
 											 1
 										 ));
@@ -397,57 +415,61 @@ void PanelProject::refreshThumbnailList()
 {
 	if (manager->projectOpened)
 	{
-		fs::path path = manager->projectPath;
+		fs::path fullPath = manager->projectPath;
+		fs::path assetsPath = manager->projectPath / "Assets";
+
 		if (!manager->currentDir.empty())
 		{
 			for (const auto& dir : manager->currentDir)
-				path /= dir;  // appends with correct separator for the platform
+            {
+				fullPath /= dir;  // appends with correct separator for the platform
+            }
 		}
 
-		if (!fs::exists(path) || !fs::is_directory(path))
+		if (!fs::exists(fullPath) || !fs::is_directory(fullPath))
 		{
-			std::cerr << "Path does not exist or is not a directory: " << path << "\n";
+			std::cerr << "Path does not exist or is not a directory: " << fullPath << "\n";
 			return;
 		}
 
-		if (fs::is_directory(path))
+		if (fs::is_directory(fullPath))
 		{
-			std::string lastFolder = path.filename().string();
-			//std::cout << "Last folder: " << lastFolder << "\n";
-			//std::cout << "Last folder: " << path << "\n";
+			std::string folderName = fullPath.filename().string();
+			//std::cout << "Last folder: " << folderName << "\n";
+			//std::cout << "Last folder: " << fullPath << "\n";
 
 			// Check whether uuid already exist for this folder
 			// Generate a uuid if haven't, then save to the list
 
 			// Reset root safely
-			rootThumbnail.name = lastFolder;
-			rootThumbnail.uuid = "";
+			rootThumbnail.name = folderName;
+			rootThumbnail.uuid = "Assets";
 			rootThumbnail.icon = iconFolder;
 			rootThumbnail.type = 0;
 			rootThumbnail.isSelected = false;
 			rootThumbnail.children.clear();
 		}
 
-		// Loop through all the folders and files in path
-		if (!fs::exists(path))
+		// Loop through all the folders and files in fullPath
+		if (!fs::exists(fullPath))
 		{
-			std::cerr << "Path does not exist: " << path << "\n";
+			std::cerr << "Path does not exist: " << fullPath << "\n";
 			return;
 		}
 
 		// Do directory first
 		{
-			if (!fs::is_empty(path))
+			if (!fs::is_empty(fullPath))
 			{
 				// Do for folders
 				{
-					for (const auto& entry : fs::directory_iterator(path))
+					for (const auto& entry : fs::directory_iterator(fullPath))
 					{
 						if (entry.is_directory())
 						{
 							rootThumbnail.children.emplace_back(std::make_unique<Node>(
 																	entry.path().filename().string(),
-																	"",
+																	"Folder_" + entry.path().filename().string(),
 																	iconFolder,
 																	0
 																));
@@ -457,7 +479,7 @@ void PanelProject::refreshThumbnailList()
 
 				// Do for files
 				{
-					for (const auto& entry : fs::directory_iterator(path))
+					for (const auto& entry : fs::directory_iterator(fullPath))
 					{
 						if (entry.is_regular_file())
 						{
@@ -485,9 +507,13 @@ void PanelProject::refreshThumbnailList()
 							else
 								icon = iconOther;
 
+                            std::string relativePath = fs::relative(entry.path(), assetsPath).generic_string();
+                            std::string uuid = manager->uuidMap[relativePath];
+                            //std::cout << relativePath << " -> " << uuid << std::endl;
+
 							rootThumbnail.children.emplace_back(std::make_unique<Node>(
 																	entry.path().filename().string(),
-																	"",
+																	uuid,
 																	icon,
 																	1
 																));
@@ -534,15 +560,24 @@ void PanelProject::drawThumbnailNode(const Node& currentDir)
 					child->isSelected = !child->isSelected;
 				}
 
-				// Double-click to open folder
-				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && child->type == 0)
+				// Handle double-click
+				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 				{
-					manager->openFolder(child->name);
-					needRefreshList = true;
-					ImGui::Columns(1); // reset columns before returning
-					ImGui::PopID();
-					ImGui::EndGroup();
-					return;
+				    if (child->type == 0)
+                    {
+                        // Folder
+                        manager->openFolder(child->name);
+                        needRefreshList = true;
+                        ImGui::Columns(1); // reset columns before returning
+                        ImGui::PopID();
+                        ImGui::EndGroup();
+                        return;
+                    }
+                    else
+                    {
+                        // File
+                        std::cout << "Double-clicked: " << child->uuid.c_str() << std::endl;
+                    }
 				}
 
 				std::string displayName = fitTextWithEllipsisUtf8(child->name, columnWidth - 4.0f);

@@ -277,7 +277,7 @@ void Manager::checkAssetChange()
 	{
 		fs::path libraryFolder = projectPath / "Library";
 		fs::path assetsJsonFile = libraryFolder / "assets.json";
-		fs::path assetPath = projectPath / "Assets";
+		fs::path assetsPath = projectPath / "Assets";
 
 		// Check whether assets.json exist or not
 		try
@@ -348,15 +348,15 @@ void Manager::checkAssetChange()
 			for (auto it = j["files"].begin(); it != j["files"].end();)
 			{
 				std::string uuid = (*it)["uuid"].get<std::string>();
-				std::string relPath = (*it)["name"].get<std::string>();
+				std::string relativePath = (*it)["name"].get<std::string>();
 				std::string checksum = (*it).value("checksum", "");
 				std::string type = (*it)["type"].get<std::string>();
 
-				fs::path filePath = assetPath / relPath;
+				fs::path filePath = assetsPath / relativePath;
 
 				if (!fs::exists(filePath))
 				{
-					std::cout << "Missing: " << relPath << " (removed from list)\n";
+					std::cout << "Missing: " << relativePath << " (removed from list)\n";
 					it = j["files"].erase(it);
 
 					// Delete metadata, thumbnail and imported asset?
@@ -422,7 +422,7 @@ void Manager::checkAssetChange()
 				}
 
 				// Fill struct and store in map
-				FileInfo info{ relPath, checksum, type };
+				FileInfo info{ relativePath, checksum, type };
 				fileMap[uuid] = info;
 
 				++it;
@@ -430,16 +430,16 @@ void Manager::checkAssetChange()
 		}
 
 		// Build a reverse lookup from path -> uuid for convenience
-		std::unordered_map<std::string, std::string> relPathToUuid;
+		uuidMap.clear();
 		for (const auto& [uuid, info] : fileMap)
-			relPathToUuid[info.path] = uuid;
+			uuidMap[info.path] = uuid;
 
 		// Check all files in the Assets folder
-		for (auto &p : fs::recursive_directory_iterator(assetPath))
+		for (auto &p : fs::recursive_directory_iterator(assetsPath))
 		{
 			if (!p.is_regular_file()) continue;
 
-			std::string relPath = fs::relative(p.path(), assetPath).generic_string();
+			std::string relativePath = fs::relative(p.path(), assetsPath).generic_string();
 			std::string checksum = generateFileChecksum(p.path().string());
 
 			std::string fileUuid;
@@ -447,8 +447,8 @@ void Manager::checkAssetChange()
 			bool needImport = false;
 
 			// Check with assets.json
-			auto it = relPathToUuid.find(relPath);
-			if (it == relPathToUuid.end())
+			auto it = uuidMap.find(relativePath);
+			if (it == uuidMap.end())
 			{
 				// New file
 				std::string uuid = generateUuid();
@@ -458,20 +458,20 @@ void Manager::checkAssetChange()
 				fileType = type;
 				needImport = true;  // Need import
 
-				FileInfo info{ relPath, checksum, type };
+				FileInfo info{ relativePath, checksum, type };
 				fileMap[uuid] = info;
-				relPathToUuid[relPath] = uuid;
+				uuidMap[relativePath] = uuid;
 
 				json newEntry =
 				{
-					{"name", relPath},
+					{"name", relativePath},
 					{"uuid", uuid},
 					{"checksum", checksum},
 					{"type", type}
 				};
 				j["files"].push_back(newEntry);
 
-				std::cout << "New file added: " << relPath << "\n";
+				std::cout << "New file added: " << relativePath << "\n";
 			}
 			else
 			{
@@ -485,7 +485,7 @@ void Manager::checkAssetChange()
 				// Different checksum
 				if (info.checksum != checksum)
 				{
-					std::cout << "File changed: " << relPath << "\n";
+					std::cout << "File changed: " << relativePath << "\n";
 					info.checksum = checksum;
 					needImport = true;  // Need import
 
@@ -553,7 +553,7 @@ void Manager::checkAssetChange()
 					// Only import if it is mesh, image, etc.
 					if (fileType == "mesh" || fileType == "image")
 					{
-						fs::path from(assetPath / relPath);
+						fs::path from(assetsPath / relativePath);
 						fs::path to(libraryFolder / "ImportedAssets" / (fileUuid + uuidExt));
 
 						std:: cout << from << " -> " << to << std::endl;
@@ -674,8 +674,7 @@ void Manager::startBatchImport(const std::vector<ImportTask>& tasks)
 			{
 				// Not handled yet -> mark as skipped
 				task.success = false;
-				std::cout << "Skipping: " << task.inputPath
-						  << " (type=" << task.type << " not supported yet)\n";
+				std::cout << "Skipping: " << task.inputPath << " (type=" << task.type << " not supported yet)\n";
 			}
 
 			filesProcessed++;
