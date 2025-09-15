@@ -2,9 +2,10 @@
 
 using namespace kemena;
 
-PanelHierarchy::PanelHierarchy(Manager* setManager, kAssetManager* assetManager, kWorld* setWorld)
+PanelHierarchy::PanelHierarchy(kGuiManager* setGuiManager, Manager* setManager, kAssetManager* assetManager, kWorld* setWorld)
 	: root("World", "world", nullptr, "world")
 {
+    gui = setGuiManager;
 	manager = setManager;
 	manager->panelHierarchy = this;
 
@@ -69,6 +70,7 @@ void PanelHierarchy::drawNode(Node& node, Node& root, int level)
 
 	bool nodeOpen = ImGui::TreeNodeEx(node.name.c_str(), flags);
 
+	// Item clicked
 	if (ImGui::IsItemClicked())
 	{
 		if (!ImGui::GetIO().KeyShift)
@@ -76,6 +78,13 @@ void PanelHierarchy::drawNode(Node& node, Node& root, int level)
 			deselectAll(root);
 		}
 		node.isSelected = !node.isSelected || ImGui::GetIO().KeyShift;
+
+		std::cout << "Object clicked: " << node.uuid.c_str() << " ,Level:" << level << std::endl;
+
+		if (ImGui::GetIO().KeyShift)
+            manager->selectObject(node.uuid, false);
+        else
+            manager->selectObject(node.uuid, true);
 	}
 
 	if (nodeOpen)
@@ -90,9 +99,9 @@ void PanelHierarchy::drawNode(Node& node, Node& root, int level)
 	}
 }
 
-void PanelHierarchy::drawHierarchyPanel(Node& root, bool* opened, bool enabled)
+void PanelHierarchy::drawHierarchyPanel(Node& root, bool* opened)
 {
-	ImGui::BeginDisabled(!enabled);
+	ImGui::BeginDisabled(!manager->projectOpened);
 
 	if (ImGui::Begin("Hierarchy", opened))
 	{
@@ -182,10 +191,10 @@ void PanelHierarchy::drawHierarchyPanel(Node& root, bool* opened, bool enabled)
 	ImGui::EndDisabled();
 }
 
-void PanelHierarchy::draw(kGuiManager* gui, bool& opened, bool enabled)
+void PanelHierarchy::draw(bool& opened)
 {
 	if (opened)
-		drawHierarchyPanel(root, &opened, enabled);
+		drawHierarchyPanel(root, &opened);
 }
 
 void PanelHierarchy::refreshList()

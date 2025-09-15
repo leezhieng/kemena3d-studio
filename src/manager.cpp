@@ -748,3 +748,24 @@ void Manager::drawImportPopup(PanelConsole* console)
 		}
 	}
 }
+
+void Manager::selectObject(const std::string uuid, bool clearList)
+{
+    if (clearList)
+        selectedObjects.clear();
+
+    auto it = std::find(selectedObjects.begin(), selectedObjects.end(), uuid);
+    if (it == selectedObjects.end())
+    {
+        selectedObjects.push_back(uuid);
+    }
+}
+
+void Manager::deselectObject(const std::string uuid)
+{
+    auto it = std::find(selectedObjects.begin(), selectedObjects.end(), uuid);
+    if (it != selectedObjects.end())
+    {
+        selectedObjects.erase(it);
+    }
+}

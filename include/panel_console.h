@@ -3,6 +3,8 @@
 
 #include "kemena/kemena.h"
 
+#include "manager.h"
+
 #include <imgui.h>
 #include <vector>
 #include <string>
@@ -19,25 +21,30 @@ struct ConsoleItem
 	LogLevel level;
 };
 
+class Manager;
+
 class PanelConsole
 {
 	private:
 		std::vector<ConsoleItem> consoleItems;
-		char inputBuf[256];
+		char inputBuf[256] = "";
 		bool scrollToBottom = false;
 
 		std::unordered_set<int> selectedIndices; // all selected lines
-        int lastClickedIndex = -1;               // for shift selection
+        size_t lastClickedIndex = -1;               // for shift selection
 
         bool showCopiedTooltip = false;
         float copiedTooltipTime = 0.0f; // in seconds
         const float copiedTooltipDuration = 1.0f; // show 1 second
 
 	public:
-		PanelConsole(kGuiManager* gui);
+		PanelConsole(kGuiManager* setGuiManager, Manager* setManager);
 		void addLog(LogLevel level, const char* fmt, ...);
 		static int textEditCallback(ImGuiInputTextCallbackData* data);
-		void draw(kGuiManager* gui, bool& opened, bool enabled);
+		void draw(bool& opened);
+
+		Manager* manager;
+		kGuiManager* gui;
 };
 
 #endif

@@ -45,12 +45,12 @@ int main()
 	Manager* manager = new Manager(window, world);
 
 	// Initialize panels
-	MainMenu* mainmenu = new MainMenu();
-	PanelWorld* panelWorld = new PanelWorld();
-	PanelInspector* panelInspector = new PanelInspector();
-	PanelProject* panelProject = new PanelProject(manager, assetManager);
-	PanelHierarchy* panelHierarchy = new PanelHierarchy(manager, assetManager, world);
-	PanelConsole* panelConsole = new PanelConsole(gui);
+	MainMenu* mainmenu = new MainMenu(gui, manager);
+	PanelWorld* panelWorld = new PanelWorld(gui, manager);
+	PanelInspector* panelInspector = new PanelInspector(gui, manager);
+	PanelProject* panelProject = new PanelProject(gui, manager, assetManager);
+	PanelHierarchy* panelHierarchy = new PanelHierarchy(gui, manager, assetManager, world);
+	PanelConsole* panelConsole = new PanelConsole(gui, manager);
 
 	// Load default editor layout
 	mainmenu->registerPanelStateHandler();
@@ -239,13 +239,13 @@ int main()
 		gui->canvasStart();
 		gui->dockSpaceStart("MainDockSpace");
 
-		mainmenu->draw(gui, window, manager, showPanel);
+		mainmenu->draw(window, showPanel);
 
-		panelWorld->draw(gui, showPanel.world, manager->projectOpened, renderer, cameraEditor);
-		panelInspector->draw(gui, showPanel.inspector, manager->projectOpened);
-		panelHierarchy->draw(gui, showPanel.hierarchy, manager->projectOpened);
-		panelProject->draw(gui, showPanel.project, manager->projectOpened);
-		panelConsole->draw(gui, showPanel.console, manager->projectOpened);
+		panelWorld->draw(showPanel.world, renderer, cameraEditor);
+		panelInspector->draw(showPanel.inspector);
+		panelHierarchy->draw(showPanel.hierarchy);
+		panelProject->draw(showPanel.project);
+		panelConsole->draw(showPanel.console);
 
 		// If there's a need to import assets
 		manager->drawImportPopup(panelConsole);

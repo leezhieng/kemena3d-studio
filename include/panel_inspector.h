@@ -3,13 +3,18 @@
 
 #include "kemena/kemena.h"
 
+#include "manager.h"
+
 using namespace kemena;
 
 class PanelInspector
 {
 	public:
-		PanelInspector();
-		void draw(kGuiManager* gui, bool& opened, bool enabled, std::vector<kObject*> selectedObjects = std::vector<kObject*>());
+		PanelInspector(kGuiManager* setGuiManager, Manager* setManager);
+		void draw(bool& opened);
+
+		Manager* manager;
+		kGuiManager* gui;
 };
 
 #endif

@@ -31,15 +31,18 @@ inline std::string layoutFileName = "layout.ini";
 class MainMenu
 {
 	public:
-		MainMenu();
+		MainMenu(kGuiManager* setGuiManager, Manager* setManager);
 		static void SDLCALL saveWorkspaceCallback(void* userdata, const char* const* filelist, int filter);
 		static void SDLCALL loadWorkspaceCallback(void* userdata, const char* const* filelist, int filter);
-		void draw(kGuiManager* gui, kWindow* window, Manager* manager, ShowPanel& showPanel);
+		void draw(kWindow* window, ShowPanel& showPanel);
 
 		static void* readOpen(ImGuiContext*, ImGuiSettingsHandler*, const char* name);
 		static void readLine(ImGuiContext*, ImGuiSettingsHandler*, void*, const char* line);
 		static void writeAll(ImGuiContext*, ImGuiSettingsHandler*, ImGuiTextBuffer* out_buf);
 		static void registerPanelStateHandler();
+
+		Manager* manager;
+		kGuiManager* gui;
 };
 
 #endif

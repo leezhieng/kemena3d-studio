@@ -1,91 +1,103 @@
 #include "panel_inspector.h"
 
-PanelInspector::PanelInspector()
+PanelInspector::PanelInspector(kGuiManager* setGuiManager, Manager* setManager)
 {
+    gui = setGuiManager;
+    manager = setManager;
 }
 
-void PanelInspector::draw(kGuiManager* gui, bool& opened, bool enabled, std::vector<kObject*> selectedObjects)
+void PanelInspector::draw(bool& opened)
 {
 	if (opened)
 	{
-		if (!enabled)
+		if (!manager->projectOpened)
 			ImGui::BeginDisabled(true);
 
 		gui->windowStart("Inspector", &opened);
 
-		if (selectedObjects.size() > 0)
+		if (manager->selectedObjects.size() > 0)
 		{
-			// Icon on the left
-			gui->groupStart();
-			gui->button("Icon", ivec2(48, 48)); // Replace with ImGui::Image for real icon
-			gui->groupEnd();
+		    if (manager->selectedObjects.size() == 1)
+            {
+                // Only 1 object selected
 
-			gui->sameLine();
+                // Icon on the left
+                gui->groupStart();
+                gui->button("Icon", ivec2(48, 48)); // Replace with ImGui::Image for real icon
+                gui->groupEnd();
 
-			// Right side (name + checkboxes)
-			gui->groupStart();
+                gui->sameLine();
 
-			// Name field
-			static char name[128] = "My Object";
-			ImGui::SetNextItemWidth(-FLT_MIN);
-			ImGui::InputText("##Name", name, IM_ARRAYSIZE(name));
+                // Right side (name + checkboxes)
+                gui->groupStart();
 
-			// Visible + Static in the same row
-			static bool enabled = true;
-			static bool isStatic = false;
-			gui->checkbox("Enabled", &enabled);
-			gui->sameLine();
-			gui->checkbox("Static", &isStatic);
+                // Name field
+                static char name[128] = "My Object";
+                ImGui::SetNextItemWidth(-FLT_MIN);
+                ImGui::InputText("##Name", name, IM_ARRAYSIZE(name));
 
-			gui->groupEnd();
+                // Visible + Static in the same row
+                static bool enabled = true;
+                static bool isStatic = false;
+                gui->checkbox("Enabled", &enabled);
+                gui->sameLine();
+                gui->checkbox("Static", &isStatic);
 
-			gui->spacing();
+                gui->groupEnd();
 
-			// --- Transform section ---
-			if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				static float position[3] = {0.0f, 0.0f, 0.0f};
-				static float rotation[3] = {0.0f, 0.0f, 0.0f};
-				static float scale[3]    = {1.0f, 1.0f, 1.0f};
+                gui->spacing();
 
-				if (ImGui::BeginTable("TransformTable", 2, ImGuiTableFlags_SizingStretchProp))
-				{
-					ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 60.0f);
-					ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
+                // --- Transform section ---
+                if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    static float position[3] = {0.0f, 0.0f, 0.0f};
+                    static float rotation[3] = {0.0f, 0.0f, 0.0f};
+                    static float scale[3]    = {1.0f, 1.0f, 1.0f};
 
-					// Position
-					ImGui::TableNextRow();
-					ImGui::TableSetColumnIndex(0);
-					ImGui::Text("Position");
-					ImGui::TableSetColumnIndex(1);
-					ImGui::SetNextItemWidth(-FLT_MIN);
-					ImGui::DragFloat3("##Position", position, 0.1f);
+                    if (ImGui::BeginTable("TransformTable", 2, ImGuiTableFlags_SizingStretchProp))
+                    {
+                        ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 60.0f);
+                        ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
 
-					// Rotation
-					ImGui::TableNextRow();
-					ImGui::TableSetColumnIndex(0);
-					ImGui::Text("Rotation");
-					ImGui::TableSetColumnIndex(1);
-					ImGui::SetNextItemWidth(-FLT_MIN);
-					ImGui::DragFloat3("##Rotation", rotation, 0.1f);
+                        // Position
+                        ImGui::TableNextRow();
+                        ImGui::TableSetColumnIndex(0);
+                        ImGui::Text("Position");
+                        ImGui::TableSetColumnIndex(1);
+                        ImGui::SetNextItemWidth(-FLT_MIN);
+                        ImGui::DragFloat3("##Position", position, 0.1f);
 
-					// Scale
-					ImGui::TableNextRow();
-					ImGui::TableSetColumnIndex(0);
-					ImGui::Text("Scale");
-					ImGui::TableSetColumnIndex(1);
-					ImGui::SetNextItemWidth(-FLT_MIN);
-					ImGui::DragFloat3("##Scale", scale, 0.1f);
+                        // Rotation
+                        ImGui::TableNextRow();
+                        ImGui::TableSetColumnIndex(0);
+                        ImGui::Text("Rotation");
+                        ImGui::TableSetColumnIndex(1);
+                        ImGui::SetNextItemWidth(-FLT_MIN);
+                        ImGui::DragFloat3("##Rotation", rotation, 0.1f);
 
-					ImGui::EndTable();
-				}
-			}
+                        // Scale
+                        ImGui::TableNextRow();
+                        ImGui::TableSetColumnIndex(0);
+                        ImGui::Text("Scale");
+                        ImGui::TableSetColumnIndex(1);
+                        ImGui::SetNextItemWidth(-FLT_MIN);
+                        ImGui::DragFloat3("##Scale", scale, 0.1f);
+
+                        ImGui::EndTable();
+                    }
+                }
+            }
+            else
+            {
+                // More than 1 object selected
+
+            }
 		}
 		else
 		{
 			gui->spacing();
 
-			std::string text = "No object selected";
+			std::string text = "Nothing is selected";
             float textWidth = ImGui::CalcTextSize(text.c_str()).x;
             float columnWidth = ImGui::GetColumnWidth();
             float textX = ImGui::GetCursorPosX() + (columnWidth - textWidth) * 0.5f; // center horizontally
@@ -96,7 +108,7 @@ void PanelInspector::draw(kGuiManager* gui, bool& opened, bool enabled, std::vec
 
 		gui->windowEnd();
 
-		if (!enabled)
+		if (!manager->projectOpened)
 			ImGui::EndDisabled();
 	}
 }

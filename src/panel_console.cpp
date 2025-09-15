@@ -1,8 +1,11 @@
 #include "panel_console.h"
 
-PanelConsole::PanelConsole(kGuiManager* gui)
+PanelConsole::PanelConsole(kGuiManager* setGuiManager, Manager* setManager)
 {
 	addLog(LogLevel::Info, "Welcome to Kemena3D Studio. Create or open a project to get started.", inputBuf);
+
+	gui = setGuiManager;
+	manager = setManager;
 }
 
 void PanelConsole::addLog(LogLevel level, const char* fmt, ...)
@@ -27,11 +30,11 @@ int PanelConsole::textEditCallback(ImGuiInputTextCallbackData* data)
 	return 0;
 }
 
-void PanelConsole::draw(kGuiManager* gui, bool& opened, bool enabled)
+void PanelConsole::draw(bool& opened)
 {
 	if (opened)
 	{
-		if (!enabled)
+		if (!manager->projectOpened)
 			ImGui::BeginDisabled(true);
 
 		ImGui::Begin("Console", &opened);
@@ -42,7 +45,7 @@ void PanelConsole::draw(kGuiManager* gui, bool& opened, bool enabled)
 		ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
 		if (consoleItems.size() > 0)
 		{
-		    for (int i = 0; i < consoleItems.size(); ++i)
+		    for (size_t i = 0; i < consoleItems.size(); ++i)
             {
                 auto& item = consoleItems[i];
                 ImVec4 color;
@@ -63,7 +66,7 @@ void PanelConsole::draw(kGuiManager* gui, bool& opened, bool enabled)
 
                 bool selected = selectedIndices.count(i) > 0;
 
-                if (ImGui::Selectable((item.text + "##console_message" + std::to_string(i)).c_str(), selected, ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_AllowOverlap))
+                if (ImGui::Selectable((item.text + "##ConsoleMessage" + std::to_string(i)).c_str(), selected, ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_AllowOverlap))
                 {
                     bool shift = ImGui::GetIO().KeyShift;
                     bool ctrl  = ImGui::GetIO().KeyCtrl;
@@ -71,9 +74,9 @@ void PanelConsole::draw(kGuiManager* gui, bool& opened, bool enabled)
                     if (shift && lastClickedIndex >= 0)
                     {
                         // Shift: select range from last clicked to current
-                        int start = std::min(lastClickedIndex, i);
-                        int end   = std::max(lastClickedIndex, i);
-                        for (int j = start; j <= end; ++j)
+                        size_t start = std::min(lastClickedIndex, i);
+                        size_t end   = std::max(lastClickedIndex, i);
+                        for (size_t j = start; j <= end; ++j)
                             selectedIndices.insert(j);
                     }
                     else if (ctrl)
@@ -104,7 +107,7 @@ void PanelConsole::draw(kGuiManager* gui, bool& opened, bool enabled)
                 }
 
                 // Right-click context menu for this line
-                if (ImGui::BeginPopupContextItem(string("##console_message" + std::to_string(i)).c_str()))
+                if (ImGui::BeginPopupContextItem(string("##ConsoleMessage" + std::to_string(i)).c_str()))
                 {
                     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
 
@@ -112,7 +115,7 @@ void PanelConsole::draw(kGuiManager* gui, bool& opened, bool enabled)
                         selectedIndices.insert(i);
 
                     if (ImGui::MenuItem("Select All"))
-                        for (int j = 0; j < consoleItems.size(); ++j)
+                        for (size_t j = 0; j < consoleItems.size(); ++j)
                             selectedIndices.insert(j);
 
                     // Deselect only the current line
@@ -151,7 +154,7 @@ void PanelConsole::draw(kGuiManager* gui, bool& opened, bool enabled)
 		// Command input
 		ImGui::Separator();
 		ImGui::PushItemWidth(-1);
-		if (ImGui::InputText("##console_input", inputBuf, IM_ARRAYSIZE(inputBuf),
+		if (ImGui::InputText("##ConsoleInput", inputBuf, IM_ARRAYSIZE(inputBuf),
 							 ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory,
 							 &textEditCallback))
 		{
@@ -173,7 +176,7 @@ void PanelConsole::draw(kGuiManager* gui, bool& opened, bool enabled)
 
 		ImGui::End();
 
-		if (!enabled)
+		if (!manager->projectOpened)
 			ImGui::EndDisabled();
 
 		// Show tooltip

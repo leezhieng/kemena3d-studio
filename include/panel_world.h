@@ -5,7 +5,11 @@
 
 #include "kemena/kemena.h"
 
+#include "manager.h"
+
 using namespace kemena;
+
+class Manager;
 
 class PanelWorld
 {
@@ -18,7 +22,11 @@ class PanelWorld
 		int height = 0;
 		float aspectRatio = 0;
 
-		void draw(kGuiManager* gui, bool& isOpened, bool isEnabled, kRenderer* renderer, kCamera* editorCamera);
+		PanelWorld(kGuiManager* setGuiManager, Manager* setManager);
+		void draw(bool& isOpened, kRenderer* renderer, kCamera* editorCamera);
+
+		Manager* manager;
+		kGuiManager* gui;
 };
 
 #endif

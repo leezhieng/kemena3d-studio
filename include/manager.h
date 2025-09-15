@@ -51,8 +51,15 @@ struct ImportTask
     bool reported = false;
 };
 
+// For hierarchy panel
+struct ObjectInfo
+{
+    kObject* object;   // Pointer to the object
+};
+
 class PanelProject;
 class PanelHierarchy;
+class PanelConsole;
 
 class Manager
 {
@@ -110,8 +117,15 @@ public:
     void drawImportPopup(PanelConsole* console);
 
     // Check project files
-    std::unordered_map<std::string, FileInfo> fileMap; // key = uuid
-    std::unordered_map<std::string, std::string> uuidMap; // reverse lookup, key = filename
+    std::unordered_map<std::string, FileInfo> fileMap; // Key = uuid
+    std::unordered_map<std::string, std::string> uuidMap; // Reverse lookup, key = filename
+
+    // Check world objects
+     std::unordered_map<std::string, ObjectInfo> objectMap; // Key = uuid
+
+     std::vector<std::string> selectedObjects;
+     void selectObject(const std::string uuid, bool clearList = false);
+     void deselectObject(const std::string uuid);
 
 private:
     kWindow* window;

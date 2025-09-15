@@ -1,8 +1,14 @@
 #include "panel_world.h"
 
-void PanelWorld::draw(kGuiManager* gui, bool& isOpened, bool isEnabled, kRenderer* renderer, kCamera* editorCamera)
+PanelWorld::PanelWorld(kGuiManager* setGuiManager, Manager* setManager)
 {
-	enabled = isEnabled;
+    gui = setGuiManager;
+    manager = setManager;
+}
+
+void PanelWorld::draw(bool& isOpened, kRenderer* renderer, kCamera* editorCamera)
+{
+	enabled = manager->projectOpened;
 
 	ImGui::BeginDisabled(!enabled);
 

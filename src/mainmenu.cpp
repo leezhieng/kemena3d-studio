@@ -1,7 +1,9 @@
 #include "mainmenu.h"
 
-MainMenu::MainMenu()
+MainMenu::MainMenu(kGuiManager* setGuiManager, Manager* setManager)
 {
+    gui = setGuiManager;
+    manager = setManager;
 }
 
 void MainMenu::SDLCALL saveWorkspaceCallback(void* userdata, const char* const* filelist, int filter)
@@ -43,7 +45,7 @@ void SDLCALL MainMenu::loadWorkspaceCallback(void* userdata, const char* const* 
 	}
 }
 
-void MainMenu::draw(kGuiManager* gui, kWindow* window, Manager* manager, ShowPanel& showPanel)
+void MainMenu::draw(kWindow* window, ShowPanel& showPanel)
 {
 	if (gui->menuBar())
 	{

@@ -21,8 +21,6 @@ class Manager;
 class PanelProject
 {
 	private:
-		Manager* manager;
-
 		ImTextureRef iconUp;
 		ImTextureRef iconAdd;
 		ImTextureRef iconMag;
@@ -67,12 +65,12 @@ class PanelProject
 		bool needRefreshList = false;
 
 	public:
-	    PanelProject(Manager* setManager, kAssetManager* assetManager);
+	    PanelProject(kGuiManager* setGuiManager, Manager* setManager, kAssetManager* assetManager);
 
 		void deselectAll(Node& root);
 
-		void drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* opened, bool enabled);
-		void draw(kGuiManager* gui, bool& opened, bool enabled);
+		void drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* opened);
+		void draw(bool& opened);
 
 		void refreshTreeList();
 		void drawTreeNode(Node& node, Node& rootTree, int level = 0);
@@ -81,6 +79,9 @@ class PanelProject
 		void refreshThumbnailList();
 		void drawThumbnailNode(const Node& currentDir);
 		void drawBreadcrumb();
+
+		Manager* manager;
+		kGuiManager* gui;
 };
 
 #endif

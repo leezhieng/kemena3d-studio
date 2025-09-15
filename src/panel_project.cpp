@@ -2,9 +2,10 @@
 
 using namespace kemena;
 
-PanelProject::PanelProject(Manager* setManager, kAssetManager* assetManager)
+PanelProject::PanelProject(kGuiManager* setGuiManager, Manager* setManager, kAssetManager* assetManager)
 	: rootTree("Assets", "asset", nullptr, 0), rootThumbnail("Assets", "asset", nullptr, 0)
 {
+    gui = setGuiManager;
 	manager = setManager;
 	manager->panelProject = this;
 
@@ -72,9 +73,9 @@ void PanelProject::deselectAll(Node& root)
 	}
 }
 
-void PanelProject::drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* opened, bool enabled)
+void PanelProject::drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* opened)
 {
-	ImGui::BeginDisabled(!enabled);
+	ImGui::BeginDisabled(!manager->projectOpened);
 
 	if (ImGui::Begin("Project", opened))
 	{
@@ -245,9 +246,9 @@ void PanelProject::drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* o
 	ImGui::EndDisabled();
 }
 
-void PanelProject::draw(kGuiManager* gui, bool& opened, bool enabled)
+void PanelProject::draw(bool& opened)
 {
-	if (opened)
+	if (manager->projectOpened)
 	{
 		if (needRefreshList)
 		{
@@ -257,7 +258,7 @@ void PanelProject::draw(kGuiManager* gui, bool& opened, bool enabled)
 			needRefreshList = false;
 		}
 
-		drawProjectPanel(rootTree, rootThumbnail, &opened, enabled);
+		drawProjectPanel(rootTree, rootThumbnail, &opened);
 	}
 }
 

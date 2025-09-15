@@ -34,9 +34,6 @@ class PanelHierarchy
 
 		ImVec4 addTint = ImVec4(1, 1, 1, 1);
 
-		kWorld* world;
-		Manager* manager;
-
 		struct Node
 		{
 			std::string name;
@@ -54,12 +51,17 @@ class PanelHierarchy
 		Node root;
 
 	public:
-	    PanelHierarchy(Manager* setManager, kAssetManager* assetManager, kWorld* setWorld);
+	    PanelHierarchy(kGuiManager* setGuiManager, Manager* setManager, kAssetManager* assetManager, kWorld* setWorld);
 		void deselectAll(Node& root);
 		void drawNode(Node& node, Node& root, int level);
-		void drawHierarchyPanel(Node& root, bool* opened, bool enabled);
-		void draw(kGuiManager* gui, bool& opened, bool enabled);
+		void drawHierarchyPanel(Node& root, bool* opened);
+		void draw(bool& opened);
 		void refreshList();
+
+		Manager* manager;
+		kGuiManager* gui;
+
+		kWorld* world;
 };
 
 #endif
