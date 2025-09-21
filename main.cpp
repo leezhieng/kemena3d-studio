@@ -25,6 +25,7 @@ int main()
 	kWindow* window = createWindow(1024, 768, windowTitle, true);
 	kRenderer* renderer = createRenderer(window);
 	renderer->setEnableScreenBuffer(true);
+	renderer->setEnableShadow(true);
 	renderer->setClearColor(vec4(0.2f, 0.4f, 0.6f, 1.0f));
 
 	// Setup GUI manager
@@ -85,14 +86,25 @@ int main()
 	gridMesh->setMaterial(gridMat);
 
 	//kMesh* test = assetManager->loadMeshFromResource("MODEL_SHAPE_CUBE", "obj");
-	kMesh* test = assetManager->loadMesh("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shape/cube.obj");
-	test->setName("test");
-	test->setPosition(vec3(0.0f, 1.0f, 0.0f));
-	scene->addMesh(test);
-	kShader* testShader = assetManager->loadShaderFromResource("SHADER_VERTEX_FLAT", "SHADER_FRAGMENT_FLAT");
-	//kShader* testShader = assetManager->loadShaderFromFile("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/flat.vert", "D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/flat.frag");
-	kMaterial* testMaterial = assetManager->createMaterial(testShader);
-	test->setMaterial(testMaterial);
+	kMesh* cube = assetManager->loadMesh("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shape/cube.obj");
+	cube->setName("Cube");
+	cube->setPosition(vec3(0.0f, 1.0f, 0.0f));
+	scene->addMesh(cube);
+	kShader* cubeShader = assetManager->loadShaderFromResource("SHADER_VERTEX_MESH", "SHADER_FRAGMENT_PHONG");
+	kMaterial* cubeMaterial = assetManager->createMaterial(cubeShader);
+	cube->setMaterial(cubeMaterial);
+
+	// Default sunlight
+	kLight* light = scene->addSunLight(glm::vec3(0.0f, 6.0f, 0.0f), glm::vec3(0.2f, -1.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+	light->setPower(1.0f);
+	light->setName("Sun Light");
+
+	kShader* iconShader = assetManager->loadShaderFromResource("SHADER_VERTEX_ICON", "SHADER_FRAGMENT_ICON");
+	//kShader* iconShader = assetManager->loadShaderFromFile("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/icon.vert", "D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/icon.frag");
+	kMaterial* materialIconSun = assetManager->createMaterial(iconShader);
+    kTexture2D* textureIconSun = assetManager->loadTexture2D("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/icon/sun_light.png", "albedoMap");
+    materialIconSun->addTexture(textureIconSun);
+    light->setMaterial(materialIconSun);
 
 	// Editor camera
 	kCamera* cameraEditor = sceneEditor->addCamera(glm::vec3(-7, 4, 12), glm::vec3(0, 3.5, 0), kCameraType::CAMERA_TYPE_FREE);
@@ -196,7 +208,7 @@ int main()
 				if (event.getKeyButton() == K_KEY_1)
 				{
 					//cameraEditor->setCameraType(kCameraType::CAMERA_TYPE_FREE);
-					std::cout << cameraEditor->getPosition().x << "," << cameraEditor->getPosition().x << "," << cameraEditor->getPosition().x << " - " << cameraEditor->getLookAt().x << "," << cameraEditor->getLookAt().y << "," << cameraEditor->getLookAt().z << std::endl;
+					//std::cout << cameraEditor->getPosition().x << "," << cameraEditor->getPosition().x << "," << cameraEditor->getPosition().x << " - " << cameraEditor->getLookAt().x << "," << cameraEditor->getLookAt().y << "," << cameraEditor->getLookAt().z << std::endl;
 				}
 				else if (event.getKeyButton() == K_KEY_2)
 				{
@@ -230,11 +242,11 @@ int main()
 		// Fix aspect ratio
 		if (panelWorld->width > 0 && panelWorld->height > 0)
 		{
-			cameraEditor->setAspectRatio(panelWorld->aspectRatio);
-
-			renderer->render(scene, 0, 0, panelWorld->width, panelWorld->height, window->getTimer()->getDeltaTime(), false);
-			renderer->render(sceneEditor, 0, 0, panelWorld->width, panelWorld->height, window->getTimer()->getDeltaTime(), false);
+			renderer->render(scene, 0, 0, panelWorld->width * 2, panelWorld->height * 2, window->getTimer()->getDeltaTime(), false);
+			renderer->render(sceneEditor, 0, 0, panelWorld->width * 2, panelWorld->height * 2, window->getTimer()->getDeltaTime(), false);
 		}
+
+		//std::cout << panelWorld->width << "," << panelWorld->height << std::endl;
 
 		gui->canvasStart();
 		gui->dockSpaceStart("MainDockSpace");

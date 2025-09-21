@@ -12,8 +12,9 @@ TEXTURE_SKYBOX_TOP RCDATA "res/textures/skybox/top.tga"
 TEXTURE_SKYBOX_BOTTOM RCDATA "res/textures/skybox/bottom.tga"
 
 // Shaders
-SHADER_VERTEX_FLAT RCDATA "res/shaders/flat.vert"
-SHADER_FRAGMENT_FLAT RCDATA "res/shaders/flat.frag"
+SHADER_VERTEX_MESH RCDATA "res/shaders/mesh.vert"
+SHADER_FRAGMENT_FLAT RCDATA "res/shaders/mesh_flat.frag"
+SHADER_FRAGMENT_PHONG RCDATA "res/shaders/mesh_phong.frag"
 
 SHADER_VERTEX_GRID RCDATA "res/shaders/grid.vert"
 SHADER_FRAGMENT_GRID RCDATA "res/shaders/grid.frag"

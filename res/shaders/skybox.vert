@@ -1,13 +1,9 @@
-#version 450
-
-// Input
+#version 330 core
 
 layout (location = 0) in vec3 vertexPosition;
 
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
-
-// Output
 
 out vec3 texCoordFrag;
 
