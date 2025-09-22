@@ -72,6 +72,7 @@
 			<Add option="-Wall" />
 			<Add option="-std=gnu++17" />
 			<Add option="-DKEMENA3D_STATIC" />
+			<Add option="-DDKTX_STATIC" />
 			<Add directory="dep/portable-file-dialogs" />
 		</Compiler>
 		<Linker>
@@ -130,6 +131,7 @@
 		<Unit filename="src/panel_inspector.cpp" />
 		<Unit filename="src/panel_project.cpp" />
 		<Unit filename="src/panel_world.cpp" />
+		<Unit filename="src/util.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 			<wxsmith version="1">

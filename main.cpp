@@ -85,8 +85,8 @@ int main()
 	gridMat->setSingleSided(false);
 	gridMesh->setMaterial(gridMat);
 
-	//kMesh* test = assetManager->loadMeshFromResource("MODEL_SHAPE_CUBE", "obj");
-	kMesh* cube = assetManager->loadMesh("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shape/cube.obj");
+	kMesh* cube = assetManager->loadMeshFromResource("MODEL_SHAPE_CUBE", "obj");
+	//kMesh* cube = assetManager->loadMesh("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shape/cube.obj");
 	cube->setName("Cube");
 	cube->setPosition(vec3(0.0f, 1.0f, 0.0f));
 	scene->addMesh(cube);
@@ -114,6 +114,11 @@ int main()
 	bool dragging = false;
 	vec2 dragStart;
 	quat camRot;
+
+
+
+
+
 
 	// Game loop
 	kSystemEvent event;

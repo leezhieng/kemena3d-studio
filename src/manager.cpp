@@ -392,7 +392,7 @@ void Manager::checkAssetChange()
 					if (type == "mesh")
 						assetExt = ".glb";
 					else if (type == "image")
-						assetExt = ".ktx2";
+						assetExt = ".dds";
 
 					fs::path importedAssetsFile = libraryFolder / "ImportedAssets" / (uuid + assetExt);
 					if (fs::exists(importedAssetsFile))
@@ -540,7 +540,7 @@ void Manager::checkAssetChange()
 				if (fileType == "mesh")
 					uuidExt = ".glb";
 				else if (fileType == "image")
-					uuidExt = ".ktx2";
+					uuidExt = ".dds";
 
 				// Check whether imported asset exist or not
 				fs::path importedAssetPath = libraryFolder / "ImportedAssets" / (fileUuid + uuidExt);
@@ -669,6 +669,10 @@ void Manager::startBatchImport(const std::vector<ImportTask>& tasks)
 			if (task.type == "mesh")
 			{
 				task.success = convertMeshToGlb(task.inputPath, task.outputPath);
+			}
+			else if (task.type == "image")
+			{
+				task.success = convertImageToDxt5(task.inputPath, task.outputPath);
 			}
 			else
 			{
