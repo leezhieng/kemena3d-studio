@@ -127,6 +127,8 @@ public:
      void selectObject(const std::string uuid, bool clearList = false);
      void deselectObject(const std::string uuid);
 
+     kObject* selectedObject = nullptr; // Temp
+
 private:
     kWindow* window;
     kWorld* world;

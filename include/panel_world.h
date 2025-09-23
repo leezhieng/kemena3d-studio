@@ -5,7 +5,10 @@
 
 #include "kemena/kemena.h"
 
+#include <glm/gtx/matrix_decompose.hpp>
+
 #include "manager.h"
+#include <ImGuizmo.h>
 
 using namespace kemena;
 

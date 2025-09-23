@@ -22,6 +22,7 @@
 					<Add library="assimpd" />
 					<Add library="angelscript" />
 					<Add library="imgui" />
+					<Add library="imguizmo" />
 					<Add library="glew32s" />
 					<Add library="opengl32" />
 					<Add library="winmm" />
@@ -53,6 +54,7 @@
 					<Add library="assimp" />
 					<Add library="angelscript" />
 					<Add library="imgui" />
+					<Add library="imguizmo" />
 					<Add library="glew32s" />
 					<Add library="opengl32" />
 					<Add library="winmm" />
@@ -73,7 +75,6 @@
 			<Add option="-std=gnu++17" />
 			<Add option="-DKEMENA3D_STATIC" />
 			<Add option="-DDKTX_STATIC" />
-			<Add directory="dep/portable-file-dialogs" />
 		</Compiler>
 		<Linker>
 			<Add option="-static-libstdc++" />

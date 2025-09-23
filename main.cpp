@@ -75,8 +75,8 @@ int main()
 	scene->setSkybox(skyMaterial, skyMesh);
 
 	// Editor grid
-	//kMesh* gridMesh = assetManager->loadMeshFromResource("MODEL_SHAPE_PLANE", "obj");
-	kMesh* gridMesh = sceneEditor->addMesh("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shape/plane.obj");
+	kMesh* gridMesh = assetManager->loadMeshFromResource("MODEL_SHAPE_PLANE", "obj");
+	//kMesh* gridMesh = sceneEditor->addMesh("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shape/plane.obj");
 	sceneEditor->addMesh(gridMesh);
 	kShader* gridShader = assetManager->loadShaderFromResource("SHADER_VERTEX_GRID", "SHADER_FRAGMENT_GRID");
 	//kShader* gridShader = assetManager->loadShaderFromFile("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/grid.vert", "D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/grid.frag");
@@ -114,11 +114,9 @@ int main()
 	bool dragging = false;
 	vec2 dragStart;
 	quat camRot;
-
-
-
-
-
+	bool altPressed = false;
+	bool ctrlPressed = false;
+	bool shiftPressed = false;
 
 	// Game loop
 	kSystemEvent event;
@@ -157,7 +155,7 @@ int main()
 			{
 				if (panelWorld->enabled && panelWorld->hovered)
 				{
-					if (event.getMouseButton() == K_MOUSEBUTTON_LEFT)
+					if (event.getMouseButton() == K_MOUSEBUTTON_LEFT && altPressed)
 					{
 						dragging = true;
 
@@ -218,6 +216,33 @@ int main()
 				else if (event.getKeyButton() == K_KEY_2)
 				{
 					//cameraEditor->setCameraType(kCameraType::CAMERA_TYPE_LOCKED);
+				}
+				else if (event.getKeyButton() == K_KEY_LALT)
+				{
+				    altPressed = true;
+				}
+				else if (event.getKeyButton() == K_KEY_LCTRL)
+				{
+				    ctrlPressed = true;
+				}
+				else if (event.getKeyButton() == K_KEY_LSHIFT)
+				{
+				    shiftPressed = true;
+				}
+			}
+			else if (eventType == K_EVENT_KEYUP)
+			{
+			    if (event.getKeyButton() == K_KEY_LALT)
+				{
+				    altPressed = false;
+				}
+				else if (event.getKeyButton() == K_KEY_LCTRL)
+				{
+				    ctrlPressed = false;
+				}
+				else if (event.getKeyButton() == K_KEY_LSHIFT)
+				{
+				    shiftPressed = false;
 				}
 			}
 		}

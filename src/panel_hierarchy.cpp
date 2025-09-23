@@ -79,12 +79,34 @@ void PanelHierarchy::drawNode(Node& node, Node& root, int level)
 		}
 		node.isSelected = !node.isSelected || ImGui::GetIO().KeyShift;
 
-		std::cout << "Object clicked: " << node.uuid.c_str() << " ,Level:" << level << std::endl;
-
 		if (ImGui::GetIO().KeyShift)
             manager->selectObject(node.uuid, false);
         else
             manager->selectObject(node.uuid, true);
+
+        std::cout << "Object clicked: " << node.uuid.c_str() << " ,Level:" << level << std::endl;
+
+        if (level == 0)
+        {
+            // World
+        }
+        else if (level == 1)
+        {
+            // Scene
+        }
+        else
+        {
+            // Objects
+            if (manager->objectMap[node.uuid.c_str()].object != nullptr)
+            {
+                std::cout << "FOUND: " << node.uuid.c_str() << std::endl;
+                manager->selectedObject = manager->objectMap[node.uuid.c_str()].object;
+            }
+            else
+            {
+                std::cout << "NOT FOUND: " << node.uuid.c_str() << std::endl;
+            }
+        }
 	}
 
 	if (nodeOpen)
@@ -199,6 +221,8 @@ void PanelHierarchy::draw(bool& opened)
 
 void PanelHierarchy::refreshList()
 {
+    manager->objectMap.clear();
+
 	if (world->getScenes().size() > 1)
 	{
 		for (size_t i = 1; i < world->getScenes().size(); ++i)
@@ -251,6 +275,12 @@ void PanelHierarchy::refreshList()
 					}
 
 					sceneNode->children.push_back(std::make_unique<Node>(childNode->getName(), childNode->getUuid(), icon, type));
+
+					// Put into object map
+					ObjectInfo info;
+					info.object = childNode;
+
+					manager->objectMap[childNode->getUuid()] = info;
 				}
 			}
 		}
