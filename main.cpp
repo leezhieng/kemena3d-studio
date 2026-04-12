@@ -107,13 +107,14 @@ int main()
     light->setMaterial(materialIconSun);
 
 	// Editor camera
-	kCamera* cameraEditor = sceneEditor->addCamera(glm::vec3(-7, 4, 12), glm::vec3(0, 3.5, 0), kCameraType::CAMERA_TYPE_FREE);
+	kCamera* cameraEditor = world->addCamera(glm::vec3(-7, 4, 12), glm::vec3(0, 3.5, 0), kCameraType::CAMERA_TYPE_FREE);
 	cameraEditor->setFOV(60.0f);
-	scene->setMainCamera(cameraEditor);
+	world->setMainCamera(cameraEditor);
 
 	bool dragging = false;
 	vec2 dragStart;
 	quat camRot;
+
 	bool altPressed = false;
 	bool ctrlPressed = false;
 	bool shiftPressed = false;
@@ -210,12 +211,18 @@ int main()
 			{
 				if (event.getKeyButton() == K_KEY_1)
 				{
-					//cameraEditor->setCameraType(kCameraType::CAMERA_TYPE_FREE);
-					//std::cout << cameraEditor->getPosition().x << "," << cameraEditor->getPosition().x << "," << cameraEditor->getPosition().x << " - " << cameraEditor->getLookAt().x << "," << cameraEditor->getLookAt().y << "," << cameraEditor->getLookAt().z << std::endl;
+				    if (panelWorld->enabled && panelWorld->hovered)
+                        manager->manipulatorType = ImGuizmo::TRANSLATE;
 				}
 				else if (event.getKeyButton() == K_KEY_2)
 				{
-					//cameraEditor->setCameraType(kCameraType::CAMERA_TYPE_LOCKED);
+				    if (panelWorld->enabled && panelWorld->hovered)
+                        manager->manipulatorType = ImGuizmo::ROTATE;
+				}
+				else if (event.getKeyButton() == K_KEY_3)
+				{
+				    if (panelWorld->enabled && panelWorld->hovered)
+                        manager->manipulatorType = ImGuizmo::SCALE;
 				}
 				else if (event.getKeyButton() == K_KEY_LALT)
 				{
@@ -272,8 +279,8 @@ int main()
 		// Fix aspect ratio
 		if (panelWorld->width > 0 && panelWorld->height > 0)
 		{
-			renderer->render(scene, 0, 0, panelWorld->width * 2, panelWorld->height * 2, window->getTimer()->getDeltaTime(), false);
-			renderer->render(sceneEditor, 0, 0, panelWorld->width * 2, panelWorld->height * 2, window->getTimer()->getDeltaTime(), false);
+			renderer->render(world, scene, 0, 0, panelWorld->width * 2, panelWorld->height * 2, window->getTimer()->getDeltaTime(), false);
+			renderer->render(world, sceneEditor, 0, 0, panelWorld->width * 2, panelWorld->height * 2, window->getTimer()->getDeltaTime(), false);
 		}
 
 		//std::cout << panelWorld->width << "," << panelWorld->height << std::endl;

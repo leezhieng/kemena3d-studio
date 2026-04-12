@@ -56,17 +56,11 @@ void MainMenu::draw(kWindow* window, ShowPanel& showPanel)
 			if (gui->menuItem("Open World", "", false, manager->projectOpened)) {}
 			if (gui->menuItem("Open Recent World", "", false, manager->projectOpened)) {}
 			gui->separator();
-			if (gui->menuItem("Save", "Ctrl+S", false, manager->projectOpened)) {}
+			if (gui->menuItem("Save World", "Ctrl+S", false, manager->projectOpened)) {}
 			if (gui->menuItem("Save As...", "", false, manager->projectOpened)) {}
 			gui->separator();
-			if (gui->menuItem("New Project", ""))
-			{
-				manager->newProject();
-			}
-			if (gui->menuItem("Open Project", ""))
-			{
-				manager->openProject();
-			}
+			if (gui->menuItem("New Project", "")) { manager->newProject(); }
+			if (gui->menuItem("Open Project", "")) { manager->openProject(); }
 			if (gui->menuItem("Save Project", "", false, manager->projectOpened)) {}
 			gui->separator();
 			if (gui->menuItem("Build Settings", "", false, manager->projectOpened)) {}
@@ -253,10 +247,7 @@ void MainMenu::draw(kWindow* window, ShowPanel& showPanel)
 		{
 			if (gui->menuItem("About", "")) {}
 			gui->separator();
-			if (gui->menuItem("Manual", ""))
-			{
-				SDL_OpenURL("https://kemena3d.com/manual");
-			}
+			if (gui->menuItem("Manual", "")) { SDL_OpenURL("https://kemena3d.com/manual"); }
 			if (gui->menuItem("Scripting Reference", "")) {}
 			gui->separator();
 			if (gui->menuItem("Release Notes", "")) {}

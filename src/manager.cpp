@@ -626,6 +626,64 @@ void Manager::closeEditor()
 	}
 }
 
+void Manager::clearWorld(bool forced)
+{
+    if (!forced)
+    {
+        if (projectOpened && worldName != "" && !projectSaved)
+        {
+            showingMessageBox = true;
+
+            auto result = pfd::message(
+                              "Unsaved Changes",
+                              "World not saved. Do you really want to close this world?",
+                              pfd::choice::yes_no,
+                              pfd::icon::warning
+                          ).result();
+
+            if (result == pfd::button::no)
+            {
+                return;
+            }
+        }
+    }
+
+    if (!world->getScenes().empty())
+    {
+        for (kScene* scene : world->getScenes())
+        {
+            if (scene && scene->getRootNode())
+            {
+                for (kObject* child : scene->getRootNode()->getChildren())
+                {
+                    deleteObjectRecursive(child);
+                }
+                scene->getRootNode()->getChildren().clear();
+                delete scene->getRootNode();
+                delete scene;
+            }
+        }
+        world->getScenes().clear();
+    }
+}
+
+void Manager::deleteObjectRecursive(kObject* node)
+{
+    if (!node) return;
+
+    // Delete all children first
+    for (kObject* child : node->getChildren())
+    {
+        deleteObjectRecursive(child);
+    }
+
+    // Clear the children list to avoid dangling pointers
+    node->getChildren().clear();
+
+    // Finally delete this node
+    delete node;
+}
+
 std::string Manager::checkAssetType(const fs::path &p)
 {
 	auto ext = p.extension().string();

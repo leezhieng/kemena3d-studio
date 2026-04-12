@@ -15,6 +15,8 @@
 #include <kemena/kwindow.h>
 #include <kemena/kworld.h>
 #include <portable-file-dialogs.h>
+#include <kemena/kguimanager.h>
+#include <ImGuizmo.h>
 
 #include "panel_project.h"
 #include "panel_hierarchy.h"
@@ -80,6 +82,9 @@ public:
     void refreshWindowTitle();
     void closeEditor();
 
+    void clearWorld(bool forced = false);
+    void deleteObjectRecursive(kObject* node);
+
     // Editor path and directory
     fs::path exePath;
     fs::path baseDir;
@@ -128,6 +133,9 @@ public:
      void deselectObject(const std::string uuid);
 
      kObject* selectedObject = nullptr; // Temp
+
+     ImGuizmo::OPERATION manipulatorType = ImGuizmo::TRANSLATE;
+     ImGuizmo::MODE manipulatorMode = ImGuizmo::LOCAL;
 
 private:
     kWindow* window;

@@ -48,9 +48,6 @@ void PanelWorld::draw(bool& isOpened, kRenderer* renderer, kCamera* editorCamera
         glm::mat4 view = editorCamera->getViewMatrix();
         glm::mat4 proj = editorCamera->getProjectionMatrix();
 
-        static ImGuizmo::OPERATION operation = ImGuizmo::TRANSLATE;
-        static ImGuizmo::MODE mode = ImGuizmo::LOCAL;
-
         //std::cout << glm::value_ptr(view) << "," << glm::value_ptr(proj) << "," << glm::value_ptr(model) << std::endl;
 
         ImGuizmo::BeginFrame();
@@ -62,7 +59,7 @@ void PanelWorld::draw(bool& isOpened, kRenderer* renderer, kCamera* editorCamera
         ImGuizmo::SetRect(panelPos.x, panelPos.y, panelSize.x, panelSize.y);
 
         // Manipulate the matrix copy
-        ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(proj), operation, mode, glm::value_ptr(model));
+        ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(proj), manager->manipulatorType, manager->manipulatorMode, glm::value_ptr(model));
 
         // If user interacted, decompose and apply back
         if (ImGuizmo::IsUsing())
