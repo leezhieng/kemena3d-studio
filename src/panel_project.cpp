@@ -277,7 +277,7 @@ void PanelProject::refreshTreeList()
 	}
 
 	// Root node setup
-	std::string folderName = fullPath.filename().string();
+	kString folderName = fullPath.filename().string();
 	rootTree.name = folderName;
 	rootTree.uuid = "asset";
 	rootTree.icon = iconFolder;
@@ -397,9 +397,9 @@ void PanelProject::populateTree(Node& parent, const fs::path& fullPath)
 			else
 				icon = iconOther;
 
-            std::string relativePath = fs::relative(entry.path(), assetsPath).generic_string();
+            kString relativePath = fs::relative(entry.path(), assetsPath).generic_string();
 
-            std::string uuid = manager->uuidMap[relativePath];
+            kString uuid = manager->uuidMap[relativePath];
             //std::cout << relativePath << " -> " << uuid << std::endl;
 
 			parent.children.emplace_back(std::make_unique<Node>(
@@ -435,7 +435,7 @@ void PanelProject::refreshThumbnailList()
 
 		if (fs::is_directory(fullPath))
 		{
-			std::string folderName = fullPath.filename().string();
+			kString folderName = fullPath.filename().string();
 			//std::cout << "Last folder: " << folderName << "\n";
 			//std::cout << "Last folder: " << fullPath << "\n";
 
@@ -508,8 +508,8 @@ void PanelProject::refreshThumbnailList()
 							else
 								icon = iconOther;
 
-                            std::string relativePath = fs::relative(entry.path(), assetsPath).generic_string();
-                            std::string uuid = manager->uuidMap[relativePath];
+                            kString relativePath = fs::relative(entry.path(), assetsPath).generic_string();
+                            kString uuid = manager->uuidMap[relativePath];
                             //std::cout << relativePath << " -> " << uuid << std::endl;
 
 							rootThumbnail.children.emplace_back(std::make_unique<Node>(
@@ -581,7 +581,7 @@ void PanelProject::drawThumbnailNode(const Node& currentDir)
                     }
 				}
 
-				std::string displayName = fitTextWithEllipsisUtf8(child->name, columnWidth - 4.0f);
+				kString displayName = fitTextWithEllipsisUtf8(child->name, columnWidth - 4.0f);
 
 				// Show tooltip only if text was truncated
 				if (displayName != child->name && ImGui::IsItemHovered())
@@ -614,7 +614,7 @@ void PanelProject::drawThumbnailNode(const Node& currentDir)
 		}
 		else
 		{
-			std::string text = "Empty folder";
+			kString text = "Empty folder";
 			float textWidth = ImGui::CalcTextSize(text.c_str()).x;
 			float columnWidth = ImGui::GetColumnWidth();
 			float textX = ImGui::GetCursorPosX() + (columnWidth - textWidth) * 0.5f; // center horizontally
@@ -625,7 +625,7 @@ void PanelProject::drawThumbnailNode(const Node& currentDir)
 	}
 	else
 	{
-		std::string text = "No project found";
+		kString text = "No project found";
 		float textWidth = ImGui::CalcTextSize(text.c_str()).x;
 		float columnWidth = ImGui::GetColumnWidth();
 		float textX = ImGui::GetCursorPosX() + (columnWidth - textWidth) * 0.5f; // center horizontally

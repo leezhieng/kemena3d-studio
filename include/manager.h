@@ -38,9 +38,9 @@ using json = nlohmann::json;
 // For project panel
 struct FileInfo
 {
-    std::string path;   // path/name.ext
-    std::string checksum;
-    std::string type;   // model, image, prefab, etc.
+    kString path; // path/name.ext
+    kString checksum;
+    kString type; // model, image, prefab, etc.
 };
 
 // For converting meshes or images
@@ -48,7 +48,7 @@ struct ImportTask
 {
     fs::path inputPath;
     fs::path outputPath;
-    std::string type;   // model, image, etc.
+    kString type; // model, image, etc.
     bool success = false;
     bool reported = false;
 };
@@ -56,7 +56,7 @@ struct ImportTask
 // For hierarchy panel
 struct ObjectInfo
 {
-    kObject* object;   // Pointer to the object
+    kObject *object; // Pointer to the object
 };
 
 class PanelProject;
@@ -66,12 +66,12 @@ class PanelConsole;
 class Manager
 {
 public:
-    Manager(kWindow* setWindow, kWorld* setWorld);
+    Manager(kWindow *setWindow, kWorld *setWorld);
     virtual ~Manager();
 
-    std::string getCurrentDirPath();
+    kString getCurrentDirPath();
 
-    void openFolder(string name);
+    void openFolder(kString name);
     void closeFolder();
 
     bool newProject();
@@ -83,27 +83,27 @@ public:
     void closeEditor();
 
     void clearWorld(bool forced = false);
-    void deleteObjectRecursive(kObject* node);
+    void deleteObjectRecursive(kObject *node);
 
     // Editor path and directory
     fs::path exePath;
     fs::path baseDir;
 
     // Project info
-    std::string projectName;
+    kString projectName;
     bool projectOpened = false;
     bool projectSaved = true;
 
     // Project path and directory
     fs::path projectPath;
-    std::vector<std::string> currentDir;
+    std::vector<kString> currentDir;
 
     // World info
-    string worldName = "";
-    //string worldUuid = "";
+    kString worldName = "";
+    // kString worldUuid = "";
 
-    PanelProject* panelProject;
-    PanelHierarchy* panelHierarchy;
+    PanelProject *panelProject;
+    PanelHierarchy *panelHierarchy;
 
     std::vector<ImportTask> importQueue;
     std::future<void> importFuture;
@@ -119,36 +119,36 @@ public:
     std::chrono::steady_clock::time_point importEndTime;
 
     std::vector<ImportTask> importTasks;
-    void drawImportPopup(PanelConsole* console);
+    void drawImportPopup(PanelConsole *console);
 
     // Check project files
-    std::unordered_map<std::string, FileInfo> fileMap; // Key = uuid
-    std::unordered_map<std::string, std::string> uuidMap; // Reverse lookup, key = filename
+    std::unordered_map<kString, FileInfo> fileMap; // Key = uuid
+    std::unordered_map<kString, kString> uuidMap;  // Reverse lookup, key = filename
 
     // Check world objects
-     std::unordered_map<std::string, ObjectInfo> objectMap; // Key = uuid
+    std::unordered_map<kString, ObjectInfo> objectMap; // Key = uuid
 
-     std::vector<std::string> selectedObjects;
-     void selectObject(const std::string uuid, bool clearList = false);
-     void deselectObject(const std::string uuid);
+    std::vector<kString> selectedObjects;
+    void selectObject(const kString uuid, bool clearList = false);
+    void deselectObject(const kString uuid);
 
-     kObject* selectedObject = nullptr; // Temp
+    kObject *selectedObject = nullptr; // Temp
 
-     ImGuizmo::OPERATION manipulatorType = ImGuizmo::TRANSLATE;
-     ImGuizmo::MODE manipulatorMode = ImGuizmo::LOCAL;
+    ImGuizmo::OPERATION manipulatorType = ImGuizmo::TRANSLATE;
+    ImGuizmo::MODE manipulatorMode = ImGuizmo::LOCAL;
 
 private:
-    kWindow* window;
-    kWorld* world;
-    std::string initialWindowTitle;
+    kWindow *window;
+    kWorld *world;
+    kString initialWindowTitle;
 
-    //int initialResizeCount = 0;
+    // int initialResizeCount = 0;
 
-    //std::map<std::string, std::string> fileDirty;   // Files that need to be put into fileGUID, or refresh checksum into fileMD5, or regenerate thumbnail etc.
-    //std::string latestFileUuid = "";
+    // std::map<kString, kString> fileDirty;   // Files that need to be put into fileGUID, or refresh checksum into fileMD5, or regenerate thumbnail etc.
+    // kString latestFileUuid = "";
 
-    std::string checkAssetType(const fs::path &p);
-    void startBatchImport(const std::vector<ImportTask>& tasks);
+    kString checkAssetType(const fs::path &p);
+    void startBatchImport(const std::vector<ImportTask> &tasks);
 };
 
 #endif // FILEMANAGER_H

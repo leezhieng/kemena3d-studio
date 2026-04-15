@@ -12,12 +12,12 @@
 
 using namespace kemena;
 
-const string windowTitle = "Kemena3D Studio";
+const kString windowTitle = "Kemena3D Studio";
 
 // Project config
-std::string projectName    = "New Game";
-std::string developerName  = "My Company";
-std::string projectVersion = "0.0.1";
+kString projectName    = "New Game";
+kString developerName  = "My Company";
+kString projectVersion = "0.0.1";
 
 int main()
 {
@@ -26,7 +26,7 @@ int main()
 	kRenderer* renderer = createRenderer(window);
 	renderer->setEnableScreenBuffer(true);
 	renderer->setEnableShadow(true);
-	renderer->setClearColor(vec4(0.2f, 0.4f, 0.6f, 1.0f));
+	renderer->setClearColor(kVec4(0.2f, 0.4f, 0.6f, 1.0f));
 
 	// Setup GUI manager
 	kGuiManager* gui = createGuiManager(renderer);
@@ -88,7 +88,7 @@ int main()
 	kMesh* cube = assetManager->loadMeshFromResource("MODEL_SHAPE_CUBE", "obj");
 	//kMesh* cube = assetManager->loadMesh("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shape/cube.obj");
 	cube->setName("Cube");
-	cube->setPosition(vec3(0.0f, 1.0f, 0.0f));
+	cube->setPosition(kVec3(0.0f, 1.0f, 0.0f));
 	scene->addMesh(cube);
 	kShader* cubeShader = assetManager->loadShaderFromResource("SHADER_VERTEX_MESH", "SHADER_FRAGMENT_PHONG");
 	kMaterial* cubeMaterial = assetManager->createMaterial(cubeShader);
@@ -112,8 +112,8 @@ int main()
 	world->setMainCamera(cameraEditor);
 
 	bool dragging = false;
-	vec2 dragStart;
-	quat camRot;
+	kVec2 dragStart;
+	kQuat camRot;
 
 	bool altPressed = false;
 	bool ctrlPressed = false;

@@ -1,81 +1,81 @@
 #include "panel_console.h"
 
-PanelConsole::PanelConsole(kGuiManager* setGuiManager, Manager* setManager)
+PanelConsole::PanelConsole(kGuiManager *setGuiManager, Manager *setManager)
 {
-	addLog(LogLevel::Info, "Welcome to Kemena3D Studio. Create or open a project to get started.", inputBuf);
+    addLog(LogLevel::Info, "Welcome to Kemena3D Studio. Create or open a project to get started.", inputBuf);
 
-	gui = setGuiManager;
-	manager = setManager;
+    gui = setGuiManager;
+    manager = setManager;
 }
 
-void PanelConsole::addLog(LogLevel level, const char* fmt, ...)
+void PanelConsole::addLog(LogLevel level, const char *fmt, ...)
 {
-	char buf[1024];
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
-	va_end(args);
+    char buf[1024];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
+    va_end(args);
 
-	ConsoleItem item;
-	item.text = std::string(buf);
-	item.level = level;
+    ConsoleItem item;
+    item.text = kString(buf);
+    item.level = level;
 
-	consoleItems.push_back(item);
-	scrollToBottom = true;
+    consoleItems.push_back(item);
+    scrollToBottom = true;
 }
 
-int PanelConsole::textEditCallback(ImGuiInputTextCallbackData* data)
+int PanelConsole::textEditCallback(ImGuiInputTextCallbackData *data)
 {
-	// For history browsing or autocompletion if needed
-	return 0;
+    // For history browsing or autocompletion if needed
+    return 0;
 }
 
-void PanelConsole::draw(bool& opened)
+void PanelConsole::draw(bool &opened)
 {
-	if (opened)
-	{
-		if (!manager->projectOpened)
-			ImGui::BeginDisabled(true);
+    if (opened)
+    {
+        if (!manager->projectOpened)
+            ImGui::BeginDisabled(true);
 
-		ImGui::Begin("Console", &opened);
+        gui->windowStart("Console", &opened);
 
-		ImGuiIO& io = ImGui::GetIO();
+        ImGuiIO &io = ImGui::GetIO();
 
-		// Main log display
-		ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
-		if (consoleItems.size() > 0)
-		{
-		    for (size_t i = 0; i < consoleItems.size(); ++i)
+        // Main log display
+        ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
+        if (consoleItems.size() > 0)
+        {
+            for (size_t i = 0; i < consoleItems.size(); ++i)
             {
-                auto& item = consoleItems[i];
-                ImVec4 color;
+                auto &item = consoleItems[i];
+                kVec4 color;
                 switch (item.level)
                 {
-                    case LogLevel::Info:
-                        color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-                        break;  // white
-                    case LogLevel::Warning:
-                        color = ImVec4(1.0f, 1.0f, 0.0f, 1.0f);
-                        break;  // yellow
-                    case LogLevel::Error:
-                        color = ImVec4(1.0f, 0.2f, 0.2f, 1.0f);
-                        break;  // red
+                case LogLevel::Info:
+                    color = kVec4(1.0f, 1.0f, 1.0f, 1.0f);
+                    break; // white
+                case LogLevel::Warning:
+                    color = kVec4(1.0f, 1.0f, 0.0f, 1.0f);
+                    break; // yellow
+                case LogLevel::Error:
+                    color = kVec4(1.0f, 0.2f, 0.2f, 1.0f);
+                    break; // red
                 }
 
-                ImGui::PushStyleColor(ImGuiCol_Text, color);
+                gui->pushStyleColor(ImGuiCol_Text, color);
 
                 bool selected = selectedIndices.count(i) > 0;
 
-                if (ImGui::Selectable((item.text + "##ConsoleMessage" + std::to_string(i)).c_str(), selected, ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_AllowOverlap))
+                if (gui->selectable(item.text + "##ConsoleMessage" + std::to_string(i), selected, ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_AllowOverlap))
                 {
                     bool shift = ImGui::GetIO().KeyShift;
-                    bool ctrl  = ImGui::GetIO().KeyCtrl;
+                    bool ctrl = ImGui::GetIO().KeyCtrl;
 
                     if (shift && lastClickedIndex >= 0)
                     {
                         // Shift: select range from last clicked to current
                         size_t start = std::min(lastClickedIndex, i);
-                        size_t end   = std::max(lastClickedIndex, i);
+                        size_t end = std::max(lastClickedIndex, i);
                         for (size_t j = start; j <= end; ++j)
                             selectedIndices.insert(j);
                     }
@@ -97,7 +97,7 @@ void PanelConsole::draw(bool& opened)
                     lastClickedIndex = i;
 
                     // Copy to clipboard on double click
-                    if (ImGui::IsMouseDoubleClicked(0))
+                    if (gui->isMouseDoubleClicked(0))
                     {
                         ImGui::SetClipboardText(item.text.c_str());
 
@@ -107,27 +107,27 @@ void PanelConsole::draw(bool& opened)
                 }
 
                 // Right-click context menu for this line
-                if (ImGui::BeginPopupContextItem(string("##ConsoleMessage" + std::to_string(i)).c_str()))
+                if (gui->popupContextItemStart("##ConsoleMessage" + std::to_string(i)))
                 {
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+                    gui->pushStyleColor(ImGuiCol_Text, kVec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-                    if (ImGui::MenuItem("Select This"))
+                    if (gui->menuItem("Select This"))
                         selectedIndices.insert(i);
 
-                    if (ImGui::MenuItem("Select All"))
+                    if (gui->menuItem("Select All"))
                         for (size_t j = 0; j < consoleItems.size(); ++j)
                             selectedIndices.insert(j);
 
                     // Deselect only the current line
-                    if (ImGui::MenuItem("Deselect This"))
+                    if (gui->menuItem("Deselect This"))
                         selectedIndices.erase(i);
 
-                    if (ImGui::MenuItem("Deselect All"))
+                    if (gui->menuItem("Deselect All"))
                         selectedIndices.clear();
 
-                    if (ImGui::MenuItem("Copy Text"))
+                    if (gui->menuItem("Copy Text"))
                     {
-                        std::string textToCopy;
+                        kString textToCopy;
                         if (selectedIndices.empty())
                             textToCopy = item.text;
                         else
@@ -139,58 +139,58 @@ void PanelConsole::draw(bool& opened)
                         copiedTooltipTime = 0.0f; // reset timer
                     }
 
-                    ImGui::PopStyleColor();
-                    ImGui::EndPopup();
+                    gui->popStyleColor();
+                    gui->popupEnd();
                 }
 
-                ImGui::PopStyleColor();
+                gui->popStyleColor();
             }
-		}
-		if (scrollToBottom)
-			ImGui::SetScrollHereY(1.0f);
-		scrollToBottom = false;
-		ImGui::EndChild();
+        }
+        if (scrollToBottom)
+            gui->setScrollHereY(1.0f);
+        scrollToBottom = false;
+        ImGui::EndChild();
 
-		// Command input
-		ImGui::Separator();
-		ImGui::PushItemWidth(-1);
-		if (ImGui::InputText("##ConsoleInput", inputBuf, IM_ARRAYSIZE(inputBuf),
-							 ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory,
-							 &textEditCallback))
-		{
-			if (inputBuf[0])
-			{
-				addLog(LogLevel::Info, "> %s", inputBuf);
-				// Handle command here
-				if (strcmp(inputBuf, "clear") == 0)
-					consoleItems.clear();
-				else if (strcmp(inputBuf, "help") == 0)
-					addLog(LogLevel::Info, "Available commands: help, clear");
-				else
-					addLog(LogLevel::Warning, "Unknown command: '%s'", inputBuf);
+        // Command input
+        gui->separator();
+        gui->pushItemWidth(-1);
+        if (ImGui::InputText("##ConsoleInput", inputBuf, IM_ARRAYSIZE(inputBuf),
+                             ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory,
+                             &textEditCallback))
+        {
+            if (inputBuf[0])
+            {
+                addLog(LogLevel::Info, "> %s", inputBuf);
+                // Handle command here
+                if (strcmp(inputBuf, "clear") == 0)
+                    consoleItems.clear();
+                else if (strcmp(inputBuf, "help") == 0)
+                    addLog(LogLevel::Info, "Available commands: help, clear");
+                else
+                    addLog(LogLevel::Warning, "Unknown command: '%s'", inputBuf);
 
-				strcpy(inputBuf, "");
-			}
-		}
-		ImGui::PopItemWidth();
+                strcpy(inputBuf, "");
+            }
+        }
+        gui->popItemWidth();
 
-		ImGui::End();
+        gui->windowEnd();
 
-		if (!manager->projectOpened)
-			ImGui::EndDisabled();
+        if (!manager->projectOpened)
+            ImGui::EndDisabled();
 
-		// Show tooltip
-		if (showCopiedTooltip)
-		{
-			copiedTooltipTime += io.DeltaTime;
-			ImGui::BeginTooltip();
-			ImGui::Text("Text copied to clipboard");
-			ImGui::EndTooltip();
+        // Show tooltip
+        if (showCopiedTooltip)
+        {
+            copiedTooltipTime += io.DeltaTime;
+            gui->beginTooltip();
+            gui->text("Text copied to clipboard");
+            gui->endTooltip();
 
-			if (copiedTooltipTime >= copiedTooltipDuration)
-			{
-				showCopiedTooltip = false;
-			}
-		}
-	}
+            if (copiedTooltipTime >= copiedTooltipDuration)
+            {
+                showCopiedTooltip = false;
+            }
+        }
+    }
 }

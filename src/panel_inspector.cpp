@@ -23,7 +23,7 @@ void PanelInspector::draw(bool& opened)
 
                 // Icon on the left
                 gui->groupStart();
-                gui->button("Icon", ivec2(48, 48)); // Replace with ImGui::Image for real icon
+                gui->button("Icon", kIvec2(48, 48)); // Replace with ImGui::Image for real icon
                 gui->groupEnd();
 
                 gui->sameLine();
@@ -97,7 +97,7 @@ void PanelInspector::draw(bool& opened)
 		{
 			gui->spacing();
 
-			std::string text = "Nothing is selected";
+			kString text = "Nothing is selected";
             float textWidth = ImGui::CalcTextSize(text.c_str()).x;
             float columnWidth = ImGui::GetColumnWidth();
             float textX = ImGui::GetCursorPosX() + (columnWidth - textWidth) * 0.5f; // center horizontally

@@ -17,7 +17,7 @@ enum class LogLevel { Info, Warning, Error };
 
 struct ConsoleItem
 {
-	std::string text;
+	kString text;
 	LogLevel level;
 };
 

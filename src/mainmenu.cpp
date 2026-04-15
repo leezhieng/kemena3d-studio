@@ -6,7 +6,7 @@ MainMenu::MainMenu(kGuiManager* setGuiManager, Manager* setManager)
     manager = setManager;
 }
 
-void MainMenu::SDLCALL saveWorkspaceCallback(void* userdata, const char* const* filelist, int filter)
+void SDLCALL MainMenu::saveWorkspaceCallback(void* userdata, const char* const* filelist, int filter)
 {
 	if (!filelist)
 	{

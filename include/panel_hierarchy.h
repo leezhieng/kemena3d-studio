@@ -19,32 +19,32 @@ class Manager;
 class PanelHierarchy
 {
 	private:
-		ImTextureRef iconAdd;
-		ImTextureRef iconMag;
+		GLuint iconAdd = 0;
+		GLuint iconMag = 0;
 
-        ImTextureRef iconWorld;
-        ImTextureRef iconScene;
-        ImTextureRef iconMesh;
-        ImTextureRef iconEmpty;
-        ImTextureRef iconLight;
-        ImTextureRef iconCamera;
-        ImTextureRef iconPrefab;
+        GLuint iconWorld  = 0;
+        GLuint iconScene  = 0;
+        GLuint iconMesh   = 0;
+        GLuint iconEmpty  = 0;
+        GLuint iconLight  = 0;
+        GLuint iconCamera = 0;
+        GLuint iconPrefab = 0;
 
-		char searchBuffer[128] = "";
+		kString searchBuffer;
 
-		ImVec4 addTint = ImVec4(1, 1, 1, 1);
+		kVec4 addTint = kVec4(1, 1, 1, 1);
 
 		struct Node
 		{
-			std::string name;
+			kString name;
 			bool isSelected = false;
 			std::vector<std::unique_ptr<Node>> children;
 
-			std::string uuid;
-			ImTextureRef icon = nullptr;
-			std::string type = ""; // world, scene, mesh, etc.
+			kString uuid;
+			GLuint icon = 0;
+			kString type = ""; // world, scene, mesh, etc.
 
-			Node(const std::string& n, const std::string& g, ImTextureRef i = nullptr, const std::string& t = "")
+			Node(const kString& n, const kString& g, GLuint i = 0, const kString& t = "")
             : name(n), uuid(g), icon(i), type(t) {}
 		};
 

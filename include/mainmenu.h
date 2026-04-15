@@ -26,7 +26,7 @@ struct ShowPanel
 inline ShowPanel showPanel;
 inline ImGuiSettingsHandler ini_handler;
 inline bool isReloadLayout = false;
-inline std::string layoutFileName = "layout.ini";
+inline kString layoutFileName = "layout.ini";
 
 class MainMenu
 {

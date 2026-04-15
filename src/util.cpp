@@ -51,7 +51,7 @@ uint32_t utf8Next(const char*& it, const char* end)
 }
 
 // Encode UTF-8 codepoint
-void utf8Encode(uint32_t cp, std::string& out)
+void utf8Encode(uint32_t cp, kString& out)
 {
 	if (cp < 0x80) out.push_back((char)cp);
 	else if (cp < 0x800)
@@ -74,26 +74,26 @@ void utf8Encode(uint32_t cp, std::string& out)
 	}
 }
 
-std::string fitTextWithEllipsisUtf8(const std::string& text, float maxWidth)
+kString fitTextWithEllipsisUtf8(const kString& text, float maxWidth)
 {
 	if (text.empty()) return "";
 
 	if (ImGui::CalcTextSize(text.c_str()).x <= maxWidth)
 		return text;
 
-	const std::string ell = "...";
+	const kString ell = "...";
 
 	const char* begin = text.c_str();
 	const char* end   = text.c_str() + text.size();
 	const char* it    = begin;
 
-	std::string out;
+	kString out;
 	while (it < end)
 	{
 		const char* prev = it;
 		uint32_t cp = utf8Next(it, end);
 
-		std::string tmp = out;
+		kString tmp = out;
 		utf8Encode(cp, tmp);
 		tmp += ell;
 

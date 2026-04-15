@@ -13,7 +13,7 @@ Manager::Manager(kWindow* setWindow, kWorld* setWorld)
 #ifdef _WIN32
 		char buffer[MAX_PATH];
 		DWORD len = GetModuleFileNameA(NULL, buffer, MAX_PATH);
-		exePath = std::string(buffer, len);
+		exePath = kString(buffer, len);
 #elif __APPLE__
 		char buffer[PATH_MAX];
 		uint32_t size = sizeof(buffer);
@@ -53,7 +53,7 @@ Manager::Manager(kWindow* setWindow, kWorld* setWorld)
 
 Manager::~Manager() = default;
 
-std::string Manager::getCurrentDirPath()
+kString Manager::getCurrentDirPath()
 {
 	fs::path path = projectPath;
 
@@ -65,7 +65,7 @@ std::string Manager::getCurrentDirPath()
 	return path.string();
 }
 
-void Manager::openFolder(string name)
+void Manager::openFolder(kString name)
 {
 	currentDir.push_back(name);
 }
@@ -105,7 +105,7 @@ bool Manager::newProject()
 
 	if (!fs::exists(path) || !fs::is_directory(path))
 	{
-		std::string msg = "Directory does not exist:\n" + path;
+		kString msg = "Directory does not exist:\n" + path;
 
 		pfd::message(
 			"Invalid Directory",     // title
@@ -130,7 +130,7 @@ bool Manager::newProject()
 	fs::create_directories(fullPath / "Library" / "ImportedAssets", ec);
 	fs::create_directories(fullPath / "Config", ec);
 
-	std::string msg = "Project created at: " + fullPath.string();
+	kString msg = "Project created at: " + fullPath.string();
 
 	pfd::message(
 		"Success",     // title
@@ -193,7 +193,7 @@ bool Manager::openProject()
 
 	if (!fs::exists(path) || !fs::is_directory(path))
 	{
-		std::string msg = "Directory does not exist:\n" + path;
+		kString msg = "Directory does not exist:\n" + path;
 
 		pfd::message(
 			"Invalid Directory",     // title
@@ -213,7 +213,7 @@ bool Manager::openProject()
 
 	if (!(fs::exists(assetsPath) && fs::exists(libraryPath) && fs::exists(configPath)))
 	{
-		std::string msg = "Failed to open project. Invalid directory structure.\n";
+		kString msg = "Failed to open project. Invalid directory structure.\n";
 
 		pfd::message(
 			"Invalid Directory",     // title
@@ -347,10 +347,10 @@ void Manager::checkAssetChange()
 		{
 			for (auto it = j["files"].begin(); it != j["files"].end();)
 			{
-				std::string uuid = (*it)["uuid"].get<std::string>();
-				std::string relativePath = (*it)["name"].get<std::string>();
-				std::string checksum = (*it).value("checksum", "");
-				std::string type = (*it)["type"].get<std::string>();
+				kString uuid = (*it)["uuid"].get<kString>();
+				kString relativePath = (*it)["name"].get<kString>();
+				kString checksum = (*it).value("checksum", "");
+				kString type = (*it)["type"].get<kString>();
 
 				fs::path filePath = assetsPath / relativePath;
 
@@ -387,7 +387,7 @@ void Manager::checkAssetChange()
 					}
 
 					// Delete imported assets
-					std::string assetExt;
+					kString assetExt;
 
 					if (type == "mesh")
 						assetExt = ".glb";
@@ -439,11 +439,11 @@ void Manager::checkAssetChange()
 		{
 			if (!p.is_regular_file()) continue;
 
-			std::string relativePath = fs::relative(p.path(), assetsPath).generic_string();
-			std::string checksum = generateFileChecksum(p.path().string());
+			kString relativePath = fs::relative(p.path(), assetsPath).generic_string();
+			kString checksum = generateFileChecksum(p.path().string());
 
-			std::string fileUuid;
-			std::string fileType;
+			kString fileUuid;
+			kString fileType;
 			bool needImport = false;
 
 			// Check with assets.json
@@ -451,8 +451,8 @@ void Manager::checkAssetChange()
 			if (it == uuidMap.end())
 			{
 				// New file
-				std::string uuid = generateUuid();
-				std::string type = checkAssetType(p.path());
+				kString uuid = generateUuid();
+				kString type = checkAssetType(p.path());
 
 				fileUuid = uuid;
 				fileType = type;
@@ -476,7 +476,7 @@ void Manager::checkAssetChange()
 			else
 			{
 				// Existing file, check checksum
-				std::string uuid = it->second;
+				kString uuid = it->second;
 				FileInfo& info = fileMap[uuid];
 
 				fileUuid = uuid;
@@ -535,7 +535,7 @@ void Manager::checkAssetChange()
 				}
 
 				// Fixed extension
-				string uuidExt;
+				kString uuidExt;
 
 				if (fileType == "mesh")
 					uuidExt = ".glb";
@@ -684,7 +684,7 @@ void Manager::deleteObjectRecursive(kObject* node)
     delete node;
 }
 
-std::string Manager::checkAssetType(const fs::path &p)
+kString Manager::checkAssetType(const fs::path &p)
 {
 	auto ext = p.extension().string();
 
@@ -789,7 +789,7 @@ void Manager::drawImportPopup(PanelConsole* console)
 
 					if (!task.success && !task.reported)
 					{
-						console->addLog(LogLevel::Error, (string("Failed to import asset: ") + task.inputPath.generic_string()).c_str());
+						console->addLog(LogLevel::Error, (kString("Failed to import asset: ") + task.inputPath.generic_string()).c_str());
 						task.reported = true;
 					}
 				}
@@ -811,7 +811,7 @@ void Manager::drawImportPopup(PanelConsole* console)
 	}
 }
 
-void Manager::selectObject(const std::string uuid, bool clearList)
+void Manager::selectObject(const kString uuid, bool clearList)
 {
     if (clearList)
         selectedObjects.clear();
@@ -823,7 +823,7 @@ void Manager::selectObject(const std::string uuid, bool clearList)
     }
 }
 
-void Manager::deselectObject(const std::string uuid)
+void Manager::deselectObject(const kString uuid)
 {
     auto it = std::find(selectedObjects.begin(), selectedObjects.end(), uuid);
     if (it != selectedObjects.end())

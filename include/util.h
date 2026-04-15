@@ -1,6 +1,10 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include "kemena/kemena.h"
+
+using namespace kemena;
+
 #include <assimp/Importer.hpp>
 #include <assimp/Exporter.hpp>
 #include <assimp/scene.h>
@@ -56,10 +60,10 @@ struct DDSHeader
 uint32_t utf8Next(const char*& it, const char* end);
 
 // Encode UTF-8 codepoint
-void utf8Encode(uint32_t cp, std::string& out);
+void utf8Encode(uint32_t cp, kString& out);
 
 // Truncate UTF-8 string with "..." if wider than maxWidth
-std::string fitTextWithEllipsisUtf8(const std::string& text, float maxWidth);
+kString fitTextWithEllipsisUtf8(const kString& text, float maxWidth);
 bool convertMeshToGlb(const fs::path& inputPath, const fs::path& outputPath);
 bool convertImageToDxt5(const fs::path& inputPath, const fs::path& outputPath);
 

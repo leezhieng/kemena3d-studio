@@ -30,10 +30,9 @@ void PanelWorld::draw(bool& isOpened, kRenderer* renderer, kCamera* editorCamera
     ImVec2 panelSize = ImVec2(contentMax.x - contentMin.x, contentMax.y - contentMin.y);
 
     // Display framebuffer texture
-    ImTextureID tex_id = (ImTextureID)(intptr_t)renderer->getFboTexture();
-    ImGui::Image(tex_id, availSize, ImVec2(0,1), ImVec2(1,0));
-
-    ImGui::SetItemAllowOverlap();
+    ImTextureRef tex_ref((ImTextureID)(uintptr_t)renderer->getFboTexture());
+    ImGui::SetNextItemAllowOverlap();
+    ImGui::Image(tex_ref, availSize, ImVec2(0,1), ImVec2(1,0));
 
     hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
     focused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);

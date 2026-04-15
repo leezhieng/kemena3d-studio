@@ -49,15 +49,15 @@ class PanelProject
 
 		struct Node
 		{
-			std::string name;
+			kString name;
 			bool isSelected = false;
 			std::vector<std::unique_ptr<Node>> children;
 
-			std::string uuid;
+			kString uuid;
 			ImTextureRef icon = nullptr;
 			int type = 0; // 0 - Folder, 1 - File
 
-			Node(const std::string& n, const std::string& g, ImTextureRef i = nullptr, int t = 0) : name(n), uuid(g), icon(i), type(t) {}
+			Node(const kString& n, const kString& g, ImTextureRef i = nullptr, int t = 0) : name(n), uuid(g), icon(i), type(t) {}
 		};
 
 		Node rootTree;
