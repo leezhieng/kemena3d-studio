@@ -24,6 +24,7 @@ class PanelWorld
 		int width = 0;
 		int height = 0;
 		float aspectRatio = 0;
+		ImVec2 panelPos = ImVec2(0.f, 0.f); ///< Absolute screen-space top-left of the viewport content area.
 
 		PanelWorld(kGuiManager* setGuiManager, Manager* setManager);
 		void draw(bool& isOpened, kRenderer* renderer, kCamera* editorCamera);

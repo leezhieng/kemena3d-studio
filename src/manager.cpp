@@ -2,10 +2,11 @@
 
 namespace fs = std::filesystem;
 
-Manager::Manager(kWindow* setWindow, kWorld* setWorld)
+Manager::Manager(kWindow* setWindow, kWorld* setWorld, kRenderer* setRenderer)
 {
 	window = setWindow;
 	world = setWorld;
+	renderer = setRenderer;
 	initialWindowTitle = window->getWindowTitle();
 
 	try
@@ -145,6 +146,9 @@ bool Manager::newProject()
 	projectSaved = false;
 	refreshWindowTitle();
 
+	if (!renderer->getEnableObjectPicking())
+	    renderer->setEnableObjectPicking(true);
+
 	projectPath = path;
 	currentDir.clear();
 	currentDir.push_back("Assets");
@@ -232,6 +236,9 @@ bool Manager::openProject()
 	projectOpened = true;
 	projectSaved = false;
 	refreshWindowTitle();
+
+	if (!renderer->getEnableObjectPicking())
+	    renderer->setEnableObjectPicking(true);
 
 	projectPath = path;
 	currentDir.clear();

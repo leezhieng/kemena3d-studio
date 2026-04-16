@@ -2,6 +2,10 @@
 #define PANEL_INSPECTOR_H
 
 #include "kemena/kemena.h"
+#include <kemena/kmesh.h>
+#include <kemena/klight.h>
+#include <kemena/kcamera.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "manager.h"
 

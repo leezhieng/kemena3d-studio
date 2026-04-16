@@ -26,7 +26,7 @@ void PanelWorld::draw(bool& isOpened, kRenderer* renderer, kCamera* editorCamera
     // Absolute screen coordinates
     ImVec2 contentMin = ImGui::GetWindowContentRegionMin();
     ImVec2 contentMax = ImGui::GetWindowContentRegionMax();
-    ImVec2 panelPos  = ImVec2(windowPos.x + contentMin.x, windowPos.y + contentMin.y);
+    panelPos         = ImVec2(windowPos.x + contentMin.x, windowPos.y + contentMin.y);
     ImVec2 panelSize = ImVec2(contentMax.x - contentMin.x, contentMax.y - contentMin.y);
 
     // Display framebuffer texture

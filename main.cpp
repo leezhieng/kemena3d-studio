@@ -43,7 +43,7 @@ int main()
 	kScene* scene = world->createScene("Scene");
 
 	// Editor manager
-	Manager* manager = new Manager(window, world);
+	Manager* manager = new Manager(window, world, renderer);
 
 	// Initialize panels
 	MainMenu* mainmenu = new MainMenu(gui, manager);
@@ -164,6 +164,31 @@ int main()
 						dragStart.y = event.getMouseY();
 
 						camRot = cameraEditor->getRotation();
+					}
+					else if (event.getMouseButton() == K_MOUSEBUTTON_LEFT && !altPressed
+					         && !ImGuizmo::IsOver() && !ImGuizmo::IsUsing())
+					{
+						// Convert absolute screen coords → viewport-local physical pixels.
+						// The render viewport uses width*2 / height*2 (physical pixels),
+						// while ImGui and mouse events use logical pixels, so scale by 2.
+						int vpMouseX = (int)((event.getMouseX() - panelWorld->panelPos.x) * 2.0f);
+						int vpMouseY = (int)((event.getMouseY() - panelWorld->panelPos.y) * 2.0f);
+
+						kObject* picked = renderer->pickObject(
+						    world, scene,
+						    vpMouseX, vpMouseY,
+						    panelWorld->width * 2, panelWorld->height * 2);
+
+						if (picked != nullptr)
+						{
+							manager->selectedObject = picked;
+							manager->selectObject(picked->getUuid(), !shiftPressed);
+						}
+						else if (!shiftPressed)
+						{
+							manager->selectedObject = nullptr;
+							manager->selectedObjects.clear();
+						}
 					}
 				}
 				else

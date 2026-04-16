@@ -14,6 +14,7 @@
 
 #include <kemena/kwindow.h>
 #include <kemena/kworld.h>
+#include <kemena/krenderer.h>
 #include <portable-file-dialogs.h>
 #include <kemena/kguimanager.h>
 #include <ImGuizmo.h>
@@ -66,7 +67,7 @@ class PanelConsole;
 class Manager
 {
 public:
-    Manager(kWindow *setWindow, kWorld *setWorld);
+    Manager(kWindow *setWindow, kWorld *setWorld, kRenderer *setRenderer);
     virtual ~Manager();
 
     kString getCurrentDirPath();
@@ -140,6 +141,7 @@ public:
 private:
     kWindow *window;
     kWorld *world;
+    kRenderer *renderer;
     kString initialWindowTitle;
 
     // int initialResizeCount = 0;
