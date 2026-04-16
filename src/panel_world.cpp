@@ -1,12 +1,34 @@
 #include "panel_world.h"
 
-PanelWorld::PanelWorld(kGuiManager* setGuiManager, Manager* setManager)
+PanelWorld::PanelWorld(kGuiManager *setGuiManager, Manager *setManager)
 {
-    gui = setGuiManager;
+    gui     = setGuiManager;
     manager = setManager;
 }
 
-void PanelWorld::draw(bool& isOpened, kRenderer* renderer, kCamera* editorCamera)
+// ---------------------------------------------------------------------------
+// Pivot toolbar helpers
+// ---------------------------------------------------------------------------
+
+static void pivotButton(const char *label, PivotMode mode, PivotMode &current)
+{
+    bool active = (current == mode);
+    if (active)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.26f, 0.59f, 0.98f, 1.00f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.26f, 0.59f, 0.98f, 0.85f));
+    }
+    if (ImGui::Button(label, ImVec2(26, 22)))
+        current = mode;
+    if (active)
+        ImGui::PopStyleColor(2);
+}
+
+// ---------------------------------------------------------------------------
+// draw
+// ---------------------------------------------------------------------------
+
+void PanelWorld::draw(bool &isOpened, kRenderer *renderer, kCamera *editorCamera)
 {
     enabled = manager->projectOpened;
 
@@ -16,70 +38,142 @@ void PanelWorld::draw(bool& isOpened, kRenderer* renderer, kCamera* editorCamera
     ImGui::BeginDisabled(!enabled);
     ImGui::Begin("World");
 
-    // Panel size
-    ImVec2 windowPos = ImGui::GetWindowPos();
-    ImVec2 availSize = ImGui::GetContentRegionAvail();
-    width = (int)availSize.x;
-    height = (int)availSize.y;
+    // ------------------------------------------------------------------
+    // Pivot mode toolbar (shown above the scene image)
+    // ------------------------------------------------------------------
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(2, 2));
+
+    pivotButton("I", PivotMode::Individual,   manager->pivotMode);
+    if (ImGui::IsItemHovered()) ImGui::SetTooltip("Individual pivot");
+    ImGui::SameLine();
+    pivotButton("C", PivotMode::Center,       manager->pivotMode);
+    if (ImGui::IsItemHovered()) ImGui::SetTooltip("Center pivot");
+    ImGui::SameLine();
+    pivotButton("L", PivotMode::LastSelected, manager->pivotMode);
+    if (ImGui::IsItemHovered()) ImGui::SetTooltip("Last selected pivot");
+
+    ImGui::PopStyleVar();
+
+    ImGui::Separator();
+
+    // ------------------------------------------------------------------
+    // Panel layout
+    // ------------------------------------------------------------------
+    ImVec2 windowPos  = ImGui::GetWindowPos();
+    ImVec2 availSize  = ImGui::GetContentRegionAvail();
+    width       = (int)availSize.x;
+    height      = (int)availSize.y;
     aspectRatio = (height > 0.0f) ? (availSize.x / availSize.y) : 1.0f;
 
-    // Absolute screen coordinates
     ImVec2 contentMin = ImGui::GetWindowContentRegionMin();
     ImVec2 contentMax = ImGui::GetWindowContentRegionMax();
-    panelPos         = ImVec2(windowPos.x + contentMin.x, windowPos.y + contentMin.y);
-    ImVec2 panelSize = ImVec2(contentMax.x - contentMin.x, contentMax.y - contentMin.y);
+    panelPos          = ImVec2(windowPos.x + contentMin.x, windowPos.y + contentMin.y);
+    ImVec2 panelSize  = ImVec2(contentMax.x - contentMin.x, contentMax.y - contentMin.y);
 
     // Display framebuffer texture
     ImTextureRef tex_ref((ImTextureID)(uintptr_t)renderer->getFboTexture());
     ImGui::SetNextItemAllowOverlap();
-    ImGui::Image(tex_ref, availSize, ImVec2(0,1), ImVec2(1,0));
+    ImGui::Image(tex_ref, availSize, ImVec2(0, 1), ImVec2(1, 0));
 
     hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
     focused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
 
-    // Only manipulate if a selected object exists
-    if (manager->selectedObject)
+    // ------------------------------------------------------------------
+    // Multi-object gizmo
+    // ------------------------------------------------------------------
+    if (!manager->selectedObjects.empty())
     {
-        // Copy the object's world matrix
-        glm::mat4 model = manager->selectedObject->getModelMatrixWorld();
-
-        // Get camera matrices
-        glm::mat4 view = editorCamera->getViewMatrix();
-        glm::mat4 proj = editorCamera->getProjectionMatrix();
-
-        //std::cout << glm::value_ptr(view) << "," << glm::value_ptr(proj) << "," << glm::value_ptr(model) << std::endl;
-
-        ImGuizmo::BeginFrame();
-
-        // Must call this, otherwise will crash
-        ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
-
-        // Setup ImGuizmo for the panel
-        ImGuizmo::SetRect(panelPos.x, panelPos.y, panelSize.x, panelSize.y);
-
-        // Manipulate the matrix copy
-        ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(proj), manager->manipulatorType, manager->manipulatorMode, glm::value_ptr(model));
-
-        // If user interacted, decompose and apply back
-        if (ImGuizmo::IsUsing())
+        // Gather valid selected object pointers
+        std::vector<kObject *> selObjs;
+        for (const auto &uuid : manager->selectedObjects)
         {
-            glm::vec3 position, scale, skew;
-            glm::quat rotation;
-            glm::vec4 perspective;
-
-            if (glm::decompose(model, scale, rotation, position, skew, perspective))
-            {
-                manager->selectedObject->setPosition(position);
-                manager->selectedObject->setRotation(rotation);
-                manager->selectedObject->setScale(scale);
-            }
-
-            //std::cout << "Is dragging" << std::endl;
+            kObject *obj = manager->findObjectByUuid(uuid);
+            if (obj) selObjs.push_back(obj);
         }
 
-        if (ImGuizmo::IsOver())
+        if (!selObjs.empty())
         {
-            //std::cout << "Is over" << std::endl;
+            glm::mat4 view = editorCamera->getViewMatrix();
+            glm::mat4 proj = editorCamera->getProjectionMatrix();
+
+            // Compute pivot matrix
+            glm::mat4 pivotMatrix;
+            if (manager->pivotMode == PivotMode::Center)
+            {
+                glm::vec3 center(0.0f);
+                for (kObject *obj : selObjs)
+                    center += obj->getPosition();
+                center /= (float)selObjs.size();
+                pivotMatrix = glm::translate(glm::mat4(1.0f), center);
+            }
+            else
+            {
+                // LastSelected or Individual → pivot at last selected
+                kObject *pivot = manager->selectedObject ? manager->selectedObject : selObjs.back();
+                pivotMatrix = pivot->getModelMatrixWorld();
+            }
+
+            glm::mat4 pivotCopy = pivotMatrix;
+
+            ImGuizmo::BeginFrame();
+            ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
+            ImGuizmo::SetRect(panelPos.x, panelPos.y, panelSize.x, panelSize.y);
+
+            ImGuizmo::Manipulate(
+                glm::value_ptr(view), glm::value_ptr(proj),
+                manager->manipulatorType, manager->manipulatorMode,
+                glm::value_ptr(pivotCopy));
+
+            bool isUsingNow = ImGuizmo::IsUsing();
+
+            // Snapshot start state when drag begins
+            if (!wasGizmoUsing && isUsingNow)
+                gizmoStartStates = manager->captureSelectedTransforms();
+
+            if (isUsingNow)
+            {
+                // Per-frame incremental delta
+                glm::mat4 delta = pivotCopy * glm::inverse(pivotMatrix);
+
+                glm::vec3 dPos, dScale, dSkew;
+                glm::quat dRot;
+                glm::vec4 dPersp;
+                glm::decompose(delta, dScale, dRot, dPos, dSkew, dPersp);
+                dRot = glm::normalize(dRot);
+
+                for (kObject *obj : selObjs)
+                {
+                    if (selObjs.size() == 1 || manager->pivotMode == PivotMode::Individual)
+                    {
+                        // Each object transforms around its own centre
+                        obj->setPosition(obj->getPosition() + dPos);
+                        obj->setRotation(glm::normalize(dRot * obj->getRotation()));
+                        obj->setScale(obj->getScale() * dScale);
+                    }
+                    else
+                    {
+                        // Center / LastSelected: apply full delta to world matrix
+                        glm::mat4 newWorld = delta * obj->getModelMatrixWorld();
+                        glm::vec3 pos, scale, skew;
+                        glm::quat rot;
+                        glm::vec4 persp;
+                        glm::decompose(newWorld, scale, rot, pos, skew, persp);
+                        obj->setPosition(pos);
+                        obj->setRotation(glm::normalize(rot));
+                        obj->setScale(scale);
+                    }
+                }
+            }
+
+            // Push undo command when drag ends
+            if (wasGizmoUsing && !isUsingNow)
+            {
+                auto after = manager->captureSelectedTransforms();
+                manager->undoRedo.push(std::make_unique<TransformCommand>(
+                    manager, gizmoStartStates, std::move(after)));
+            }
+
+            wasGizmoUsing = isUsingNow;
         }
     }
 

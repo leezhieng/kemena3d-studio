@@ -15,6 +15,9 @@
 #include <kemena/kwindow.h>
 #include <kemena/kworld.h>
 #include <kemena/krenderer.h>
+#include <kemena/kscene.h>
+
+#include "commands.h"
 #include <portable-file-dialogs.h>
 #include <kemena/kguimanager.h>
 #include <ImGuizmo.h>
@@ -69,6 +72,13 @@ class Manager
 public:
     Manager(kWindow *setWindow, kWorld *setWorld, kRenderer *setRenderer);
     virtual ~Manager();
+
+    void setScene(kScene *s) { scene = s; }
+    kScene *getScene()       { return scene; }
+
+    kObject *findObjectByUuid(const kString &uuid);
+    void deleteSelectedObjects();
+    std::vector<TransformState> captureSelectedTransforms();
 
     kString getCurrentDirPath();
 
@@ -133,16 +143,20 @@ public:
     void selectObject(const kString uuid, bool clearList = false);
     void deselectObject(const kString uuid);
 
-    kObject *selectedObject = nullptr; // Temp
+    kObject *selectedObject = nullptr;
 
     ImGuizmo::OPERATION manipulatorType = ImGuizmo::TRANSLATE;
     ImGuizmo::MODE manipulatorMode = ImGuizmo::LOCAL;
 
+    UndoRedoManager undoRedo;
+    PivotMode pivotMode = PivotMode::LastSelected;
+
 private:
-    kWindow *window;
-    kWorld *world;
+    kWindow   *window;
+    kWorld    *world;
     kRenderer *renderer;
-    kString initialWindowTitle;
+    kScene    *scene = nullptr;
+    kString    initialWindowTitle;
 
     // int initialResizeCount = 0;
 

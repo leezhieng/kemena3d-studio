@@ -1,4 +1,5 @@
 #include "panel_hierarchy.h"
+#include "commands.h"
 
 using namespace kemena;
 
@@ -75,6 +76,10 @@ void PanelHierarchy::drawNode(Node &node, Node &root, int level)
 	// Item clicked
 	if (gui->isItemClicked())
 	{
+		// Snapshot selection before change (for undo)
+		auto selBefore    = manager->selectedObjects;
+		auto selObjBefore = manager->selectedObject;
+
 		if (!ImGui::GetIO().KeyShift)
 		{
 			deselectAll(root);
@@ -87,6 +92,8 @@ void PanelHierarchy::drawNode(Node &node, Node &root, int level)
 			manager->selectObject(node.uuid, true);
 
 		std::cout << "Object clicked: " << node.uuid.c_str() << " ,Level:" << level << std::endl;
+
+		kObject *newSelObj = manager->selectedObject;
 
 		if (level == 0)
 		{
@@ -103,11 +110,23 @@ void PanelHierarchy::drawNode(Node &node, Node &root, int level)
 			{
 				std::cout << "FOUND: " << node.uuid.c_str() << std::endl;
 				manager->selectedObject = manager->objectMap[node.uuid.c_str()].object;
+				newSelObj = manager->selectedObject;
 			}
 			else
 			{
 				std::cout << "NOT FOUND: " << node.uuid.c_str() << std::endl;
 			}
+		}
+
+		// Push selection undo command
+		auto selAfter    = manager->selectedObjects;
+		auto selObjAfter = newSelObj;
+		if (selBefore != selAfter || selObjBefore != selObjAfter)
+		{
+			manager->undoRedo.push(std::make_unique<SelectCommand>(
+				manager,
+				selBefore,    selObjBefore,
+				selAfter,     selObjAfter));
 		}
 	}
 

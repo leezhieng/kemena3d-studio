@@ -1,5 +1,8 @@
 #include "manager.h"
 
+#include <kemena/kmesh.h>
+#include <kemena/klight.h>
+
 namespace fs = std::filesystem;
 
 Manager::Manager(kWindow* setWindow, kWorld* setWorld, kRenderer* setRenderer)
@@ -837,4 +840,66 @@ void Manager::deselectObject(const kString uuid)
     {
         selectedObjects.erase(it);
     }
+}
+
+kObject *Manager::findObjectByUuid(const kString &uuid)
+{
+    // Fast path: objectMap (populated by hierarchy panel)
+    auto it = objectMap.find(uuid);
+    if (it != objectMap.end() && it->second.object)
+        return it->second.object;
+
+    // Fallback: traverse scene graph directly
+    if (!scene) return nullptr;
+    for (kObject *child : scene->getRootNode()->getChildren())
+        if (child->getUuid() == uuid) return child;
+
+    return nullptr;
+}
+
+std::vector<TransformState> Manager::captureSelectedTransforms()
+{
+    std::vector<TransformState> states;
+    for (const auto &uuid : selectedObjects)
+    {
+        kObject *obj = findObjectByUuid(uuid);
+        if (!obj) continue;
+        states.push_back({ uuid, obj->getPosition(), obj->getRotation(), obj->getScale() });
+    }
+    return states;
+}
+
+void Manager::deleteSelectedObjects()
+{
+    if (!scene || selectedObjects.empty()) return;
+
+    std::vector<DeletedObjectInfo> deleted;
+
+    for (const auto &uuid : selectedObjects)
+    {
+        kObject *obj = findObjectByUuid(uuid);
+        if (!obj) continue;
+
+        kNodeType type = obj->getType();
+
+        if (type == NODE_TYPE_LIGHT)
+            scene->removeLight(static_cast<kLight *>(obj));
+        else
+            scene->removeMesh(static_cast<kMesh *>(obj));
+
+        deleted.push_back({ obj, type, scene });
+    }
+
+    if (deleted.empty()) return;
+
+    auto cmd = std::make_unique<DeleteCommand>(
+        this, std::move(deleted), selectedObjects, selectedObject);
+
+    selectedObjects.clear();
+    selectedObject = nullptr;
+
+    if (panelHierarchy)
+        panelHierarchy->refreshList();
+
+    undoRedo.push(std::move(cmd));
 }

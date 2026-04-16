@@ -17,6 +17,7 @@ option(KEMENA3D_LINK_STATIC "Link against the static kemena3d library" ON)
 set(SOURCES
     main.cpp
     src/mainmenu.cpp
+    src/commands.cpp
     src/manager.cpp
     src/panel_console.cpp
     src/panel_hierarchy.cpp

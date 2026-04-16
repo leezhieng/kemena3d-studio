@@ -1,6 +1,7 @@
 #include "kemena/kemena.h"
 
 #include "manager.h"
+#include "commands.h"
 #include "mainmenu.h"
 #include "panel_world.h"
 #include "panel_inspector.h"
@@ -44,6 +45,7 @@ int main()
 
 	// Editor manager
 	Manager* manager = new Manager(window, world, renderer);
+	manager->setScene(scene);
 
 	// Initialize panels
 	MainMenu* mainmenu = new MainMenu(gui, manager);
@@ -168,6 +170,10 @@ int main()
 					else if (event.getMouseButton() == K_MOUSEBUTTON_LEFT && !altPressed
 					         && !ImGuizmo::IsOver() && !ImGuizmo::IsUsing())
 					{
+						// Snapshot selection before picking (for undo)
+						auto selBefore    = manager->selectedObjects;
+						auto selObjBefore = manager->selectedObject;
+
 						// Convert absolute screen coords → viewport-local physical pixels.
 						// The render viewport uses width*2 / height*2 (physical pixels),
 						// while ImGui and mouse events use logical pixels, so scale by 2.
@@ -188,6 +194,17 @@ int main()
 						{
 							manager->selectedObject = nullptr;
 							manager->selectedObjects.clear();
+						}
+
+						// Push selection undo if it changed
+						auto selAfter    = manager->selectedObjects;
+						auto selObjAfter = manager->selectedObject;
+						if (selBefore != selAfter || selObjBefore != selObjAfter)
+						{
+							manager->undoRedo.push(std::make_unique<SelectCommand>(
+								manager,
+								selBefore,    selObjBefore,
+								selAfter,     selObjAfter));
 						}
 					}
 				}
@@ -260,6 +277,21 @@ int main()
 				else if (event.getKeyButton() == K_KEY_LSHIFT)
 				{
 				    shiftPressed = true;
+				}
+				else if (event.getKeyButton() == K_KEY_DELETE)
+				{
+				    if (!ImGui::GetIO().WantTextInput && manager->projectOpened)
+				        manager->deleteSelectedObjects();
+				}
+				else if (event.getKeyButton() == K_KEY_Z && ctrlPressed)
+				{
+				    if (!ImGui::GetIO().WantTextInput)
+				        manager->undoRedo.undo();
+				}
+				else if (event.getKeyButton() == K_KEY_Y && ctrlPressed)
+				{
+				    if (!ImGui::GetIO().WantTextInput)
+				        manager->undoRedo.redo();
 				}
 			}
 			else if (eventType == K_EVENT_KEYUP)
