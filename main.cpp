@@ -338,6 +338,11 @@ int main()
 		{
 			renderer->render(world, scene, 0, 0, panelWorld->width * 2, panelWorld->height * 2, window->getTimer()->getDeltaTime(), false);
 			renderer->render(world, sceneEditor, 0, 0, panelWorld->width * 2, panelWorld->height * 2, window->getTimer()->getDeltaTime(), false);
+
+			// Outline selected objects (orange)
+			if (manager->projectOpened && !manager->selectedObjects.empty())
+				renderer->renderOutline(world, scene, manager->selectedObjects,
+				                        kVec4(1.0f, 0.55f, 0.0f, 1.0f), 0.03f);
 		}
 
 		//std::cout << panelWorld->width << "," << panelWorld->height << std::endl;

@@ -4,6 +4,9 @@ PanelWorld::PanelWorld(kGuiManager *setGuiManager, Manager *setManager)
 {
     gui     = setGuiManager;
     manager = setManager;
+
+    // Disable the hatched/dashed overlay on gizmo axis lines
+    ImGuizmo::GetStyle().HatchedAxisLineThickness = 0.0f;
 }
 
 // ---------------------------------------------------------------------------
@@ -51,6 +54,19 @@ void PanelWorld::draw(bool &isOpened, kRenderer *renderer, kCamera *editorCamera
     ImGui::SameLine();
     pivotButton("L", PivotMode::LastSelected, manager->pivotMode);
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Last selected pivot");
+
+    ImGui::SameLine();
+    ImGui::Dummy(ImVec2(8, 0));
+    ImGui::SameLine();
+
+    // Render mode selector
+    static const char *kRenderModeNames[] = {
+        "Full", "Albedo", "Normals", "Wireframe", "Depth", "Full+Wire"
+    };
+    int currentMode = (int)renderer->getRenderMode();
+    ImGui::SetNextItemWidth(110.0f);
+    if (ImGui::Combo("##RenderMode", &currentMode, kRenderModeNames, 6))
+        renderer->setRenderMode((kRenderMode)currentMode);
 
     ImGui::PopStyleVar();
 
