@@ -343,6 +343,10 @@ int main()
 			if (manager->projectOpened && !manager->selectedObjects.empty())
 				renderer->renderOutline(world, scene, manager->selectedObjects,
 				                        kVec4(1.0f, 0.55f, 0.0f, 1.0f), 0.03f);
+
+			// Debug shapes for selected lights and cameras
+			if (manager->projectOpened && !manager->selectedObjects.empty())
+				renderer->renderDebugShapes(world, scene, manager->selectedObjects);
 		}
 
 		//std::cout << panelWorld->width << "," << panelWorld->height << std::endl;
