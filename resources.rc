@@ -1,5 +1,8 @@
 APP_ICON ICON "res/icons/app.ico"
 
+// Layout
+LAYOUT_DEFAULT RCDATA "res/layout.ini"
+
 // Fonts
 FONT_OPENSANS RCDATA "res/fonts/opensans.ttf"
 
@@ -65,8 +68,6 @@ ICON_OBJECT_LIGHT RCDATA "res/icons/label/light.png"
 ICON_OBJECT_CAMERA RCDATA "res/icons/label/camera.png"
 ICON_OBJECT_PREFAB RCDATA "res/icons/label/cube-black.png"
 
-
-
 ICON_DETACH_BUTTON RCDATA "res/icons/button/detach.png"
 ICON_MAXIMIZE_BUTTON RCDATA "res/icons/button/scalability.png"
 ICON_CLOSE_BUTTON RCDATA "res/icons/button/close.png"
@@ -78,3 +79,8 @@ ICON_FOLDER_LABEL RCDATA "res/icons/label/folder.png"
 ICON_INFO_LABEL RCDATA "res/icons/label/info.png"
 ICON_TERMINAL_LABEL RCDATA "res/icons/label/terminal.png"
 ICON_SCRIPT_LABEL RCDATA "res/icons/label/script.png"
+
+// Gizmo
+GIZMO_POINT_LIGHT RCDATA "res/textures/gizmo/point_light.png"
+GIZMO_SPOT_LIGHT RCDATA "res/textures/gizmo/spot_light.png"
+GIZMO_SUN_LIGHT RCDATA "res/textures/gizmo/sun_light.png"

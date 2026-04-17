@@ -9,107 +9,114 @@
 #include "panel_project.h"
 #include "panel_console.h"
 
-#include "imgui_internal.h"   // <-- required for ImGuiSettingsHandler
+#include "imgui_internal.h" // <-- required for ImGuiSettingsHandler
 
 using namespace kemena;
 
 const kString windowTitle = "Kemena3D Studio";
 
 // Project config
-kString projectName    = "New Game";
-kString developerName  = "My Company";
+kString projectName = "New Game";
+kString developerName = "My Company";
 kString projectVersion = "0.0.1";
 
 int main()
 {
 	// Create window and renderer
-	kWindow* window = createWindow(1024, 768, windowTitle, true);
-	kRenderer* renderer = createRenderer(window);
+	kWindow *window = createWindow(1024, 768, windowTitle, true);
+	kRenderer *renderer = createRenderer(window);
 	renderer->setEnableScreenBuffer(true);
 	renderer->setEnableShadow(true);
 	renderer->setClearColor(kVec4(0.2f, 0.4f, 0.6f, 1.0f));
 
 	// Setup GUI manager
-	kGuiManager* gui = createGuiManager(renderer);
+	kGuiManager *gui = createGuiManager(renderer);
 
 	// Create the asset manager
-	kAssetManager* assetManager = createAssetManager();
+	kAssetManager *assetManager = createAssetManager();
 
 	// Switch default font
 	gui->loadDefaultFontFromResource("FONT_OPENSANS");
 
 	// Create the world and scene
-	kWorld* world = createWorld(assetManager);
-	kScene* sceneEditor = world->createScene("Editor Scene");
-	kScene* scene = world->createScene("Scene");
+	kWorld *world = createWorld(assetManager);
+	kScene *sceneEditor = world->createScene("Editor Scene");
+	kScene *scene = world->createScene("Scene");
 
 	// Editor manager
-	Manager* manager = new Manager(window, world, renderer);
+	Manager *manager = new Manager(window, world, renderer);
 	manager->setScene(scene);
 
 	// Initialize panels
-	MainMenu* mainmenu = new MainMenu(gui, manager);
-	PanelWorld* panelWorld = new PanelWorld(gui, manager);
-	PanelInspector* panelInspector = new PanelInspector(gui, manager);
-	PanelProject* panelProject = new PanelProject(gui, manager, assetManager);
-	PanelHierarchy* panelHierarchy = new PanelHierarchy(gui, manager, assetManager, world);
-	PanelConsole* panelConsole = new PanelConsole(gui, manager);
+	MainMenu *mainmenu = new MainMenu(gui, manager);
+	PanelWorld *panelWorld = new PanelWorld(gui, manager);
+	PanelInspector *panelInspector = new PanelInspector(gui, manager);
+	PanelProject *panelProject = new PanelProject(gui, manager, assetManager);
+	PanelHierarchy *panelHierarchy = new PanelHierarchy(gui, manager, assetManager, world);
+	PanelConsole *panelConsole = new PanelConsole(gui, manager);
 
-	// Load default editor layout
+	// Load default editor layout from embedded resource
 	mainmenu->registerPanelStateHandler();
-	ImGui::LoadIniSettingsFromDisk("layout.ini");
+	{
+		HRSRC hRes = FindResource(NULL, "LAYOUT_DEFAULT", RT_RCDATA);
+		if (hRes)
+		{
+			HGLOBAL hData = LoadResource(NULL, hRes);
+			DWORD size    = SizeofResource(NULL, hRes);
+			const char *data = static_cast<const char *>(LockResource(hData));
+			if (data && size > 0)
+				ImGui::LoadIniSettingsFromMemory(data, size);
+		}
+	}
 
 	// Default skybox
-	kShader* skyShader = assetManager->loadShaderFromResource("SHADER_VERTEX_SKYBOX", "SHADER_FRAGMENT_SKYBOX");
-	kMaterial* skyMaterial = assetManager->createMaterial(skyShader);
-	kTextureCube* skyTexture = assetManager->loadTextureCubeFromResource("TEXTURE_SKYBOX_LEFT",
-							   "TEXTURE_SKYBOX_RIGHT",
-							   "TEXTURE_SKYBOX_TOP",
-							   "TEXTURE_SKYBOX_BOTTOM",
-							   "TEXTURE_SKYBOX_FRONT",
-							   "TEXTURE_SKYBOX_BACK",
-							   "cubeMap");
+	kShader *skyShader = assetManager->loadShaderFromResource("SHADER_VERTEX_SKYBOX", "SHADER_FRAGMENT_SKYBOX");
+	kMaterial *skyMaterial = assetManager->createMaterial(skyShader);
+	kTextureCube *skyTexture = assetManager->loadTextureCubeFromResource("TEXTURE_SKYBOX_RIGHT",
+																		 "TEXTURE_SKYBOX_LEFT",
+																		 "TEXTURE_SKYBOX_TOP",
+																		 "TEXTURE_SKYBOX_BOTTOM",
+																		 "TEXTURE_SKYBOX_FRONT",
+																		 "TEXTURE_SKYBOX_BACK",
+																		 "cubeMap");
 	skyMaterial->addTexture(skyTexture);
 	skyMaterial->setSingleSided(false);
-	//kMesh* skyMesh = assetManager->loadMeshFromResource("MODEL_SHAPE_CUBE", "obj");
-	kMesh* skyMesh = assetManager->loadMesh("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shape/cube.obj");
+	kMesh *skyMesh = assetManager->loadMeshFromResource("MODEL_SHAPE_CUBE", "obj");
 	skyMesh->setMaterial(skyMaterial);
 	scene->setSkybox(skyMaterial, skyMesh);
 
 	// Editor grid
-	kMesh* gridMesh = assetManager->loadMeshFromResource("MODEL_SHAPE_PLANE", "obj");
-	//kMesh* gridMesh = sceneEditor->addMesh("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shape/plane.obj");
+	kMesh *gridMesh = assetManager->loadMeshFromResource("MODEL_SHAPE_PLANE", "obj");
 	sceneEditor->addMesh(gridMesh);
-	kShader* gridShader = assetManager->loadShaderFromResource("SHADER_VERTEX_GRID", "SHADER_FRAGMENT_GRID");
-	//kShader* gridShader = assetManager->loadShaderFromFile("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/grid.vert", "D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/grid.frag");
-	kMaterial* gridMat = assetManager->createMaterial(gridShader);
+	kShader *gridShader = assetManager->loadShaderFromResource("SHADER_VERTEX_GRID", "SHADER_FRAGMENT_GRID");
+	kMaterial *gridMat = assetManager->createMaterial(gridShader);
 	gridMat->setTransparent(kTransparentType::TRANSP_TYPE_BLEND);
 	gridMat->setSingleSided(false);
 	gridMesh->setMaterial(gridMat);
 
-	kMesh* cube = assetManager->loadMeshFromResource("MODEL_SHAPE_CUBE", "obj");
-	//kMesh* cube = assetManager->loadMesh("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shape/cube.obj");
+	kMesh *cube = assetManager->loadMeshFromResource("MODEL_SHAPE_CUBE", "obj");
 	cube->setName("Cube");
 	cube->setPosition(kVec3(0.0f, 1.0f, 0.0f));
 	scene->addMesh(cube);
-	kShader* cubeShader = assetManager->loadShaderFromResource("SHADER_VERTEX_MESH", "SHADER_FRAGMENT_PHONG");
-	kMaterial* cubeMaterial = assetManager->createMaterial(cubeShader);
+	kShader *cubeShader = assetManager->loadShaderFromResource("SHADER_VERTEX_MESH", "SHADER_FRAGMENT_PHONG");
+	kMaterial *cubeMaterial = assetManager->createMaterial(cubeShader);
+	cubeMaterial->setAmbientColor(kVec3(1.0f, 1.0f, 1.0f));
+	cubeMaterial->setDiffuseColor(kVec3(0.5f, 0.5f, 0.5f));
 	cube->setMaterial(cubeMaterial);
 
 	// Default sunlight
-	kLight* light = scene->addSunLight(glm::vec3(0.0f, 6.0f, 0.0f), glm::vec3(0.2f, -1.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+	kLight *light = scene->addSunLight(glm::vec3(0.0f, 6.0f, 0.0f), glm::vec3(0.2f, -1.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 	light->setPower(1.0f);
 	light->setName("Sun Light");
 
-	kShader* iconShader = assetManager->loadShaderFromResource("SHADER_VERTEX_ICON", "SHADER_FRAGMENT_ICON");
-	//kShader* iconShader = assetManager->loadShaderFromFile("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/icon.vert", "D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/shader/glsl/icon.frag");
-	kMaterial* materialIconSun = assetManager->createMaterial(iconShader);
-    kTexture2D* textureIconSun = assetManager->loadTexture2D("D:/Projects/Kemena3D/kloena-kemena3d-playground/assets/icon/sun_light.png", "albedoMap");
-    materialIconSun->addTexture(textureIconSun);
-    light->setMaterial(materialIconSun);
+	kShader *iconShader = assetManager->loadShaderFromResource("SHADER_VERTEX_ICON", "SHADER_FRAGMENT_ICON");
+	kMaterial *materialIconSun = assetManager->createMaterial(iconShader);
+	kTexture2D *textureIconSun = assetManager->loadTexture2DFromResource("GIZMO_SUN_LIGHT", "albedoMap", kTextureFormat::TEX_FORMAT_RGBA);
+	materialIconSun->addTexture(textureIconSun);
+	light->setMaterial(materialIconSun);
 
 	// Editor camera
-	kCamera* cameraEditor = world->addCamera(glm::vec3(-7, 4, 12), glm::vec3(0, 3.5, 0), kCameraType::CAMERA_TYPE_FREE);
+	kCamera *cameraEditor = world->addCamera(glm::vec3(-7, 4, 12), glm::vec3(0, 3.5, 0), kCameraType::CAMERA_TYPE_FREE);
 	cameraEditor->setFOV(60.0f);
 	world->setMainCamera(cameraEditor);
 
@@ -150,9 +157,9 @@ int main()
 			{
 				// Check asset changes
 				if (manager->projectOpened && !manager->showImportPopup)
-                {
-                    manager->checkAssetChange();
-                }
+				{
+					manager->checkAssetChange();
+				}
 			}
 			else if (eventType == K_EVENT_MOUSEBUTTONDOWN)
 			{
@@ -167,11 +174,10 @@ int main()
 
 						camRot = cameraEditor->getRotation();
 					}
-					else if (event.getMouseButton() == K_MOUSEBUTTON_LEFT && !altPressed
-					         && !ImGuizmo::IsOver() && !ImGuizmo::IsUsing())
+					else if (event.getMouseButton() == K_MOUSEBUTTON_LEFT && !altPressed && !ImGuizmo::IsOver() && !ImGuizmo::IsUsing())
 					{
 						// Snapshot selection before picking (for undo)
-						auto selBefore    = manager->selectedObjects;
+						auto selBefore = manager->selectedObjects;
 						auto selObjBefore = manager->selectedObject;
 
 						// Convert absolute screen coords → viewport-local physical pixels.
@@ -180,10 +186,10 @@ int main()
 						int vpMouseX = (int)((event.getMouseX() - panelWorld->panelPos.x) * 2.0f);
 						int vpMouseY = (int)((event.getMouseY() - panelWorld->panelPos.y) * 2.0f);
 
-						kObject* picked = renderer->pickObject(
-						    world, scene,
-						    vpMouseX, vpMouseY,
-						    panelWorld->width * 2, panelWorld->height * 2);
+						kObject *picked = renderer->pickObject(
+							world, scene,
+							vpMouseX, vpMouseY,
+							panelWorld->width * 2, panelWorld->height * 2);
 
 						if (picked != nullptr)
 						{
@@ -197,14 +203,14 @@ int main()
 						}
 
 						// Push selection undo if it changed
-						auto selAfter    = manager->selectedObjects;
+						auto selAfter = manager->selectedObjects;
 						auto selObjAfter = manager->selectedObject;
 						if (selBefore != selAfter || selObjBefore != selObjAfter)
 						{
 							manager->undoRedo.push(std::make_unique<SelectCommand>(
 								manager,
-								selBefore,    selObjBefore,
-								selAfter,     selObjAfter));
+								selBefore, selObjBefore,
+								selAfter, selObjAfter));
 						}
 					}
 				}
@@ -232,8 +238,8 @@ int main()
 				{
 					if (dragging)
 					{
-						float deltaX = dragStart.x - event.getMouseX();  // horizontal mouse movement
-						float deltaY = dragStart.y - event.getMouseY();  // vertical mouse movement
+						float deltaX = dragStart.x - event.getMouseX(); // horizontal mouse movement
+						float deltaY = dragStart.y - event.getMouseY(); // vertical mouse movement
 
 						if (cameraEditor->getCameraType() == kCameraType::CAMERA_TYPE_FREE)
 						{
@@ -253,60 +259,60 @@ int main()
 			{
 				if (event.getKeyButton() == K_KEY_1)
 				{
-				    if (panelWorld->enabled && panelWorld->hovered)
-                        manager->manipulatorType = ImGuizmo::TRANSLATE;
+					if (panelWorld->enabled && panelWorld->hovered)
+						manager->manipulatorType = ImGuizmo::TRANSLATE;
 				}
 				else if (event.getKeyButton() == K_KEY_2)
 				{
-				    if (panelWorld->enabled && panelWorld->hovered)
-                        manager->manipulatorType = ImGuizmo::ROTATE;
+					if (panelWorld->enabled && panelWorld->hovered)
+						manager->manipulatorType = ImGuizmo::ROTATE;
 				}
 				else if (event.getKeyButton() == K_KEY_3)
 				{
-				    if (panelWorld->enabled && panelWorld->hovered)
-                        manager->manipulatorType = ImGuizmo::SCALE;
+					if (panelWorld->enabled && panelWorld->hovered)
+						manager->manipulatorType = ImGuizmo::SCALE;
 				}
 				else if (event.getKeyButton() == K_KEY_LALT)
 				{
-				    altPressed = true;
+					altPressed = true;
 				}
 				else if (event.getKeyButton() == K_KEY_LCTRL)
 				{
-				    ctrlPressed = true;
+					ctrlPressed = true;
 				}
 				else if (event.getKeyButton() == K_KEY_LSHIFT)
 				{
-				    shiftPressed = true;
+					shiftPressed = true;
 				}
 				else if (event.getKeyButton() == K_KEY_DELETE)
 				{
-				    if (!ImGui::GetIO().WantTextInput && manager->projectOpened)
-				        manager->deleteSelectedObjects();
+					if (!ImGui::GetIO().WantTextInput && manager->projectOpened)
+						manager->deleteSelectedObjects();
 				}
 				else if (event.getKeyButton() == K_KEY_Z && ctrlPressed)
 				{
-				    if (!ImGui::GetIO().WantTextInput)
-				        manager->undoRedo.undo();
+					if (!ImGui::GetIO().WantTextInput)
+						manager->undoRedo.undo();
 				}
 				else if (event.getKeyButton() == K_KEY_Y && ctrlPressed)
 				{
-				    if (!ImGui::GetIO().WantTextInput)
-				        manager->undoRedo.redo();
+					if (!ImGui::GetIO().WantTextInput)
+						manager->undoRedo.redo();
 				}
 			}
 			else if (eventType == K_EVENT_KEYUP)
 			{
-			    if (event.getKeyButton() == K_KEY_LALT)
+				if (event.getKeyButton() == K_KEY_LALT)
 				{
-				    altPressed = false;
+					altPressed = false;
 				}
 				else if (event.getKeyButton() == K_KEY_LCTRL)
 				{
-				    ctrlPressed = false;
+					ctrlPressed = false;
 				}
 				else if (event.getKeyButton() == K_KEY_LSHIFT)
 				{
-				    shiftPressed = false;
+					shiftPressed = false;
 				}
 			}
 		}
@@ -342,14 +348,14 @@ int main()
 			// Outline selected objects (orange)
 			if (manager->projectOpened && !manager->selectedObjects.empty())
 				renderer->renderOutline(world, scene, manager->selectedObjects,
-				                        kVec4(1.0f, 0.55f, 0.0f, 1.0f), 0.03f);
+										kVec4(1.0f, 0.55f, 0.0f, 1.0f), 0.03f);
 
 			// Debug shapes for selected lights and cameras
 			if (manager->projectOpened && !manager->selectedObjects.empty())
 				renderer->renderDebugShapes(world, scene, manager->selectedObjects);
 		}
 
-		//std::cout << panelWorld->width << "," << panelWorld->height << std::endl;
+		// std::cout << panelWorld->width << "," << panelWorld->height << std::endl;
 
 		gui->canvasStart();
 		gui->dockSpaceStart("MainDockSpace");
@@ -365,10 +371,10 @@ int main()
 		// If there's a need to import assets
 		manager->drawImportPopup(panelConsole);
 		if (!manager->importTasks.empty())
-        {
-            ImGui::OpenPopup("Importing Assets...");
-            manager->showImportPopup = true;   // <--- only set flag
-        }
+		{
+			ImGui::OpenPopup("Importing Assets...");
+			manager->showImportPopup = true; // <--- only set flag
+		}
 
 		gui->dockSpaceEnd();
 		gui->canvasEnd();

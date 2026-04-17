@@ -116,6 +116,15 @@ def main():
         }
     )
 
+    # Static vs dynamic kemena3d library
+    link_type = choose(
+        "\nPlease choose the kemena3d library type:",
+        {
+            "1": "Static library",
+            "2": "Dynamic library (DLL)"
+        }
+    )
+
     # Configuration selection
     config = choose(
         "\nPlease choose a build configuration:",
@@ -123,15 +132,6 @@ def main():
             "1": "Debug",
             "2": "Release",
             "3": "Debug and Release"
-        }
-    )
-
-    # Static vs dynamic kemena3d library
-    link_type = choose(
-        "\nPlease choose the kemena3d library type:",
-        {
-            "1": "Static library",
-            "2": "Dynamic library (DLL)"
         }
     )
 

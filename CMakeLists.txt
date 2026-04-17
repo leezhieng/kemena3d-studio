@@ -111,7 +111,8 @@ if(MSVC)
         $<$<CONFIG:Release>:angelscript>
         imgui
         imguizmo
-        libglew32
+        $<$<CONFIG:Debug>:libglew32d>
+        $<$<CONFIG:Release>:libglew32>
         $<$<CONFIG:Debug>:zlibstaticd>
         $<$<CONFIG:Release>:zlibstatic>
         # Recast Navigation (MSVC names have -d suffix for Debug)
@@ -126,7 +127,7 @@ if(MSVC)
         # Jolt Physics (MSVC build tree — not installed to SDK output)
         "$<$<CONFIG:Debug>:${KEMENA3D_SOURCE_DIR}/Dependencies/jolt/Build/build_Debug/Debug/Jolt.lib>"
         "$<$<CONFIG:Release>:${KEMENA3D_SOURCE_DIR}/Dependencies/jolt/Build/build_Release/Release/Jolt.lib>"
-        # Slang shader compiler (Release-only)
+        # Slang shader compiler (Release-only; handled by the SDK's own CMakeLists)
         "$<$<CONFIG:Release>:${KEMENA3D_SOURCE_DIR}/Dependencies/slang/build_Release/dist/lib/slang.lib>"
     )
 else()
@@ -136,7 +137,8 @@ else()
         $<$<CONFIG:Debug>:assimpd>
         $<$<CONFIG:Release>:assimp>
         angelscript
-        libglew32
+        $<$<CONFIG:Debug>:libglew32d>
+        $<$<CONFIG:Release>:libglew32>
         zlibstatic
         # Recast Navigation
         "$<$<CONFIG:Debug>:${KEMENA3D_SOURCE_DIR}/Dependencies/recast/dist/lib/Debug/libRecast.a>"
@@ -147,7 +149,7 @@ else()
         "$<$<CONFIG:Release>:${KEMENA3D_SOURCE_DIR}/Dependencies/recast/dist/lib/Release/libDetour.a>"
         "$<$<CONFIG:Release>:${KEMENA3D_SOURCE_DIR}/Dependencies/recast/dist/lib/Release/libDetourCrowd.a>"
         "$<$<CONFIG:Release>:${KEMENA3D_SOURCE_DIR}/Dependencies/recast/dist/lib/Release/libDetourTileCache.a>"
-        # Slang shader compiler (Release-only)
+        # Slang shader compiler (Release-only; handled by the SDK's own CMakeLists)
         "$<$<CONFIG:Release>:${KEMENA3D_SOURCE_DIR}/Dependencies/slang/build_Release/dist/lib/slang.lib>"
     )
 
@@ -159,12 +161,3 @@ else()
         $<$<CONFIG:Release>:-s>
     )
 endif()
-
-# Post-build: copy font to <output>/fonts/
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/fonts"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_SOURCE_DIR}/res/fonts/opensans.ttf"
-        "$<TARGET_FILE_DIR:${PROJECT_NAME}>/fonts/opensans.ttf"
-    COMMENT "Copying opensans.ttf to output directory"
-)

@@ -91,22 +91,17 @@ uniform SpotLight spotLights[32];
 vec3 CalcSunLight(SunLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 specularTexture)
 {
 	// ambient
-    vec3 ambient = light.ambient;
+    vec3 ambient = light.ambient * material.ambient;
     // diffuse shading
-    vec3 lightDir = normalize(-light.direction);  
+    vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = light.diffuse * diff * light.power;
-    // specular
-	// phong
+    vec3 diffuse = light.diffuse * diff * light.power * material.diffuse;
+    // specular (phong)
     vec3 reflectDir = reflect(-lightDir, normal);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.001), material.shininess);
-	// blinn-phong
-	//vec3 halfwayDir = normalize(lightDir + viewDir);
-    //float spec = pow(max(dot(viewDir, halfwayDir), 0.001), material.shininess);
-    //vec3 specular = light.specular * spec * specularTexture * light.power;
-	
+	float shininess = max(material.shininess, 1.0);
+	float spec = pow(max(dot(viewDir, reflectDir), 0.001), shininess);
 	vec3 specular = light.specular * spec * specularTexture * light.power;
-        
+
     return (ambient + diffuse + specular);
 }
 
@@ -199,8 +194,9 @@ void main()
 	//if (diffuseTexture.a < alphaCutoff)
 		//discard;
 	
-	vec3 result = vec3(0.0f);
-	
+	// Minimum ambient so the object is never fully black
+	vec3 result = material.ambient * 0.05;
+
 	// Sun lighting
 	if (sunLightNum > 0)
 	{
