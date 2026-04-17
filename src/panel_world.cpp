@@ -75,16 +75,15 @@ void PanelWorld::draw(bool &isOpened, kRenderer *renderer, kCamera *editorCamera
     // ------------------------------------------------------------------
     // Panel layout
     // ------------------------------------------------------------------
-    ImVec2 windowPos  = ImGui::GetWindowPos();
     ImVec2 availSize  = ImGui::GetContentRegionAvail();
     width       = (int)availSize.x;
     height      = (int)availSize.y;
     aspectRatio = (height > 0.0f) ? (availSize.x / availSize.y) : 1.0f;
 
-    ImVec2 contentMin = ImGui::GetWindowContentRegionMin();
-    ImVec2 contentMax = ImGui::GetWindowContentRegionMax();
-    panelPos          = ImVec2(windowPos.x + contentMin.x, windowPos.y + contentMin.y);
-    ImVec2 panelSize  = ImVec2(contentMax.x - contentMin.x, contentMax.y - contentMin.y);
+    // Use the actual cursor position so panelPos aligns with the image,
+    // not the window content-region start (which is above the toolbar).
+    panelPos         = ImGui::GetCursorScreenPos();
+    ImVec2 panelSize = availSize;
 
     // Display framebuffer texture
     ImTextureRef tex_ref((ImTextureID)(uintptr_t)renderer->getFboTexture());
@@ -104,7 +103,7 @@ void PanelWorld::draw(bool &isOpened, kRenderer *renderer, kCamera *editorCamera
         for (const auto &uuid : manager->selectedObjects)
         {
             kObject *obj = manager->findObjectByUuid(uuid);
-            if (obj) selObjs.push_back(obj);
+            if (obj && obj->getActive()) selObjs.push_back(obj);
         }
 
         if (!selObjs.empty())
@@ -148,23 +147,46 @@ void PanelWorld::draw(bool &isOpened, kRenderer *renderer, kCamera *editorCamera
 
             if (isUsingNow)
             {
-                // Per-frame incremental delta
                 glm::mat4 delta = pivotCopy * glm::inverse(pivotMatrix);
-
-                glm::vec3 dPos, dScale, dSkew;
-                glm::quat dRot;
-                glm::vec4 dPersp;
-                glm::decompose(delta, dScale, dRot, dPos, dSkew, dPersp);
-                dRot = glm::normalize(dRot);
 
                 for (kObject *obj : selObjs)
                 {
-                    if (selObjs.size() == 1 || manager->pivotMode == PivotMode::Individual)
+                    if (selObjs.size() == 1)
                     {
-                        // Each object transforms around its own centre
+                        // pivotMatrix started as this object's world matrix,
+                        // so pivotCopy IS the new world matrix — use it directly.
+                        glm::vec3 pos, scale, skew;
+                        glm::quat rot;
+                        glm::vec4 persp;
+                        glm::decompose(pivotCopy, scale, rot, pos, skew, persp);
+                        obj->setPosition(pos);
+                        obj->setRotation(glm::normalize(rot));
+                        obj->setScale(scale);
+                    }
+                    else if (manager->pivotMode == PivotMode::Individual)
+                    {
+                        // Each object around its own centre — extract pure deltas
+                        // from the pivot matrices to avoid the T*R*T^-1 drift.
+                        glm::vec3 dPos = glm::vec3(pivotCopy[3]) - glm::vec3(pivotMatrix[3]);
+
+                        glm::vec3 sOld(glm::length(glm::vec3(pivotMatrix[0])),
+                                       glm::length(glm::vec3(pivotMatrix[1])),
+                                       glm::length(glm::vec3(pivotMatrix[2])));
+                        glm::vec3 sNew(glm::length(glm::vec3(pivotCopy[0])),
+                                       glm::length(glm::vec3(pivotCopy[1])),
+                                       glm::length(glm::vec3(pivotCopy[2])));
+
+                        glm::mat3 rOld(glm::vec3(pivotMatrix[0]) / sOld.x,
+                                       glm::vec3(pivotMatrix[1]) / sOld.y,
+                                       glm::vec3(pivotMatrix[2]) / sOld.z);
+                        glm::mat3 rNew(glm::vec3(pivotCopy[0]) / sNew.x,
+                                       glm::vec3(pivotCopy[1]) / sNew.y,
+                                       glm::vec3(pivotCopy[2]) / sNew.z);
+                        glm::quat dRot = glm::normalize(glm::quat_cast(rNew * glm::transpose(rOld)));
+
                         obj->setPosition(obj->getPosition() + dPos);
                         obj->setRotation(glm::normalize(dRot * obj->getRotation()));
-                        obj->setScale(obj->getScale() * dScale);
+                        obj->setScale(obj->getScale() * (sNew / sOld));
                     }
                     else
                     {

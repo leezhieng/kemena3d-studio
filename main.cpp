@@ -27,6 +27,7 @@ int main()
 	kRenderer *renderer = createRenderer(window);
 	renderer->setEnableScreenBuffer(true);
 	renderer->setEnableShadow(true);
+	renderer->setEnableObjectPicking(true);
 	renderer->setClearColor(kVec4(0.2f, 0.4f, 0.6f, 1.0f));
 
 	// Setup GUI manager
@@ -62,7 +63,7 @@ int main()
 		if (hRes)
 		{
 			HGLOBAL hData = LoadResource(NULL, hRes);
-			DWORD size    = SizeofResource(NULL, hRes);
+			DWORD size = SizeofResource(NULL, hRes);
 			const char *data = static_cast<const char *>(LockResource(hData));
 			if (data && size > 0)
 				ImGui::LoadIniSettingsFromMemory(data, size);
@@ -180,16 +181,25 @@ int main()
 						auto selBefore = manager->selectedObjects;
 						auto selObjBefore = manager->selectedObject;
 
-						// Convert absolute screen coords → viewport-local physical pixels.
-						// The render viewport uses width*2 / height*2 (physical pixels),
-						// while ImGui and mouse events use logical pixels, so scale by 2.
-						int vpMouseX = (int)((event.getMouseX() - panelWorld->panelPos.x) * 2.0f);
-						int vpMouseY = (int)((event.getMouseY() - panelWorld->panelPos.y) * 2.0f);
+						// ImGui::GetIO().MousePos and panelPos are both in the same
+						// screen-absolute coordinate space. Multiply by 2 for physical pixels.
+						ImVec2 imMouse = ImGui::GetIO().MousePos;
+						int vpMouseX = (int)((imMouse.x - panelWorld->panelPos.x) * 2.0f);
+						int vpMouseY = (int)((imMouse.y - panelWorld->panelPos.y) * 2.0f);
 
 						kObject *picked = renderer->pickObject(
 							world, scene,
 							vpMouseX, vpMouseY,
 							panelWorld->width * 2, panelWorld->height * 2);
+
+						// Walk up to the direct child of the scene root so we always
+						// select the top-level object, not a sub-mesh leaf.
+						if (picked != nullptr)
+						{
+							kObject *sceneRoot = scene->getRootNode();
+							while (picked->getParent() != nullptr && picked->getParent() != sceneRoot)
+								picked = picked->getParent();
+						}
 
 						if (picked != nullptr)
 						{

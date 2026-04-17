@@ -338,8 +338,8 @@ static void drawLightSection(kLight *light, Manager *mgr)
         }
     }
 
-    // Direction — Sun and Spot
-    if (lt == LIGHT_TYPE_SUN || lt == LIGHT_TYPE_SPOT)
+    // Direction — Spot only (sun direction is derived from rotation via the gizmo)
+    if (lt == LIGHT_TYPE_SPOT)
     {
         static kVec3 s_dirBefore;
         kVec3 dir        = light->getDirection();
