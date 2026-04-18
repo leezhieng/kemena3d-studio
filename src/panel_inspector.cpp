@@ -74,6 +74,7 @@ static void drawTransformSection(kGuiManager *gui, kObject *obj, Manager *mgr)
         kVec3 euler        = obj->getRotationEuler();
         kVec3 eulerPreEdit = euler;
         float r[3]         = { euler.x, euler.y, euler.z };
+        for (int i = 0; i < 3; i++) if (r[i] == 0.0f) r[i] = 0.0f;
 
         propLabel(gui, "Rotation");
         if (gui->dragFloat3("##Rot", r, 0.5f))
@@ -269,28 +270,6 @@ static void drawLightSection(kGuiManager *gui, kLight *light, Manager *mgr)
         }
     }
 
-    // Ambient
-    {
-        static kVec3 s_ambBefore;
-        kVec3 amb        = light->getAmbientColor();
-        kVec3 ambPreEdit = amb;
-        float ambF[3]    = { amb.r, amb.g, amb.b };
-        propLabel(gui, "Ambient");
-        if (gui->colorEdit3("##Ambient", ambF))
-            light->setAmbientColor(kVec3(ambF[0], ambF[1], ambF[2]));
-        if (gui->isItemActivated())
-            s_ambBefore = ambPreEdit;
-        if (gui->isItemDeactivatedAfterEdit())
-        {
-            kVec3   after  = light->getAmbientColor();
-            kVec3   before = s_ambBefore;
-            kLight *cap    = light;
-            mgr->undoRedo.push(std::make_unique<PropertyCommand>(
-                [cap, before]() { cap->setAmbientColor(before); },
-                [cap, after]()  { cap->setAmbientColor(after); }));
-        }
-    }
-
     // Diffuse
     {
         static kVec3 s_diffBefore;
@@ -332,28 +311,6 @@ static void drawLightSection(kGuiManager *gui, kLight *light, Manager *mgr)
             mgr->undoRedo.push(std::make_unique<PropertyCommand>(
                 [cap, before]() { cap->setSpecularColor(before); },
                 [cap, after]()  { cap->setSpecularColor(after); }));
-        }
-    }
-
-    if (lt == LIGHT_TYPE_SPOT)
-    {
-        static kVec3 s_dirBefore;
-        kVec3 dir        = light->getDirection();
-        kVec3 dirPreEdit = dir;
-        float dirF[3]    = { dir.x, dir.y, dir.z };
-        propLabel(gui, "Direction");
-        if (gui->dragFloat3("##Dir", dirF, 0.01f, -1.0f, 1.0f))
-            light->setDirection(kVec3(dirF[0], dirF[1], dirF[2]));
-        if (gui->isItemActivated())
-            s_dirBefore = dirPreEdit;
-        if (gui->isItemDeactivatedAfterEdit())
-        {
-            kVec3   after  = light->getDirection();
-            kVec3   before = s_dirBefore;
-            kLight *cap    = light;
-            mgr->undoRedo.push(std::make_unique<PropertyCommand>(
-                [cap, before]() { cap->setDirection(before); },
-                [cap, after]()  { cap->setDirection(after); }));
         }
     }
 
@@ -469,6 +426,79 @@ static void drawLightSection(kGuiManager *gui, kLight *light, Manager *mgr)
 }
 
 // ---------------------------------------------------------------------------
+// Scene section
+// ---------------------------------------------------------------------------
+static void drawSceneSection(kGuiManager *gui, kScene *scene, Manager *mgr)
+{
+    if (!gui->collapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen))
+        return;
+
+    if (!beginPropTable(gui, "SceneTable"))
+        return;
+
+    // Ambient color
+    {
+        static kVec3 s_ambBefore;
+        kVec3 amb     = scene->getAmbientLightColor();
+        float ambF[3] = { amb.r, amb.g, amb.b };
+        propLabel(gui, "Ambient");
+        if (gui->colorEdit3("##SceneAmbient", ambF))
+            scene->setAmbientLightColor(kVec3(ambF[0], ambF[1], ambF[2]));
+        if (gui->isItemActivated())
+            s_ambBefore = amb;
+        if (gui->isItemDeactivatedAfterEdit())
+        {
+            kVec3   after  = scene->getAmbientLightColor();
+            kVec3   before = s_ambBefore;
+            kScene *cap    = scene;
+            mgr->undoRedo.push(std::make_unique<PropertyCommand>(
+                [cap, before]() { cap->setAmbientLightColor(before); },
+                [cap, after]()  { cap->setAmbientLightColor(after); }));
+        }
+    }
+
+    // Skybox ambient toggle
+    {
+        bool enabled = scene->getSkyboxAmbientEnabled();
+        propLabel(gui, "Sky Ambient");
+        if (gui->checkbox("##SkyAmbient", &enabled))
+        {
+            bool before = !enabled;
+            bool after  = enabled;
+            kScene *cap = scene;
+            scene->setSkyboxAmbientEnabled(enabled);
+            mgr->undoRedo.push(std::make_unique<PropertyCommand>(
+                [cap, before]() { cap->setSkyboxAmbientEnabled(before); },
+                [cap, after]()  { cap->setSkyboxAmbientEnabled(after); }));
+        }
+    }
+
+    // Skybox ambient strength (only when enabled)
+    if (scene->getSkyboxAmbientEnabled())
+    {
+        static float s_skyStrBefore = 0.0f;
+        float str        = scene->getSkyboxAmbientStrength();
+        float strPreEdit = str;
+        propLabel(gui, "Sky Strength");
+        if (gui->dragFloat("##SkyStrength", &str, 0.01f, 0.0f, 5.0f))
+            scene->setSkyboxAmbientStrength(str);
+        if (gui->isItemActivated())
+            s_skyStrBefore = strPreEdit;
+        if (gui->isItemDeactivatedAfterEdit())
+        {
+            float   after  = scene->getSkyboxAmbientStrength();
+            float   before = s_skyStrBefore;
+            kScene *cap    = scene;
+            mgr->undoRedo.push(std::make_unique<PropertyCommand>(
+                [cap, before]() { cap->setSkyboxAmbientStrength(before); },
+                [cap, after]()  { cap->setSkyboxAmbientStrength(after); }));
+        }
+    }
+
+    gui->tableEnd();
+}
+
+// ---------------------------------------------------------------------------
 // Main draw
 // ---------------------------------------------------------------------------
 void PanelInspector::draw(bool &opened)
@@ -479,6 +509,38 @@ void PanelInspector::draw(bool &opened)
         gui->beginDisabled(true);
 
     gui->windowStart("Inspector", &opened);
+
+    if (manager->selectedScene != nullptr)
+    {
+        kScene *scene = manager->selectedScene;
+        gui->textDisabled("[Scene]");
+        gui->sameLine();
+        {
+            char nameBuf[256];
+            strncpy_s(nameBuf, sizeof(nameBuf), scene->getName().c_str(), _TRUNCATE);
+            gui->setNextItemWidth(-FLT_MIN);
+            if (ImGui::InputText("##SceneName", nameBuf, sizeof(nameBuf),
+                                 ImGuiInputTextFlags_EnterReturnsTrue))
+            {
+                kString before = scene->getName();
+                kString after  = kString(nameBuf);
+                if (before != after)
+                {
+                    scene->setName(after);
+                    kScene *cap = scene;
+                    manager->undoRedo.push(std::make_unique<PropertyCommand>(
+                        [cap, before]() { cap->setName(before); },
+                        [cap, after]()  { cap->setName(after); }));
+                }
+            }
+        }
+        gui->spacing();
+        gui->separator();
+        gui->spacing();
+        drawSceneSection(gui, scene, manager);
+    }
+    else
+    {
 
     size_t selCount = manager->selectedObjects.size();
 
@@ -568,6 +630,8 @@ void PanelInspector::draw(bool &opened)
                 drawCameraSection(gui, static_cast<kCamera *>(obj), manager);
         }
     }
+
+    } // end selectedScene else
 
     gui->windowEnd();
 

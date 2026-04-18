@@ -82,12 +82,12 @@ int main()
 																		 "cubeMap");
 	skyMaterial->addTexture(skyTexture);
 	skyMaterial->setSingleSided(false);
-	kMesh *skyMesh = assetManager->loadMeshFromResource("MODEL_SHAPE_CUBE", "obj");
+	kMesh *skyMesh = kMeshGenerator::generateCube();
 	skyMesh->setMaterial(skyMaterial);
 	scene->setSkybox(skyMaterial, skyMesh);
 
 	// Editor grid
-	kMesh *gridMesh = assetManager->loadMeshFromResource("MODEL_SHAPE_PLANE", "obj");
+	kMesh *gridMesh = kMeshGenerator::generatePlane();
 	sceneEditor->addMesh(gridMesh);
 	kShader *gridShader = assetManager->loadShaderFromResource("SHADER_VERTEX_GRID", "SHADER_FRAGMENT_GRID");
 	kMaterial *gridMat = assetManager->createMaterial(gridShader);
@@ -95,7 +95,7 @@ int main()
 	gridMat->setSingleSided(false);
 	gridMesh->setMaterial(gridMat);
 
-	kMesh *cube = assetManager->loadMeshFromResource("MODEL_SHAPE_CUBE", "obj");
+	kMesh *cube = kMeshGenerator::generateCube();
 	cube->setName("Cube");
 	cube->setPosition(kVec3(0.0f, 1.0f, 0.0f));
 	scene->addMesh(cube);
@@ -106,7 +106,7 @@ int main()
 	cube->setMaterial(cubeMaterial);
 
 	// Default sunlight
-	kLight *light = scene->addSunLight(glm::vec3(0.0f, 6.0f, 0.0f), glm::vec3(0.2f, -1.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+	kLight *light = scene->addSunLight(glm::vec3(0.0f, 6.0f, 0.0f), glm::vec3(0.2f, -1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 	light->setPower(1.0f);
 	light->setName("Sun Light");
 
@@ -353,7 +353,14 @@ int main()
 		if (panelWorld->width > 0 && panelWorld->height > 0)
 		{
 			renderer->render(world, scene, 0, 0, panelWorld->width * 2, panelWorld->height * 2, window->getTimer()->getDeltaTime(), false);
-			renderer->render(world, sceneEditor, 0, 0, panelWorld->width * 2, panelWorld->height * 2, window->getTimer()->getDeltaTime(), false);
+
+			// Editor scene (grid) always renders in Full mode — debug modes don't apply to it.
+			{
+				kRenderMode savedMode = renderer->getRenderMode();
+				renderer->setRenderMode(kRenderMode::RENDER_MODE_FULL);
+				renderer->render(world, sceneEditor, 0, 0, panelWorld->width * 2, panelWorld->height * 2, window->getTimer()->getDeltaTime(), false);
+				renderer->setRenderMode(savedMode);
+			}
 
 			// Always render picking pass so click selection and outline are always fresh.
 			renderer->renderPickingPass(world, scene, panelWorld->width * 2, panelWorld->height * 2);

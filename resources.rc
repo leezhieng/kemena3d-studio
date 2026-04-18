@@ -30,11 +30,7 @@ SHADER_FRAGMENT_SKYBOX RCDATA "res/shaders/skybox.frag"
 
 // Shapes
 MODEL_SHAPE_CONE RCDATA "res/models/shape/cone.obj"
-MODEL_SHAPE_CUBE RCDATA "res/models/shape/cube.obj"
-MODEL_SHAPE_CYLINDER RCDATA "res/models/shape/cylinder.obj"
 MODEL_SHAPE_MONKEY RCDATA "res/models/shape/monkey.obj"
-MODEL_SHAPE_PLANE RCDATA "res/models/shape/plane.obj"
-MODEL_SHAPE_SPHERE RCDATA "res/models/shape/sphere.obj"
 MODEL_SHAPE_TORUS RCDATA "res/models/shape/torus.obj"
 
 // Button icons

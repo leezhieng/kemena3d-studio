@@ -54,6 +54,11 @@ void PanelHierarchy::deselectAll(Node &root)
 
 void PanelHierarchy::drawNode(Node &node, Node &root, int level)
 {
+	// Sync selection state from manager so viewport picks are reflected here.
+	node.isSelected = std::find(manager->selectedObjects.begin(),
+	                             manager->selectedObjects.end(),
+	                             node.uuid) != manager->selectedObjects.end();
+
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 	if (node.isSelected)
 		flags |= ImGuiTreeNodeFlags_Selected;
@@ -101,11 +106,22 @@ void PanelHierarchy::drawNode(Node &node, Node &root, int level)
 		}
 		else if (level == 1)
 		{
-			// Scene
+			// Scene — find and expose it for the inspector
+			manager->selectedObject = nullptr;
+			manager->selectedScene  = nullptr;
+			for (kScene *s : world->getScenes())
+			{
+				if (s->getUuid() == node.uuid)
+				{
+					manager->selectedScene = s;
+					break;
+				}
+			}
 		}
 		else
 		{
 			// Objects
+			manager->selectedScene = nullptr;
 			if (manager->objectMap[node.uuid.c_str()].object != nullptr)
 			{
 				std::cout << "FOUND: " << node.uuid.c_str() << std::endl;

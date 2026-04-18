@@ -164,6 +164,7 @@ public:
     void deselectObject(const kString uuid);
 
     kObject *selectedObject = nullptr;
+    kScene  *selectedScene  = nullptr;
 
     ImGuizmo::OPERATION manipulatorType = ImGuizmo::TRANSLATE;
     ImGuizmo::MODE manipulatorMode = ImGuizmo::LOCAL;

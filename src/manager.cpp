@@ -819,6 +819,8 @@ void Manager::drawImportPopup(PanelConsole* console)
 
 void Manager::selectObject(const kString uuid, bool clearList)
 {
+    selectedScene = nullptr;
+
     if (clearList)
         selectedObjects.clear();
 
@@ -1169,7 +1171,6 @@ void Manager::createLight(kLightType type)
     if (type == LIGHT_TYPE_SUN)
     {
         light = scene->addSunLight(kVec3(0, 3, 0), kVec3(0,-1,0),
-                                    kVec3(0.1f, 0.1f, 0.1f),
                                     kVec3(1.0f, 1.0f, 1.0f),
                                     kVec3(1.0f, 1.0f, 1.0f));
         light->setName("Sun Light");
@@ -1178,7 +1179,6 @@ void Manager::createLight(kLightType type)
     else if (type == LIGHT_TYPE_POINT)
     {
         light = scene->addPointLight(kVec3(0, 2, 0),
-                                      kVec3(0.1f, 0.1f, 0.1f),
                                       kVec3(1.0f, 1.0f, 1.0f),
                                       kVec3(1.0f, 1.0f, 1.0f));
         light->setName("Point Light");
@@ -1186,8 +1186,7 @@ void Manager::createLight(kLightType type)
     }
     else if (type == LIGHT_TYPE_SPOT)
     {
-        light = scene->addSpotLight(kVec3(0, 3, 0), kVec3(0,-1,0),
-                                     kVec3(0.1f, 0.1f, 0.1f),
+        light = scene->addSpotLight(kVec3(0, 3, 0),
                                      kVec3(1.0f, 1.0f, 1.0f),
                                      kVec3(1.0f, 1.0f, 1.0f));
         light->setName("Spot Light");

@@ -58,11 +58,11 @@ void PanelWorld::draw(bool &isOpened, kRenderer *renderer, kCamera *editorCamera
 
     // Render mode selector
     static const char *kRenderModeNames[] = {
-        "Full", "Albedo", "Normals", "Wireframe", "Depth", "Full+Wire"
+        "Full", "Albedo", "Normals", "Wireframe", "Depth", "Object IDs", "Full+Wire"
     };
     int currentMode = (int)renderer->getRenderMode();
     gui->setNextItemWidth(110.0f);
-    if (ImGui::Combo("##RenderMode", &currentMode, kRenderModeNames, 6))
+    if (ImGui::Combo("##RenderMode", &currentMode, kRenderModeNames, 7))
         renderer->setRenderMode((kRenderMode)currentMode);
 
     gui->popStyleVar();

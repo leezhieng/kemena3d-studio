@@ -29,8 +29,8 @@ void main ()
 {
 	float zbuffer = LinearizeDepth(gl_FragCoord.z, 2.0, 4500.0);
 	
-	vec2 cell_coords = mod(texCoordFrag / 100 + half_cell_size + 0.5, cell_size);
-	vec2 subcell_coords = mod(texCoordFrag / 20 + half_subcell_size + 0.5, subcell_size);
+	vec2 cell_coords = mod(texCoordFrag / 50 + half_cell_size + 0.5, cell_size);
+	vec2 subcell_coords = mod(texCoordFrag / 10 + half_subcell_size + 0.5, subcell_size);
 	
 	vec4 color = vec4(0);
 	
