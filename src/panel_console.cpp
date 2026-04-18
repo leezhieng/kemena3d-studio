@@ -35,14 +35,12 @@ void PanelConsole::draw(bool &opened)
     if (opened)
     {
         if (!manager->projectOpened)
-            ImGui::BeginDisabled(true);
+            gui->beginDisabled(true);
 
         gui->windowStart("Console", &opened);
 
-        ImGuiIO &io = ImGui::GetIO();
-
         // Main log display
-        ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
+        gui->childStart("ScrollingRegion", kVec2(0, -gui->getFrameHeightWithSpacing()), 0, ImGuiWindowFlags_HorizontalScrollbar);
         if (consoleItems.size() > 0)
         {
             for (size_t i = 0; i < consoleItems.size(); ++i)
@@ -68,8 +66,8 @@ void PanelConsole::draw(bool &opened)
 
                 if (gui->selectable(item.text + "##ConsoleMessage" + std::to_string(i), selected, ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_AllowOverlap))
                 {
-                    bool shift = ImGui::GetIO().KeyShift;
-                    bool ctrl = ImGui::GetIO().KeyCtrl;
+                    bool shift = gui->isKeyShift();
+                    bool ctrl = gui->isKeyCtrl();
 
                     if (shift && lastClickedIndex >= 0)
                     {
@@ -99,7 +97,7 @@ void PanelConsole::draw(bool &opened)
                     // Copy to clipboard on double click
                     if (gui->isMouseDoubleClicked(0))
                     {
-                        ImGui::SetClipboardText(item.text.c_str());
+                        gui->setClipboardText(item.text);
 
                         showCopiedTooltip = true;
                         copiedTooltipTime = 0.0f; // reset timer
@@ -134,7 +132,7 @@ void PanelConsole::draw(bool &opened)
                             for (int idx : selectedIndices)
                                 textToCopy += consoleItems[idx].text + "\n";
 
-                        ImGui::SetClipboardText(textToCopy.c_str());
+                        gui->setClipboardText(textToCopy);
                         showCopiedTooltip = true;
                         copiedTooltipTime = 0.0f; // reset timer
                     }
@@ -149,7 +147,7 @@ void PanelConsole::draw(bool &opened)
         if (scrollToBottom)
             gui->setScrollHereY(1.0f);
         scrollToBottom = false;
-        ImGui::EndChild();
+        gui->childEnd();
 
         // Command input
         gui->separator();
@@ -169,7 +167,7 @@ void PanelConsole::draw(bool &opened)
                 else
                     addLog(LogLevel::Warning, "Unknown command: '%s'", inputBuf);
 
-                strcpy(inputBuf, "");
+                inputBuf[0] = '\0';
             }
         }
         gui->popItemWidth();
@@ -177,12 +175,12 @@ void PanelConsole::draw(bool &opened)
         gui->windowEnd();
 
         if (!manager->projectOpened)
-            ImGui::EndDisabled();
+            gui->endDisabled();
 
         // Show tooltip
         if (showCopiedTooltip)
         {
-            copiedTooltipTime += io.DeltaTime;
+            copiedTooltipTime += gui->getDeltaTime();
             gui->beginTooltip();
             gui->text("Text copied to clipboard");
             gui->endTooltip();

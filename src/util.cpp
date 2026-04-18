@@ -74,11 +74,11 @@ void utf8Encode(uint32_t cp, kString& out)
 	}
 }
 
-kString fitTextWithEllipsisUtf8(const kString& text, float maxWidth)
+kString fitTextWithEllipsisUtf8(kGuiManager *gui, const kString& text, float maxWidth)
 {
 	if (text.empty()) return "";
 
-	if (ImGui::CalcTextSize(text.c_str()).x <= maxWidth)
+	if (gui->calcTextSize(text).x <= maxWidth)
 		return text;
 
 	const kString ell = "...";
@@ -97,10 +97,9 @@ kString fitTextWithEllipsisUtf8(const kString& text, float maxWidth)
 		utf8Encode(cp, tmp);
 		tmp += ell;
 
-		float w = ImGui::CalcTextSize(tmp.c_str()).x;
-		if (w > maxWidth) break;
+		if (gui->calcTextSize(tmp).x > maxWidth) break;
 
-		out.append(prev, it); // append original UTF-8 slice
+		out.append(prev, it);
 	}
 
 	out += ell;

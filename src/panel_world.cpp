@@ -13,18 +13,18 @@ PanelWorld::PanelWorld(kGuiManager *setGuiManager, Manager *setManager)
 // Pivot toolbar helpers
 // ---------------------------------------------------------------------------
 
-static void pivotButton(const char *label, PivotMode mode, PivotMode &current)
+static void pivotButton(kGuiManager *gui, const char *label, PivotMode mode, PivotMode &current)
 {
     bool active = (current == mode);
     if (active)
     {
-        ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.26f, 0.59f, 0.98f, 1.00f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.26f, 0.59f, 0.98f, 0.85f));
+        gui->pushStyleColor(ImGuiCol_Button,        kVec4(0.26f, 0.59f, 0.98f, 1.00f));
+        gui->pushStyleColor(ImGuiCol_ButtonHovered, kVec4(0.26f, 0.59f, 0.98f, 0.85f));
     }
-    if (ImGui::Button(label, ImVec2(26, 22)))
+    if (gui->button(label, kIvec2(26, 22)))
         current = mode;
     if (active)
-        ImGui::PopStyleColor(2);
+        gui->popStyleColor(2);
 }
 
 // ---------------------------------------------------------------------------
@@ -38,60 +38,52 @@ void PanelWorld::draw(bool &isOpened, kRenderer *renderer, kCamera *editorCamera
     if (!isOpened || renderer == nullptr || editorCamera == nullptr)
         return;
 
-    ImGui::BeginDisabled(!enabled);
-    ImGui::Begin("World");
+    gui->beginDisabled(!enabled);
+    gui->windowStart("World");
 
-    // ------------------------------------------------------------------
-    // Pivot mode toolbar (shown above the scene image)
-    // ------------------------------------------------------------------
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(2, 2));
+    gui->pushStyleVar(ImGuiStyleVar_ItemSpacing, kVec2(2, 2));
 
-    pivotButton("I", PivotMode::Individual,   manager->pivotMode);
-    if (ImGui::IsItemHovered()) ImGui::SetTooltip("Individual pivot");
-    ImGui::SameLine();
-    pivotButton("C", PivotMode::Center,       manager->pivotMode);
-    if (ImGui::IsItemHovered()) ImGui::SetTooltip("Center pivot");
-    ImGui::SameLine();
-    pivotButton("L", PivotMode::LastSelected, manager->pivotMode);
-    if (ImGui::IsItemHovered()) ImGui::SetTooltip("Last selected pivot");
+    pivotButton(gui, "I", PivotMode::Individual,   manager->pivotMode);
+    if (gui->isItemHovered()) gui->setItemTooltip("Individual pivot");
+    gui->sameLine();
+    pivotButton(gui, "C", PivotMode::Center, manager->pivotMode);
+    if (gui->isItemHovered()) gui->setItemTooltip("Center pivot");
+    gui->sameLine();
+    pivotButton(gui, "L", PivotMode::LastSelected, manager->pivotMode);
+    if (gui->isItemHovered()) gui->setItemTooltip("Last selected pivot");
 
-    ImGui::SameLine();
-    ImGui::Dummy(ImVec2(8, 0));
-    ImGui::SameLine();
+    gui->sameLine();
+    gui->dummy(kVec2(8, 0));
+    gui->sameLine();
 
     // Render mode selector
     static const char *kRenderModeNames[] = {
         "Full", "Albedo", "Normals", "Wireframe", "Depth", "Full+Wire"
     };
     int currentMode = (int)renderer->getRenderMode();
-    ImGui::SetNextItemWidth(110.0f);
+    gui->setNextItemWidth(110.0f);
     if (ImGui::Combo("##RenderMode", &currentMode, kRenderModeNames, 6))
         renderer->setRenderMode((kRenderMode)currentMode);
 
-    ImGui::PopStyleVar();
+    gui->popStyleVar();
 
-    ImGui::Separator();
+    gui->separator();
 
-    // ------------------------------------------------------------------
-    // Panel layout
-    // ------------------------------------------------------------------
-    ImVec2 availSize  = ImGui::GetContentRegionAvail();
+    kVec2 availSize  = gui->getContentRegionAvail();
     width       = (int)availSize.x;
     height      = (int)availSize.y;
     aspectRatio = (height > 0.0f) ? (availSize.x / availSize.y) : 1.0f;
 
-    // Use the actual cursor position so panelPos aligns with the image,
-    // not the window content-region start (which is above the toolbar).
-    panelPos         = ImGui::GetCursorScreenPos();
-    ImVec2 panelSize = availSize;
+    panelPos         = gui->getCursorScreenPos();
+    kVec2 panelSize  = availSize;
 
     // Display framebuffer texture
     ImTextureRef tex_ref((ImTextureID)(uintptr_t)renderer->getFboTexture());
-    ImGui::SetNextItemAllowOverlap();
-    ImGui::Image(tex_ref, availSize, ImVec2(0, 1), ImVec2(1, 0));
+    gui->setNextItemAllowOverlap();
+    ImGui::Image(tex_ref, ImVec2(availSize.x, availSize.y), ImVec2(0, 1), ImVec2(1, 0));
 
-    hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
-    focused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+    hovered = gui->isWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
+    focused = gui->isWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
 
     // ------------------------------------------------------------------
     // Multi-object gizmo
@@ -215,6 +207,6 @@ void PanelWorld::draw(bool &isOpened, kRenderer *renderer, kCamera *editorCamera
         }
     }
 
-    ImGui::End();
-    ImGui::EndDisabled();
+    gui->windowEnd();
+    gui->endDisabled();
 }

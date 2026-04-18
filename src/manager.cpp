@@ -2,6 +2,11 @@
 
 #include <kemena/kmesh.h>
 #include <kemena/klight.h>
+#include <kemena/kcamera.h>
+#include <kemena/kmeshgenerator.h>
+
+#include <set>
+#include <functional>
 
 namespace fs = std::filesystem;
 
@@ -759,10 +764,11 @@ void Manager::drawImportPopup(PanelConsole* console)
 {
 	if (showImportPopup)
 	{
-		ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-		ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+		kGuiManager *gui = console->gui;
+		kVec2 center = gui->getMainViewportCenter();
+		gui->setNextWindowPos(center, ImGuiCond_Appearing, kVec2(0.5f, 0.5f));
 
-		if (ImGui::BeginPopupModal("Importing Assets...", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		if (gui->popupModal("Importing Assets...", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			int totalFiles = (int)importQueue.size();
 			int processed  = filesProcessed.load();
@@ -771,32 +777,23 @@ void Manager::drawImportPopup(PanelConsole* console)
 
 			if (!batchDone)
 			{
-				ImGui::Text("Converting files...");
-				ImGui::ProgressBar(progress, ImVec2(250.f, 0.f));
-				ImGui::Text("Processed %d / %d", processed, totalFiles);
-				ImGui::EndPopup();
+				gui->text("Converting files...");
+				gui->progressBar(progress, kVec2(250.f, 0.f));
+				gui->text("Processed " + std::to_string(processed) + " / " + std::to_string(totalFiles));
+				gui->popupEnd();
 			}
 			else
 			{
-				// Record the time conversion finished
 				if (importEndTime.time_since_epoch().count() == 0)
-				{
 					importEndTime = std::chrono::steady_clock::now();
-				}
 
-				ImGui::Text("Import complete!");
-				//ImGui::Separator();
+				gui->text("Import complete!");
 
-				ImGui::ProgressBar(progress, ImVec2(250.f, 0.f));
-				ImGui::Text("Processed %d / %d", processed, totalFiles);
+				gui->progressBar(progress, kVec2(250.f, 0.f));
+				gui->text("Processed " + std::to_string(processed) + " / " + std::to_string(totalFiles));
 
 				for (auto& task : importQueue)
 				{
-					/*ImGui::Text("%s -> %s [%s]",
-								task.inputPath.string().c_str(),
-								task.outputPath.string().c_str(),
-								task.success ? "OK" : "FAIL");*/
-
 					if (!task.success && !task.reported)
 					{
 						console->addLog(LogLevel::Error, (kString("Failed to import asset: ") + task.inputPath.generic_string()).c_str());
@@ -804,16 +801,15 @@ void Manager::drawImportPopup(PanelConsole* console)
 					}
 				}
 
-				// Auto-close after 2 seconds
 				auto now = std::chrono::steady_clock::now();
 				if (std::chrono::duration_cast<std::chrono::seconds>(now - importEndTime).count() >= 2)
 				{
-					ImGui::CloseCurrentPopup();
+					gui->closeCurrentPopup();
 					showImportPopup = false;
-					importEndTime = {}; // reset for next run
+					importEndTime = {};
 				}
 
-				ImGui::EndPopup();
+				gui->popupEnd();
 
 				importTasks.clear();
 			}
@@ -902,4 +898,362 @@ void Manager::deleteSelectedObjects()
         panelHierarchy->refreshList();
 
     undoRedo.push(std::move(cmd));
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+// Recursively collect all UUIDs reachable under node (excluding the node itself).
+static void collectUuids(kObject *node, std::vector<kString> &out, kObject **firstObj)
+{
+    for (kObject *child : node->getChildren())
+    {
+        out.push_back(child->getUuid());
+        if (*firstObj == nullptr) *firstObj = child;
+        collectUuids(child, out, firstObj);
+    }
+}
+
+// Apply a Phong material to a mesh.
+static void applyDefaultMaterial(kMesh *mesh, kAssetManager *am)
+{
+    kShader   *shader = am->loadShaderFromResource("SHADER_VERTEX_MESH", "SHADER_FRAGMENT_PHONG");
+    kMaterial *mat    = am->createMaterial(shader);
+    mat->setAmbientColor(kVec3(1.0f, 1.0f, 1.0f));
+    mat->setDiffuseColor(kVec3(0.5f, 0.5f, 0.5f));
+    mesh->setMaterial(mat);
+}
+
+// Apply a gizmo icon material to a light.
+static void applyLightIcon(kLight *light, kAssetManager *am, const char *gizmoResource)
+{
+    kShader    *shader = am->loadShaderFromResource("SHADER_VERTEX_ICON", "SHADER_FRAGMENT_ICON");
+    kMaterial  *mat    = am->createMaterial(shader);
+    kTexture2D *tex    = am->loadTexture2DFromResource(gizmoResource, "albedoMap",
+                                                        kTextureFormat::TEX_FORMAT_RGBA);
+    mat->addTexture(tex);
+    light->setMaterial(mat);
+}
+
+// ---------------------------------------------------------------------------
+// Edit — selection helpers
+// ---------------------------------------------------------------------------
+
+void Manager::selectAll()
+{
+    if (!scene) return;
+
+    std::vector<kString> newSel;
+    kObject *newSelObj = nullptr;
+    collectUuids(scene->getRootNode(), newSel, &newSelObj);
+
+    if (newSel == selectedObjects) return;
+
+    auto before    = selectedObjects;
+    auto beforeObj = selectedObject;
+
+    selectedObjects = newSel;
+    selectedObject  = newSelObj;
+
+    undoRedo.push(std::make_unique<SelectCommand>(this, before, beforeObj, newSel, newSelObj));
+}
+
+void Manager::deselectAll()
+{
+    if (selectedObjects.empty()) return;
+
+    auto before    = selectedObjects;
+    auto beforeObj = selectedObject;
+
+    selectedObjects.clear();
+    selectedObject = nullptr;
+
+    undoRedo.push(std::make_unique<SelectCommand>(this, before, beforeObj, std::vector<kString>{}, nullptr));
+}
+
+void Manager::invertSelection()
+{
+    if (!scene) return;
+
+    std::set<kString> currentSet(selectedObjects.begin(), selectedObjects.end());
+
+    std::vector<kString> allUuids;
+    kObject *dummy = nullptr;
+    collectUuids(scene->getRootNode(), allUuids, &dummy);
+
+    std::vector<kString> newSel;
+    kObject *newSelObj = nullptr;
+    for (const auto &uuid : allUuids)
+    {
+        if (currentSet.find(uuid) == currentSet.end())
+        {
+            newSel.push_back(uuid);
+            if (newSelObj == nullptr)
+                newSelObj = findObjectByUuid(uuid);
+        }
+    }
+
+    auto before    = selectedObjects;
+    auto beforeObj = selectedObject;
+
+    selectedObjects = newSel;
+    selectedObject  = newSelObj;
+
+    undoRedo.push(std::make_unique<SelectCommand>(this, before, beforeObj, newSel, newSelObj));
+}
+
+// ---------------------------------------------------------------------------
+// Object creation — shared post-creation logic
+// ---------------------------------------------------------------------------
+
+static void finishCreate(Manager *mgr, kObject *obj, kScene *scene,
+                         std::function<void()> undoFn, std::function<void()> redoFn)
+{
+    kString uuid = obj->getUuid();
+    mgr->selectedObject = obj;
+    mgr->selectObject(uuid, true);
+
+    if (mgr->panelHierarchy)
+        mgr->panelHierarchy->refreshList();
+
+    mgr->undoRedo.push(std::make_unique<PropertyCommand>(
+        std::move(undoFn), std::move(redoFn)));
+}
+
+// ---------------------------------------------------------------------------
+// Create Scene
+// ---------------------------------------------------------------------------
+
+void Manager::createSceneObject()
+{
+    kScene *newScene = world->createScene("New Scene");
+
+    undoRedo.push(std::make_unique<PropertyCommand>(
+        [this, newScene]() { world->removeScene(newScene); },
+        [this, newScene]() { world->addScene(newScene);    }
+    ));
+}
+
+// ---------------------------------------------------------------------------
+// Create Empty
+// ---------------------------------------------------------------------------
+
+void Manager::createEmpty()
+{
+    if (!scene) return;
+
+    kObject *obj = new kObject();
+    obj->setName("Empty");
+    scene->addObject(obj);
+    kString uuid = obj->getUuid();
+
+    finishCreate(this, obj, scene,
+        [this, obj, uuid]()
+        {
+            scene->removeObject(obj);
+            selectedObjects.erase(std::remove(selectedObjects.begin(), selectedObjects.end(), uuid),
+                                  selectedObjects.end());
+            if (selectedObject == obj) selectedObject = nullptr;
+            if (panelHierarchy) panelHierarchy->refreshList();
+        },
+        [this, obj, uuid]()
+        {
+            scene->addObject(obj, uuid);
+            selectedObject = obj;
+            selectObject(uuid, true);
+            if (panelHierarchy) panelHierarchy->refreshList();
+        }
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Create Mesh Primitive
+// ---------------------------------------------------------------------------
+
+void Manager::createMeshPrimitive(kMesh *mesh, const kString &name)
+{
+    if (!scene) return;
+
+    kAssetManager *am = getAssetManager();
+    if (am) applyDefaultMaterial(mesh, am);
+
+    mesh->setName(name);
+    scene->addMesh(mesh);
+    kString uuid = mesh->getUuid();
+
+    finishCreate(this, mesh, scene,
+        [this, mesh, uuid]()
+        {
+            scene->removeMesh(mesh);
+            selectedObjects.erase(std::remove(selectedObjects.begin(), selectedObjects.end(), uuid),
+                                  selectedObjects.end());
+            if (selectedObject == mesh) selectedObject = nullptr;
+            if (panelHierarchy) panelHierarchy->refreshList();
+        },
+        [this, mesh, uuid]()
+        {
+            scene->addMesh(mesh, uuid);
+            selectedObject = mesh;
+            selectObject(uuid, true);
+            if (panelHierarchy) panelHierarchy->refreshList();
+        }
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Create Mesh from file
+// ---------------------------------------------------------------------------
+
+void Manager::createMeshFromFile()
+{
+    if (!scene) return;
+
+    auto result = pfd::open_file("Open Mesh", "",
+        { "Mesh files", "*.obj *.fbx *.gltf *.glb",
+          "All files",  "*" }).result();
+
+    if (result.empty()) return;
+
+    kString filePath = result[0];
+    kAssetManager *am = getAssetManager();
+    if (!am) return;
+
+    kMesh *mesh = am->loadMesh(filePath);
+    if (!mesh) return;
+
+    mesh->setLoaded(true);
+    mesh->setFileName(filePath);
+
+    // Derive a display name from the filename
+    fs::path p(filePath);
+    mesh->setName(p.stem().string());
+
+    if (am) applyDefaultMaterial(mesh, am);
+
+    scene->addMesh(mesh);
+    kString uuid = mesh->getUuid();
+
+    finishCreate(this, mesh, scene,
+        [this, mesh, uuid]()
+        {
+            scene->removeMesh(mesh);
+            selectedObjects.erase(std::remove(selectedObjects.begin(), selectedObjects.end(), uuid),
+                                  selectedObjects.end());
+            if (selectedObject == mesh) selectedObject = nullptr;
+            if (panelHierarchy) panelHierarchy->refreshList();
+        },
+        [this, mesh, uuid]()
+        {
+            scene->addMesh(mesh, uuid);
+            selectedObject = mesh;
+            selectObject(uuid, true);
+            if (panelHierarchy) panelHierarchy->refreshList();
+        }
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Create Light
+// ---------------------------------------------------------------------------
+
+void Manager::createLight(kLightType type)
+{
+    if (!scene) return;
+
+    kAssetManager *am = getAssetManager();
+
+    kLight *light = nullptr;
+    const char *gizmoRes = "GIZMO_SUN_LIGHT";
+
+    if (type == LIGHT_TYPE_SUN)
+    {
+        light = scene->addSunLight(kVec3(0, 3, 0), kVec3(0,-1,0),
+                                    kVec3(0.1f, 0.1f, 0.1f),
+                                    kVec3(1.0f, 1.0f, 1.0f),
+                                    kVec3(1.0f, 1.0f, 1.0f));
+        light->setName("Sun Light");
+        gizmoRes = "GIZMO_SUN_LIGHT";
+    }
+    else if (type == LIGHT_TYPE_POINT)
+    {
+        light = scene->addPointLight(kVec3(0, 2, 0),
+                                      kVec3(0.1f, 0.1f, 0.1f),
+                                      kVec3(1.0f, 1.0f, 1.0f),
+                                      kVec3(1.0f, 1.0f, 1.0f));
+        light->setName("Point Light");
+        gizmoRes = "GIZMO_POINT_LIGHT";
+    }
+    else if (type == LIGHT_TYPE_SPOT)
+    {
+        light = scene->addSpotLight(kVec3(0, 3, 0), kVec3(0,-1,0),
+                                     kVec3(0.1f, 0.1f, 0.1f),
+                                     kVec3(1.0f, 1.0f, 1.0f),
+                                     kVec3(1.0f, 1.0f, 1.0f));
+        light->setName("Spot Light");
+        gizmoRes = "GIZMO_SPOT_LIGHT";
+    }
+    else return;
+
+    light->setPower(1.0f);
+    if (am) applyLightIcon(light, am, gizmoRes);
+
+    kString uuid = light->getUuid();
+
+    finishCreate(this, light, scene,
+        [this, light, uuid]()
+        {
+            scene->removeLight(light);
+            selectedObjects.erase(std::remove(selectedObjects.begin(), selectedObjects.end(), uuid),
+                                  selectedObjects.end());
+            if (selectedObject == light) selectedObject = nullptr;
+            if (panelHierarchy) panelHierarchy->refreshList();
+        },
+        [this, light, uuid]()
+        {
+            scene->addLight(light);
+            selectedObject = light;
+            selectObject(uuid, true);
+            if (panelHierarchy) panelHierarchy->refreshList();
+        }
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Create Camera
+// ---------------------------------------------------------------------------
+
+void Manager::createCamera()
+{
+    if (!scene) return;
+
+    kCamera *cam = new kCamera();
+    cam->setName("Camera");
+    cam->setPosition(kVec3(0.0f, 1.0f, -5.0f));
+    cam->setLookAt(kVec3(0.0f, 0.0f, 0.0f));
+    cam->setFOV(60.0f);
+
+    scene->addObject(cam);
+    world->addCamera(cam, cam->getUuid()); // also register in world camera list
+    kString uuid = cam->getUuid();
+
+    finishCreate(this, cam, scene,
+        [this, cam, uuid]()
+        {
+            scene->removeObject(cam);
+            world->removeCamera(cam);
+            selectedObjects.erase(std::remove(selectedObjects.begin(), selectedObjects.end(), uuid),
+                                  selectedObjects.end());
+            if (selectedObject == cam) selectedObject = nullptr;
+            if (panelHierarchy) panelHierarchy->refreshList();
+        },
+        [this, cam, uuid]()
+        {
+            scene->addObject(cam, uuid);
+            world->addCamera(cam, uuid);
+            selectedObject = cam;
+            selectObject(uuid, true);
+            if (panelHierarchy) panelHierarchy->refreshList();
+        }
+    );
 }

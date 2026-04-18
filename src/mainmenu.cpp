@@ -1,4 +1,8 @@
 #include "mainmenu.h"
+#include <kemena/kmeshgenerator.h>
+#include <kemena/klight.h>
+
+using namespace kemena;
 
 MainMenu::MainMenu(kGuiManager* setGuiManager, Manager* setManager)
 {
@@ -74,15 +78,17 @@ void MainMenu::draw(kWindow* window, ShowPanel& showPanel)
 		// Edit menu
 		if (gui->menu("Edit"))
 		{
-			if (gui->menuItem("Undo", "Ctrl+Z", false, manager->projectOpened)) {}
-			if (gui->menuItem("Redo", "Ctrl+Y", false, manager->projectOpened)) {}
+			if (gui->menuItem("Undo", "Ctrl+Z", false, manager->projectOpened && manager->undoRedo.canUndo()))
+				manager->undoRedo.undo();
+			if (gui->menuItem("Redo", "Ctrl+Y", false, manager->projectOpened && manager->undoRedo.canRedo()))
+				manager->undoRedo.redo();
 			if (gui->menuItem("Undo History", "", false, manager->projectOpened)) {}
 			gui->separator();
-			if (gui->menuItem("Select All", "", false, manager->projectOpened)) {}
-			if (gui->menuItem("Deselect All", "", false, manager->projectOpened)) {}
-			if (gui->menuItem("Select Children", "", false, manager->projectOpened)) {}
-			if (gui->menuItem("Select Prefab Root", "", false, manager->projectOpened)) {}
-			if (gui->menuItem("Invert Selection", "", false, manager->projectOpened)) {}
+			if (gui->menuItem("Select All",        "", false, manager->projectOpened)) manager->selectAll();
+			if (gui->menuItem("Deselect All",      "", false, manager->projectOpened)) manager->deselectAll();
+			if (gui->menuItem("Select Children",   "", false, manager->projectOpened)) {}
+			if (gui->menuItem("Select Prefab Root","", false, manager->projectOpened)) {}
+			if (gui->menuItem("Invert Selection",  "", false, manager->projectOpened)) manager->invertSelection();
 			gui->separator();
 			if (gui->menuItem("Cut", "Ctrl+X", false, manager->projectOpened)) {}
 			if (gui->menuItem("Copy", "Ctrl+C", false, manager->projectOpened)) {}
@@ -129,18 +135,41 @@ void MainMenu::draw(kWindow* window, ShowPanel& showPanel)
 		// Object Menu
 		if (gui->menu("Object"))
 		{
-			if (gui->menuItem("Create Scene", "", false, manager->projectOpened)) {}
+			if (gui->menuItem("Create Scene", "", false, manager->projectOpened))
+				manager->createSceneObject();
 			gui->separator();
-			if (gui->menuItem("Create Empty Parent", "", false, manager->projectOpened)) {}
-			if (gui->menuItem("Create Empty Child", "", false, manager->projectOpened)) {}
-			if (gui->menuItem("Create Empty", "", false, manager->projectOpened)) {}
-			if (gui->menuItem("3D Object", "", false, manager->projectOpened)) {}
+			if (gui->menuItem("Create Empty", "", false, manager->projectOpened))
+				manager->createEmpty();
+
+			// 3D Object submenu
+			if (gui->menu("3D Object"))
+			{
+				if (gui->menuItem("Empty",    "", false, manager->projectOpened)) manager->createEmpty();
+				if (gui->menuItem("Cube",     "", false, manager->projectOpened)) manager->createMeshPrimitive(kMeshGenerator::generateCube(),     "Cube");
+				if (gui->menuItem("Sphere",   "", false, manager->projectOpened)) manager->createMeshPrimitive(kMeshGenerator::generateSphere(),   "Sphere");
+				if (gui->menuItem("Capsule",  "", false, manager->projectOpened)) manager->createMeshPrimitive(kMeshGenerator::generateCapsule(),  "Capsule");
+				if (gui->menuItem("Cylinder", "", false, manager->projectOpened)) manager->createMeshPrimitive(kMeshGenerator::generateCylinder(), "Cylinder");
+				if (gui->menuItem("Plane",    "", false, manager->projectOpened)) manager->createMeshPrimitive(kMeshGenerator::generatePlane(),    "Plane");
+				if (gui->menuItem("Mesh...",  "", false, manager->projectOpened)) manager->createMeshFromFile();
+				gui->menuEnd();
+			}
+
 			if (gui->menuItem("Effects", "", false, manager->projectOpened)) {}
-			if (gui->menuItem("Light", "", false, manager->projectOpened)) {}
-			if (gui->menuItem("Audio", "", false, manager->projectOpened)) {}
-			if (gui->menuItem("Video", "", false, manager->projectOpened)) {}
-			if (gui->menuItem("UI", "", false, manager->projectOpened)) {}
-			if (gui->menuItem("Camera", "", false, manager->projectOpened)) {}
+
+			// Light submenu
+			if (gui->menu("Light"))
+			{
+				if (gui->menuItem("Sun",   "", false, manager->projectOpened)) manager->createLight(LIGHT_TYPE_SUN);
+				if (gui->menuItem("Point", "", false, manager->projectOpened)) manager->createLight(LIGHT_TYPE_POINT);
+				if (gui->menuItem("Spot",  "", false, manager->projectOpened)) manager->createLight(LIGHT_TYPE_SPOT);
+				gui->menuEnd();
+			}
+
+			if (gui->menuItem("Audio",  "", false, manager->projectOpened)) {}
+			if (gui->menuItem("Video",  "", false, manager->projectOpened)) {}
+			if (gui->menuItem("UI",     "", false, manager->projectOpened)) {}
+			if (gui->menuItem("Camera", "", false, manager->projectOpened))
+				manager->createCamera();
 
 			gui->menuEnd();
 		}
@@ -272,15 +301,15 @@ void* MainMenu::readOpen(ImGuiContext*, ImGuiSettingsHandler*, const char* name)
 void MainMenu::readLine(ImGuiContext*, ImGuiSettingsHandler*, void*, const char* line)
 {
 	int tmp;
-	if (sscanf(line, "WorldOpened=%d", &tmp) == 1)
+	if (sscanf_s(line, "WorldOpened=%d", &tmp) == 1)
 		showPanel.world = (tmp != 0);
-	else if (sscanf(line, "InspectorOpened=%d", &tmp) == 1)
+	else if (sscanf_s(line, "InspectorOpened=%d", &tmp) == 1)
 		showPanel.inspector = (tmp != 0);
-	else if (sscanf(line, "HierarchyOpened=%d", &tmp) == 1)
+	else if (sscanf_s(line, "HierarchyOpened=%d", &tmp) == 1)
 		showPanel.hierarchy = (tmp != 0);
-	else if (sscanf(line, "ConsoleOpened=%d", &tmp) == 1)
+	else if (sscanf_s(line, "ConsoleOpened=%d", &tmp) == 1)
 		showPanel.console = (tmp != 0);
-	else if (sscanf(line, "ProjectOpened=%d", &tmp) == 1)
+	else if (sscanf_s(line, "ProjectOpened=%d", &tmp) == 1)
 		showPanel.project = (tmp != 0);
 }
 
@@ -306,6 +335,6 @@ void MainMenu::registerPanelStateHandler()
 	ini_handler.ClearAllFn = nullptr;
 	ini_handler.ApplyAllFn = nullptr;
 
-	ImGui::GetCurrentContext()->SettingsHandlers.push_back(ini_handler);
+	ImGui::AddSettingsHandler(&ini_handler);
 }
 

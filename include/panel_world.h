@@ -26,7 +26,7 @@ public:
     int   width       = 0;
     int   height      = 0;
     float aspectRatio = 0;
-    ImVec2 panelPos   = ImVec2(0.f, 0.f);
+    kVec2 panelPos   = kVec2(0.f, 0.f);
 
     PanelWorld(kGuiManager *setGuiManager, Manager *setManager);
     void draw(bool &isOpened, kRenderer *renderer, kCamera *editorCamera);

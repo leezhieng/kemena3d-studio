@@ -16,6 +16,9 @@
 #include <kemena/kworld.h>
 #include <kemena/krenderer.h>
 #include <kemena/kscene.h>
+#include <kemena/kmeshgenerator.h>
+#include <kemena/klight.h>
+#include <kemena/kcamera.h>
 
 #include "commands.h"
 #include <portable-file-dialogs.h>
@@ -79,6 +82,23 @@ public:
     kObject *findObjectByUuid(const kString &uuid);
     void deleteSelectedObjects();
     std::vector<TransformState> captureSelectedTransforms();
+
+    // --- Accessors ----------------------------------------------------------
+    kWorld        *getWorld()        { return world; }
+    kAssetManager *getAssetManager() { return world ? world->getAssetManager() : nullptr; }
+
+    // --- Edit actions -------------------------------------------------------
+    void selectAll();
+    void deselectAll();
+    void invertSelection();
+
+    // --- Object creation ----------------------------------------------------
+    void createSceneObject();
+    void createEmpty();
+    void createMeshPrimitive(kMesh *mesh, const kString &name);
+    void createMeshFromFile();
+    void createLight(kLightType type);
+    void createCamera();
 
     kString getCurrentDirPath();
 

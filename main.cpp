@@ -66,7 +66,7 @@ int main()
 			DWORD size = SizeofResource(NULL, hRes);
 			const char *data = static_cast<const char *>(LockResource(hData));
 			if (data && size > 0)
-				ImGui::LoadIniSettingsFromMemory(data, size);
+				gui->loadIniSettingsFromMemory(data, size);
 		}
 	}
 
@@ -137,7 +137,7 @@ int main()
 		if (isReloadLayout)
 		{
 			showPanel = ShowPanel();
-			ImGui::LoadIniSettingsFromDisk(layoutFileName.c_str());
+			gui->loadIniSettingsFromDisk(layoutFileName);
 
 			isReloadLayout = false;
 		}
@@ -183,7 +183,7 @@ int main()
 
 						// ImGui::GetIO().MousePos and panelPos are both in the same
 						// screen-absolute coordinate space. Multiply by 2 for physical pixels.
-						ImVec2 imMouse = ImGui::GetIO().MousePos;
+						kVec2 imMouse = gui->getMousePos();
 						int vpMouseX = (int)((imMouse.x - panelWorld->panelPos.x) * 2.0f);
 						int vpMouseY = (int)((imMouse.y - panelWorld->panelPos.y) * 2.0f);
 
@@ -296,17 +296,17 @@ int main()
 				}
 				else if (event.getKeyButton() == K_KEY_DELETE)
 				{
-					if (!ImGui::GetIO().WantTextInput && manager->projectOpened)
+					if (!gui->getWantTextInput() && manager->projectOpened)
 						manager->deleteSelectedObjects();
 				}
 				else if (event.getKeyButton() == K_KEY_Z && ctrlPressed)
 				{
-					if (!ImGui::GetIO().WantTextInput)
+					if (!gui->getWantTextInput())
 						manager->undoRedo.undo();
 				}
 				else if (event.getKeyButton() == K_KEY_Y && ctrlPressed)
 				{
-					if (!ImGui::GetIO().WantTextInput)
+					if (!gui->getWantTextInput())
 						manager->undoRedo.redo();
 				}
 			}
@@ -355,10 +355,13 @@ int main()
 			renderer->render(world, scene, 0, 0, panelWorld->width * 2, panelWorld->height * 2, window->getTimer()->getDeltaTime(), false);
 			renderer->render(world, sceneEditor, 0, 0, panelWorld->width * 2, panelWorld->height * 2, window->getTimer()->getDeltaTime(), false);
 
+			// Always render picking pass so click selection and outline are always fresh.
+			renderer->renderPickingPass(world, scene, panelWorld->width * 2, panelWorld->height * 2);
+
 			// Outline selected objects (orange)
 			if (manager->projectOpened && !manager->selectedObjects.empty())
 				renderer->renderOutline(world, scene, manager->selectedObjects,
-										kVec4(1.0f, 0.55f, 0.0f, 1.0f), 0.03f);
+										kVec4(1.0f, 0.55f, 0.0f, 1.0f), 3.0f);
 
 			// Debug shapes for selected lights and cameras
 			if (manager->projectOpened && !manager->selectedObjects.empty())
@@ -382,7 +385,7 @@ int main()
 		manager->drawImportPopup(panelConsole);
 		if (!manager->importTasks.empty())
 		{
-			ImGui::OpenPopup("Importing Assets...");
+			gui->openPopup("Importing Assets...");
 			manager->showImportPopup = true; // <--- only set flag
 		}
 

@@ -63,7 +63,7 @@ uint32_t utf8Next(const char*& it, const char* end);
 void utf8Encode(uint32_t cp, kString& out);
 
 // Truncate UTF-8 string with "..." if wider than maxWidth
-kString fitTextWithEllipsisUtf8(const kString& text, float maxWidth);
+kString fitTextWithEllipsisUtf8(kGuiManager *gui, const kString& text, float maxWidth);
 bool convertMeshToGlb(const fs::path& inputPath, const fs::path& outputPath);
 bool convertImageToDxt5(const fs::path& inputPath, const fs::path& outputPath);
 

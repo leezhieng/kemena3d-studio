@@ -75,175 +75,126 @@ void PanelProject::deselectAll(Node& root)
 
 void PanelProject::drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* opened)
 {
-	ImGui::BeginDisabled(!manager->projectOpened);
+	gui->beginDisabled(!manager->projectOpened);
 
-	if (ImGui::Begin("Project", opened))
+	gui->windowStart("Project", opened);
 	{
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));        // Background
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0)); // Hover
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));  // Pressed
+		gui->pushStyleColor(ImGuiCol_Button, kVec4(0, 0, 0, 0));
+		gui->pushStyleColor(ImGuiCol_ButtonHovered, kVec4(0, 0, 0, 0));
+		gui->pushStyleColor(ImGuiCol_ButtonActive, kVec4(0, 0, 0, 0));
 
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(2, 0)); // smaller gap (2px horizontal, 0 vertical)
+		gui->pushStyleVar(ImGuiStyleVar_ItemSpacing, kVec2(2, 0));
 
 		// Up button
 		{
-			if (ImGui::ImageButton("UpButton",
-								   iconUp, // Size
-								   ImVec2(16, 16),
-								   ImVec2(0, 0), ImVec2(1,1), // UVs
-								   ImVec4(0, 0, 0, 0), // Background color
-								   upTint)) // Tint color
+			if (ImGui::ImageButton("UpButton", iconUp, ImVec2(16, 16)))
 			{
-				// Move up directory
 				manager->closeFolder();
 				needRefreshList = true;
 			}
-			upTint = ImGui::IsItemActive() ? ImVec4(1,1,1,0.5f) : ImVec4(1,1,1,1);
+			upTint = gui->isItemActive() ? ImVec4(1,1,1,0.5f) : ImVec4(1,1,1,1);
 
-			// Add tooltip
-            if (ImGui::IsItemHovered())
-            {
-                ImGui::SetTooltip("Go to parent directory");
-            }
+			if (gui->isItemHovered())
+				gui->setItemTooltip("Go to parent directory");
 		}
 
-		// Put next item on the same line
-		ImGui::SameLine();
+		gui->sameLine();
 
 		// Add button
 		{
-			if (ImGui::ImageButton("AddButton",
-								   iconAdd,
-								   ImVec2(16, 16),
-								   ImVec2(0, 0), ImVec2(1,1), // UVs
-								   ImVec4(0, 0, 0, 0), // Background color
-								   addTint)) // Tint color
-			{
-			}
-			addTint = ImGui::IsItemActive() ? ImVec4(1, 1, 1, 0.5f) : ImVec4(1, 1, 1, 1);
+			ImGui::ImageButton("AddButton", iconAdd, ImVec2(16, 16));
+			addTint = gui->isItemActive() ? ImVec4(1, 1, 1, 0.5f) : ImVec4(1, 1, 1, 1);
 
-			// Add tooltip
-            if (ImGui::IsItemHovered())
-            {
-                ImGui::SetTooltip("Import assets to project");
-            }
+			if (gui->isItemHovered())
+				gui->setItemTooltip("Import assets to project");
 		}
 
-		ImGui::PopStyleVar(); // Restore spacing
-		ImGui::PopStyleColor(3);
+		gui->popStyleVar();
+		gui->popStyleColor(3);
 
-		// Put search box on the same line
-		ImGui::SameLine();
+		gui->sameLine();
 
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0)); // Smaller gap (0px horizontal, 0 vertical)
+		gui->pushStyleVar(ImGuiStyleVar_ItemSpacing, kVec2(0, 0));
 
 		// Search bar
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, (22 - ImGui::GetFontSize()) * 0.5f));
-		ImGui::PushItemWidth(-FLT_MIN);
+		gui->pushStyleVar(ImGuiStyleVar_FramePadding, kVec2(4, (22 - gui->getFontSize()) * 0.5f));
+		gui->pushItemWidth(-FLT_MIN);
 
-		ImGui::PopStyleVar(); // Restore spacing
+		gui->popStyleVar();
 
-		ImGui::BeginGroup();
+		gui->groupStart();
 		{
-			float iconSize = ImGui::GetFontSize() * 0.8; // scale relative to text height
-			ImVec2 cursor = ImGui::GetCursorScreenPos();
-			float buttonWidth = 18.0f; // width of the list button including padding
-			float searchWidth = ImGui::GetContentRegionAvail().x - buttonWidth - 15;
+			float iconSize = gui->getFontSize() * 0.8f;
+			kVec2 cursor = gui->getCursorScreenPos();
+			float buttonWidth = 18.0f;
+			float searchWidth = gui->getContentRegionAvail().x - buttonWidth - 15;
 
-			// Draw the icon over the input box (aligned left-center)
 			ImGui::GetWindowDrawList()->AddImage(
 				iconMag,
-				ImVec2(cursor.x + 4, cursor.y + (ImGui::GetFrameHeight() - iconSize) * 0.5f), // top-left
-				ImVec2(cursor.x + 4 + iconSize, cursor.y + (ImGui::GetFrameHeight() + iconSize) * 0.5f), // bottom-right
-				ImVec2(0,0), ImVec2(1,1),   // UVs
-				IM_COL32_WHITE              // tint
+				ImVec2(cursor.x + 4, cursor.y + (gui->getFrameHeight() - iconSize) * 0.5f),
+				ImVec2(cursor.x + 4 + iconSize, cursor.y + (gui->getFrameHeight() + iconSize) * 0.5f)
 			);
 
-			// Search input
-			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(iconSize + 8, 3));
-			ImGui::SetNextItemWidth(searchWidth);
+			gui->pushStyleVar(ImGuiStyleVar_FramePadding, kVec2(iconSize + 8, 3));
+			gui->setNextItemWidth(searchWidth);
 			ImGui::InputTextWithHint("##SearchProject", "Search...", searchBuffer, IM_ARRAYSIZE(searchBuffer));
-			ImGui::PopStyleVar();
+			gui->popStyleVar();
 
-			ImGui::SameLine(0.0f, 8.0f);
+			gui->sameLine(0.0f, 8.0f);
 
 			// List or Thumbnail button
 			{
 				if (displayThumbnail)
 				{
-					if (ImGui::ImageButton("ListButton",
-										   iconList,
-										   ImVec2(16, 16),
-										   ImVec2(0,0), ImVec2(1,1), // UVs
-										   ImVec4(0, 0, 0, 0), // Background color
-										   ImVec4(1, 1, 1, 1))) // Tint color
-					{
+					if (ImGui::ImageButton("ListButton", iconList, ImVec2(16, 16)))
 						displayThumbnail = false;
-					}
 
-					// Add tooltip
-                    if (ImGui::IsItemHovered())
-                    {
-                        ImGui::SetTooltip("Switch to list view");
-                    }
+					if (gui->isItemHovered())
+						gui->setItemTooltip("Switch to list view");
 				}
 				else
 				{
-					if (ImGui::ImageButton("ThumbnailButton",
-										   iconThumbnail,
-										   ImVec2(16, 16),
-										   ImVec2(0,0), ImVec2(1,1), // UVs
-										   ImVec4(0, 0, 0, 0), // Background color
-										   ImVec4(1, 1, 1, 1))) // Tint color
-					{
+					if (ImGui::ImageButton("ThumbnailButton", iconThumbnail, ImVec2(16, 16)))
 						displayThumbnail = true;
-					}
 
-					// Add tooltip
-                    if (ImGui::IsItemHovered())
-                    {
-                        ImGui::SetTooltip("Switch to thumbnail view");
-                    }
+					if (gui->isItemHovered())
+						gui->setItemTooltip("Switch to thumbnail view");
 				}
 			}
 		}
-		ImGui::EndGroup();
+		gui->groupEnd();
 
-		ImGui::PopItemWidth();
-		ImGui::PopStyleVar();
+		gui->popItemWidth();
+		gui->popStyleVar();
 
-		ImGui::Spacing();
-		ImGui::Spacing();
+		gui->spacing();
+		gui->spacing();
 
-		// --- Tree view (fills remaining space) ---
-		float availableHeight = ImGui::GetContentRegionAvail().y - 4; // 4 px spacing
+		float availableHeight = gui->getContentRegionAvail().y - 4;
 
-		// Tree View
 		if (displayThumbnail)
 		{
-			// Child region with border for drawTreeNode
-			ImGui::BeginChild("ProjectThumbnail", ImVec2(0, availableHeight), true, ImGuiWindowFlags_HorizontalScrollbar);
+			gui->childStart("ProjectThumbnail", kVec2(0, availableHeight), ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar);
 			{
 				drawBreadcrumb();
 				drawThumbnailNode(rootThumbnail);
 			}
-			ImGui::EndChild();
+			gui->childEnd();
 		}
 		else
 		{
-			// Child region with border for drawTreeNode
-			ImGui::BeginChild("ProjectTree", ImVec2(0, availableHeight), true, ImGuiWindowFlags_HorizontalScrollbar);
+			gui->childStart("ProjectTree", kVec2(0, availableHeight), ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar);
 			{
 				drawTreeNode(rootTree, rootTree);
 			}
-			ImGui::EndChild();
+			gui->childEnd();
 		}
 
-		ImGui::Spacing();
+		gui->spacing();
 	}
-	ImGui::End();
+	gui->windowEnd();
 
-	ImGui::EndDisabled();
+	gui->endDisabled();
 }
 
 void PanelProject::draw(bool& opened)
@@ -301,33 +252,21 @@ void PanelProject::drawTreeNode(Node& node, Node& rootTree, int level)
 		flags |= ImGuiTreeNodeFlags_DefaultOpen;
 	}
 
-	// Draw the icon
 	ImGui::Image(node.icon, ImVec2(16, 16));
+	gui->sameLine();
 
-	ImGui::SameLine();
+	bool nodeOpen = gui->treeStartEx(node.uuid, node.name, flags);
 
-	bool nodeOpen = ImGui::TreeNodeEx(node.uuid.c_str(), flags, "%s", node.name.c_str());
-
-	// Detect double-click on this tree node
-	if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+	if (gui->isItemHovered() && gui->isMouseDoubleClicked(ImGuiMouseButton_Left))
 	{
-		// Handle double-click
 		std::cout << "Double-clicked: " << node.uuid.c_str() << " ,Level:" << level << std::endl;
-
-		// Folder
-		if (node.type == 0)
-		{
-			// Toggle open/close
-		}
 	}
 
-	if (ImGui::IsItemClicked())
+	if (gui->isItemClicked())
 	{
-		if (!ImGui::GetIO().KeyShift)
-		{
+		if (!gui->isKeyShift())
 			deselectAll(rootTree);
-		}
-		node.isSelected = !node.isSelected || ImGui::GetIO().KeyShift;
+		node.isSelected = !node.isSelected || gui->isKeyShift();
 	}
 
 	if (nodeOpen)
@@ -335,10 +274,9 @@ void PanelProject::drawTreeNode(Node& node, Node& rootTree, int level)
 		level++;
 
 		for (auto& child : node.children)
-		{
 			drawTreeNode(*child, rootTree, level);
-		}
-		ImGui::TreePop();
+
+		gui->treePop();
 	}
 }
 
@@ -538,100 +476,91 @@ void PanelProject::drawThumbnailNode(const Node& currentDir)
 		float cellPadding = 12.0f;   // spacing between columns
 		float cellWidth   = thumbSize + cellPadding;
 
-		float panelWidth  = ImGui::GetContentRegionAvail().x;
+		float panelWidth  = gui->getContentRegionAvail().x;
 		int columns = (int)(panelWidth / cellWidth);
 		if (columns < 1) columns = 1;
 
 		if (currentDir.children.size() > 0)
 		{
-			ImGui::Columns(columns, nullptr, false);
+			gui->columnsStart(columns, "", false);
 
 			for (auto& child : currentDir.children)
 			{
-				ImGui::BeginGroup();
-				ImGui::PushID(child.get());
+				gui->groupStart();
+				gui->pushId(child.get());
 
-				float columnWidth = ImGui::GetColumnWidth();
-				float cellHeight  = thumbSize + ImGui::GetTextLineHeight() + 4.0f; // total cell height
+				float columnWidth = gui->getColumnWidth();
+				float cellHeight  = thumbSize + gui->getTextLineHeight() + 4.0f;
 
 				// Full-cell selectable
 				bool selected = child->isSelected;
-				if (ImGui::Selectable("##thumb", selected, 0, ImVec2(columnWidth, cellHeight)))
-				{
+				if (gui->selectable("##thumb", selected, 0, kVec2(columnWidth, cellHeight)))
 					child->isSelected = !child->isSelected;
-				}
 
 				// Handle double-click
-				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+				if (gui->isItemHovered() && gui->isMouseDoubleClicked(ImGuiMouseButton_Left))
 				{
 				    if (child->type == 0)
                     {
-                        // Folder
                         manager->openFolder(child->name);
                         needRefreshList = true;
-                        ImGui::Columns(1); // reset columns before returning
-                        ImGui::PopID();
-                        ImGui::EndGroup();
+                        gui->columnsEnd();
+                        gui->popId();
+                        gui->groupEnd();
                         return;
                     }
                     else
                     {
-                        // File
                         std::cout << "Double-clicked: " << child->uuid.c_str() << std::endl;
                     }
 				}
 
-				kString displayName = fitTextWithEllipsisUtf8(child->name, columnWidth - 4.0f);
+				kString displayName = fitTextWithEllipsisUtf8(gui, child->name, columnWidth - 4.0f);
 
-				// Show tooltip only if text was truncated
-				if (displayName != child->name && ImGui::IsItemHovered())
+				if (displayName != child->name && gui->isItemHovered())
 				{
-					ImGui::BeginTooltip();
-					ImGui::TextUnformatted(child->name.c_str()); // full name
-					ImGui::EndTooltip();
+					gui->beginTooltip();
+					gui->textUnformatted(child->name);
+					gui->endTooltip();
 				}
 
-				// Draw icon centered in selectable
-				ImVec2 cellPos  = ImGui::GetItemRectMin();
+				kVec2 cellPos  = gui->getItemRectMin();
 				float iconX = cellPos.x + (columnWidth - thumbSize) * 0.5f;
 				float iconY = cellPos.y;
-				ImGui::SetCursorScreenPos(ImVec2(iconX, iconY));
+				gui->setCursorScreenPos(kVec2(iconX, iconY));
 				ImGui::Image(child->icon, ImVec2(thumbSize, thumbSize));
 
-				// Draw text centered under icon
-				float textWidth = ImGui::CalcTextSize(displayName.c_str()).x;
+				float textWidth = gui->calcTextSize(displayName).x;
 				float textX = cellPos.x + (columnWidth - textWidth) * 0.5f;
-				float textY = iconY + thumbSize + 2.0f; // padding below icon
-				ImGui::SetCursorScreenPos(ImVec2(textX, textY));
-				ImGui::TextUnformatted(displayName.c_str());
+				float textY = iconY + thumbSize + 2.0f;
+				gui->setCursorScreenPos(kVec2(textX, textY));
+				gui->textUnformatted(displayName);
 
-				ImGui::PopID();
-				ImGui::EndGroup();
-				ImGui::NextColumn();
+				gui->popId();
+				gui->groupEnd();
+				gui->nextColumn();
 			}
 
-			ImGui::Columns(1); // reset
+			gui->columnsEnd();
 		}
 		else
 		{
 			kString text = "Empty folder";
-			float textWidth = ImGui::CalcTextSize(text.c_str()).x;
-			float columnWidth = ImGui::GetColumnWidth();
-			float textX = ImGui::GetCursorPosX() + (columnWidth - textWidth) * 0.5f; // center horizontally
-			ImGui::SetCursorPosX(textX);
-
-			ImGui::Text(text.c_str());
+			float textWidth = gui->calcTextSize(text).x;
+			float columnWidth = gui->getColumnWidth();
+			float textX = gui->getCursorPosX() + (columnWidth - textWidth) * 0.5f;
+			gui->setCursorPosX(textX);
+			gui->text(text);
 		}
 	}
 	else
 	{
 		kString text = "No project found";
-		float textWidth = ImGui::CalcTextSize(text.c_str()).x;
-		float columnWidth = ImGui::GetColumnWidth();
-		float textX = ImGui::GetCursorPosX() + (columnWidth - textWidth) * 0.5f; // center horizontally
-		ImGui::SetCursorPosX(textX);
-
-		ImGui::Text(text.c_str());
+		float textWidth = gui->calcTextSize(text).x;
+		float columnWidth = gui->getColumnWidth();
+		float textX = gui->getCursorPosX() + (columnWidth - textWidth) * 0.5f;
+		gui->setCursorPosX(textX);
+		gui->text(text);
 	}
 }
 
@@ -643,30 +572,28 @@ void PanelProject::drawBreadcrumb()
 		fs::path basePath = manager->projectPath;
 
 		// Draw Assets folder
-		if (ImGui::Button("Assets"))
+		if (gui->button("Assets"))
 		{
 			manager->currentDir.erase(manager->currentDir.begin() + 1, manager->currentDir.end());
 			needRefreshList = true;
 		}
 
-		// Draw each folder in currentDir, ignore Assets
 		for (size_t i = 1; i < manager->currentDir.size(); ++i)
 		{
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 3.0f);
-			ImGui::Text(">"); // separator
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 4.0f);
+			gui->sameLine();
+			gui->setCursorPosX(gui->getCursorPosX() - 3.0f);
+			gui->text(">");
+			gui->sameLine();
+			gui->setCursorPosX(gui->getCursorPosX() - 4.0f);
 
-			if (ImGui::Button(manager->currentDir[i].c_str()))
+			if (gui->button(manager->currentDir[i]))
 			{
-				// Go up to this folder
 				manager->currentDir.erase(manager->currentDir.begin() + i + 1, manager->currentDir.end());
 				needRefreshList = true;
 			}
 		}
 
-		ImGui::Dummy(ImVec2(0.0f, 4.0f));
+		gui->dummy(kVec2(0.0f, 4.0f));
 	}
 }
 

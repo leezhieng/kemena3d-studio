@@ -71,7 +71,7 @@ void PanelHierarchy::drawNode(Node &node, Node &root, int level)
 
 	gui->sameLine();
 
-	bool nodeOpen = gui->treeStartEx(node.name, "", flags);
+	bool nodeOpen = gui->treeStartEx(node.uuid, node.name, flags);
 
 	// Item clicked
 	if (gui->isItemClicked())
@@ -80,13 +80,13 @@ void PanelHierarchy::drawNode(Node &node, Node &root, int level)
 		auto selBefore    = manager->selectedObjects;
 		auto selObjBefore = manager->selectedObject;
 
-		if (!ImGui::GetIO().KeyShift)
+		if (!gui->isKeyShift())
 		{
 			deselectAll(root);
 		}
-		node.isSelected = !node.isSelected || ImGui::GetIO().KeyShift;
+		node.isSelected = !node.isSelected || gui->isKeyShift();
 
-		if (ImGui::GetIO().KeyShift)
+		if (gui->isKeyShift())
 			manager->selectObject(node.uuid, false);
 		else
 			manager->selectObject(node.uuid, true);
@@ -144,7 +144,7 @@ void PanelHierarchy::drawNode(Node &node, Node &root, int level)
 
 void PanelHierarchy::drawHierarchyPanel(Node &root, bool *opened)
 {
-	ImGui::BeginDisabled(!manager->projectOpened);
+	gui->beginDisabled(!manager->projectOpened);
 
 	gui->windowStart("Hierarchy", opened);
 	{
@@ -169,21 +169,19 @@ void PanelHierarchy::drawHierarchyPanel(Node &root, bool *opened)
 		gui->sameLine();
 
 		// Search bar
-		gui->pushStyleVar(ImGuiStyleVar_FramePadding, kVec2(4, (22 - ImGui::GetFontSize()) * 0.5f));
+		gui->pushStyleVar(ImGuiStyleVar_FramePadding, kVec2(4, (22 - gui->getFontSize()) * 0.5f));
 		gui->pushItemWidth(-FLT_MIN);
 
 		gui->groupStart();
 		{
-			float iconSize = ImGui::GetFontSize() * 0.8f; // scale relative to text height
+			float iconSize = gui->getFontSize() * 0.8f; // scale relative to text height
 			kVec2 cursor = gui->getCursorScreenPos();
 
 			// Draw the icon over the input box (aligned left-center)
-			ImGui::GetWindowDrawList()->AddImage(
+			gui->drawListAddImage(
 				iconMag,
-				ImVec2(cursor.x + 4, cursor.y + (ImGui::GetFrameHeight() - iconSize) * 0.5f),			 // top-left
-				ImVec2(cursor.x + 4 + iconSize, cursor.y + (ImGui::GetFrameHeight() + iconSize) * 0.5f), // bottom-right
-				ImVec2(0, 0), ImVec2(1, 1),																 // UVs
-				IM_COL32_WHITE																			 // tint
+				kVec2(cursor.x + 4, cursor.y + (gui->getFrameHeight() - iconSize) * 0.5f),
+				kVec2(cursor.x + 4 + iconSize, cursor.y + (gui->getFrameHeight() + iconSize) * 0.5f)
 			);
 
 			gui->pushStyleVar(ImGuiStyleVar_FramePadding, kVec2(iconSize + 8, 3));
@@ -203,7 +201,7 @@ void PanelHierarchy::drawHierarchyPanel(Node &root, bool *opened)
 		{
 			float availableHeight = gui->getContentRegionAvail().y - 4; // 4 px spacing
 
-			ImGui::BeginChild("HierarchyTree", ImVec2(0, availableHeight), true, ImGuiWindowFlags_HorizontalScrollbar);
+			gui->childStart("HierarchyTree", kVec2(0, availableHeight), ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar);
 			{
 				if (manager->projectOpened)
 				{
@@ -212,20 +210,20 @@ void PanelHierarchy::drawHierarchyPanel(Node &root, bool *opened)
 				else
 				{
 					kString text = "No active world";
-					float textWidth = ImGui::CalcTextSize(text.c_str()).x;
-					float columnWidth = ImGui::GetColumnWidth();
+					float textWidth = gui->calcTextSize(text).x;
+					float columnWidth = gui->getColumnWidth();
 					float textX = gui->getCursorPosX() + (columnWidth - textWidth) * 0.5f; // center horizontally
 					gui->setCursorPosX(textX);
 
 					gui->text(text);
 				}
 			}
-			ImGui::EndChild();
+			gui->childEnd();
 		}
 	}
 	gui->windowEnd();
 
-	ImGui::EndDisabled();
+	gui->endDisabled();
 }
 
 void PanelHierarchy::draw(bool &opened)
@@ -237,6 +235,7 @@ void PanelHierarchy::draw(bool &opened)
 void PanelHierarchy::refreshList()
 {
 	manager->objectMap.clear();
+	root.children.clear();
 
 	if (world->getScenes().size() > 1)
 	{

@@ -13,34 +13,34 @@ PanelInspector::PanelInspector(kGuiManager *setGuiManager, Manager *setManager)
 // Table helpers
 // ---------------------------------------------------------------------------
 
-static bool beginPropTable(const char *id)
+static bool beginPropTable(kGuiManager *gui, const char *id)
 {
-    if (!ImGui::BeginTable(id, 2, ImGuiTableFlags_SizingStretchProp))
+    if (!gui->tableStart(id, 2, ImGuiTableFlags_SizingStretchProp))
         return false;
-    ImGui::TableSetupColumn("L", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-    ImGui::TableSetupColumn("V", ImGuiTableColumnFlags_WidthStretch);
+    gui->tableSetupColumn("L", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+    gui->tableSetupColumn("V", ImGuiTableColumnFlags_WidthStretch);
     return true;
 }
 
-static void propLabel(const char *label)
+static void propLabel(kGuiManager *gui, const char *label)
 {
-    ImGui::TableNextRow();
-    ImGui::TableSetColumnIndex(0);
-    ImGui::AlignTextToFramePadding();
-    ImGui::Text("%s", label);
-    ImGui::TableSetColumnIndex(1);
-    ImGui::SetNextItemWidth(-FLT_MIN);
+    gui->tableNextRow();
+    gui->tableSetColumnIndex(0);
+    gui->alignTextToFramePadding();
+    gui->text(label);
+    gui->tableSetColumnIndex(1);
+    gui->setNextItemWidth(-FLT_MIN);
 }
 
 // ---------------------------------------------------------------------------
 // Transform section
 // ---------------------------------------------------------------------------
-static void drawTransformSection(kObject *obj, Manager *mgr)
+static void drawTransformSection(kGuiManager *gui, kObject *obj, Manager *mgr)
 {
-    if (!ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+    if (!gui->collapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
         return;
 
-    if (!beginPropTable("TfmTable"))
+    if (!beginPropTable(gui, "TfmTable"))
         return;
 
     // --- Position ---
@@ -51,12 +51,12 @@ static void drawTransformSection(kObject *obj, Manager *mgr)
         kVec3 posPreEdit = pos;
         float p[3]       = { pos.x, pos.y, pos.z };
 
-        propLabel("Position");
-        if (ImGui::DragFloat3("##Pos", p, 0.1f))
+        propLabel(gui, "Position");
+        if (gui->dragFloat3("##Pos", p, 0.1f))
             obj->setPosition(kVec3(p[0], p[1], p[2]));
-        if (ImGui::IsItemActivated())
+        if (gui->isItemActivated())
             s_posBefore = posPreEdit;
-        if (ImGui::IsItemDeactivatedAfterEdit())
+        if (gui->isItemDeactivatedAfterEdit())
         {
             kVec3 after  = obj->getPosition();
             kVec3 before = s_posBefore;
@@ -75,12 +75,12 @@ static void drawTransformSection(kObject *obj, Manager *mgr)
         kVec3 eulerPreEdit = euler;
         float r[3]         = { euler.x, euler.y, euler.z };
 
-        propLabel("Rotation");
-        if (ImGui::DragFloat3("##Rot", r, 0.5f))
+        propLabel(gui, "Rotation");
+        if (gui->dragFloat3("##Rot", r, 0.5f))
             obj->setRotation(kQuat(glm::radians(kVec3(r[0], r[1], r[2]))));
-        if (ImGui::IsItemActivated())
+        if (gui->isItemActivated())
             s_rotBefore = eulerPreEdit;
-        if (ImGui::IsItemDeactivatedAfterEdit())
+        if (gui->isItemDeactivatedAfterEdit())
         {
             kVec3 after  = obj->getRotationEuler();
             kVec3 before = s_rotBefore;
@@ -99,12 +99,12 @@ static void drawTransformSection(kObject *obj, Manager *mgr)
         kVec3 sclPreEdit = scl;
         float s[3]       = { scl.x, scl.y, scl.z };
 
-        propLabel("Scale");
-        if (ImGui::DragFloat3("##Scl", s, 0.01f, 0.001f, 10000.0f))
+        propLabel(gui, "Scale");
+        if (gui->dragFloat3("##Scl", s, 0.01f, 0.001f, 10000.0f))
             obj->setScale(kVec3(s[0], s[1], s[2]));
-        if (ImGui::IsItemActivated())
+        if (gui->isItemActivated())
             s_scaleBefore = sclPreEdit;
-        if (ImGui::IsItemDeactivatedAfterEdit())
+        if (gui->isItemDeactivatedAfterEdit())
         {
             kVec3 after  = obj->getScale();
             kVec3 before = s_scaleBefore;
@@ -115,34 +115,31 @@ static void drawTransformSection(kObject *obj, Manager *mgr)
         }
     }
 
-    ImGui::EndTable();
+    gui->tableEnd();
 }
 
 // ---------------------------------------------------------------------------
 // Mesh section
 // ---------------------------------------------------------------------------
-static void drawMeshSection(kMesh *mesh, Manager *mgr)
+static void drawMeshSection(kGuiManager *gui, kMesh *mesh, Manager *mgr)
 {
-    if (!ImGui::CollapsingHeader("Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+    if (!gui->collapsingHeader("Mesh", ImGuiTreeNodeFlags_DefaultOpen))
         return;
 
-    if (!beginPropTable("MeshTable"))
+    if (!beginPropTable(gui, "MeshTable"))
         return;
 
-    // Source file — read-only
-    propLabel("File");
-    ImGui::BeginDisabled(true);
+    propLabel(gui, "File");
+    gui->beginDisabled(true);
     char fileBuf[256];
-    strncpy(fileBuf, mesh->getFileName().c_str(), sizeof(fileBuf) - 1);
-    fileBuf[sizeof(fileBuf) - 1] = '\0';
+    strncpy_s(fileBuf, sizeof(fileBuf), mesh->getFileName().c_str(), _TRUNCATE);
     ImGui::InputText("##MeshFile", fileBuf, sizeof(fileBuf));
-    ImGui::EndDisabled();
+    gui->endDisabled();
 
-    // Cast shadow toggle
-    propLabel("Cast Shadow");
+    propLabel(gui, "Cast Shadow");
     bool castShadow     = mesh->getCastShadow();
     bool prevCastShadow = castShadow;
-    if (ImGui::Checkbox("##CastShadow", &castShadow))
+    if (gui->checkbox("##CastShadow", &castShadow))
     {
         mesh->setCastShadow(castShadow);
         kMesh *cap   = mesh;
@@ -153,18 +150,18 @@ static void drawMeshSection(kMesh *mesh, Manager *mgr)
             [cap, after]()  { cap->setCastShadow(after); }));
     }
 
-    ImGui::EndTable();
+    gui->tableEnd();
 }
 
 // ---------------------------------------------------------------------------
 // Camera section
 // ---------------------------------------------------------------------------
-static void drawCameraSection(kCamera *cam, Manager *mgr)
+static void drawCameraSection(kGuiManager *gui, kCamera *cam, Manager *mgr)
 {
-    if (!ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
+    if (!gui->collapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
         return;
 
-    if (!beginPropTable("CamTable"))
+    if (!beginPropTable(gui, "CamTable"))
         return;
 
     // FOV
@@ -172,12 +169,12 @@ static void drawCameraSection(kCamera *cam, Manager *mgr)
         static float s_fovBefore = 0.0f;
         float fov        = cam->getFOV();
         float fovPreEdit = fov;
-        propLabel("FOV");
-        if (ImGui::DragFloat("##FOV", &fov, 0.5f, 1.0f, 179.0f, "%.1f deg"))
+        propLabel(gui, "FOV");
+        if (gui->dragFloat("##FOV", &fov, 0.5f, 1.0f, 179.0f, "%.1f deg"))
             cam->setFOV(fov);
-        if (ImGui::IsItemActivated())
+        if (gui->isItemActivated())
             s_fovBefore = fovPreEdit;
-        if (ImGui::IsItemDeactivatedAfterEdit())
+        if (gui->isItemDeactivatedAfterEdit())
         {
             float after  = cam->getFOV();
             float before = s_fovBefore;
@@ -193,12 +190,12 @@ static void drawCameraSection(kCamera *cam, Manager *mgr)
         static float s_nearBefore = 0.0f;
         float nearClip        = cam->getNearClip();
         float nearPreEdit     = nearClip;
-        propLabel("Near Clip");
-        if (ImGui::DragFloat("##Near", &nearClip, 0.01f, 0.001f, 10000.0f, "%.3f"))
+        propLabel(gui, "Near Clip");
+        if (gui->dragFloat("##Near", &nearClip, 0.01f, 0.001f, 10000.0f, "%.3f"))
             cam->setNearClip(nearClip);
-        if (ImGui::IsItemActivated())
+        if (gui->isItemActivated())
             s_nearBefore = nearPreEdit;
-        if (ImGui::IsItemDeactivatedAfterEdit())
+        if (gui->isItemDeactivatedAfterEdit())
         {
             float after  = cam->getNearClip();
             float before = s_nearBefore;
@@ -214,12 +211,12 @@ static void drawCameraSection(kCamera *cam, Manager *mgr)
         static float s_farBefore = 0.0f;
         float farClip        = cam->getFarClip();
         float farPreEdit     = farClip;
-        propLabel("Far Clip");
-        if (ImGui::DragFloat("##Far", &farClip, 1.0f, 0.1f, 100000.0f, "%.1f"))
+        propLabel(gui, "Far Clip");
+        if (gui->dragFloat("##Far", &farClip, 1.0f, 0.1f, 100000.0f, "%.1f"))
             cam->setFarClip(farClip);
-        if (ImGui::IsItemActivated())
+        if (gui->isItemActivated())
             s_farBefore = farPreEdit;
-        if (ImGui::IsItemDeactivatedAfterEdit())
+        if (gui->isItemDeactivatedAfterEdit())
         {
             float after  = cam->getFarClip();
             float before = s_farBefore;
@@ -230,13 +227,13 @@ static void drawCameraSection(kCamera *cam, Manager *mgr)
         }
     }
 
-    ImGui::EndTable();
+    gui->tableEnd();
 }
 
 // ---------------------------------------------------------------------------
 // Light section
 // ---------------------------------------------------------------------------
-static void drawLightSection(kLight *light, Manager *mgr)
+static void drawLightSection(kGuiManager *gui, kLight *light, Manager *mgr)
 {
     kLightType lt = light->getLightType();
 
@@ -245,10 +242,10 @@ static void drawLightSection(kLight *light, Manager *mgr)
     else if (lt == LIGHT_TYPE_POINT) header = "Light (Point)";
     else if (lt == LIGHT_TYPE_SPOT)  header = "Light (Spot)";
 
-    if (!ImGui::CollapsingHeader(header, ImGuiTreeNodeFlags_DefaultOpen))
+    if (!gui->collapsingHeader(header, ImGuiTreeNodeFlags_DefaultOpen))
         return;
 
-    if (!beginPropTable("LightTable"))
+    if (!beginPropTable(gui, "LightTable"))
         return;
 
     // Power
@@ -256,12 +253,12 @@ static void drawLightSection(kLight *light, Manager *mgr)
         static float s_pwrBefore = 0.0f;
         float pwr        = light->getPower();
         float pwrPreEdit = pwr;
-        propLabel("Power");
-        if (ImGui::DragFloat("##Power", &pwr, 0.1f, 0.0f, 10000.0f))
+        propLabel(gui, "Power");
+        if (gui->dragFloat("##Power", &pwr, 0.1f, 0.0f, 10000.0f))
             light->setPower(pwr);
-        if (ImGui::IsItemActivated())
+        if (gui->isItemActivated())
             s_pwrBefore = pwrPreEdit;
-        if (ImGui::IsItemDeactivatedAfterEdit())
+        if (gui->isItemDeactivatedAfterEdit())
         {
             float after  = light->getPower();
             float before = s_pwrBefore;
@@ -278,12 +275,12 @@ static void drawLightSection(kLight *light, Manager *mgr)
         kVec3 amb        = light->getAmbientColor();
         kVec3 ambPreEdit = amb;
         float ambF[3]    = { amb.r, amb.g, amb.b };
-        propLabel("Ambient");
-        if (ImGui::ColorEdit3("##Ambient", ambF))
+        propLabel(gui, "Ambient");
+        if (gui->colorEdit3("##Ambient", ambF))
             light->setAmbientColor(kVec3(ambF[0], ambF[1], ambF[2]));
-        if (ImGui::IsItemActivated())
+        if (gui->isItemActivated())
             s_ambBefore = ambPreEdit;
-        if (ImGui::IsItemDeactivatedAfterEdit())
+        if (gui->isItemDeactivatedAfterEdit())
         {
             kVec3   after  = light->getAmbientColor();
             kVec3   before = s_ambBefore;
@@ -300,12 +297,12 @@ static void drawLightSection(kLight *light, Manager *mgr)
         kVec3 diff        = light->getDiffuseColor();
         kVec3 diffPreEdit = diff;
         float diffF[3]    = { diff.r, diff.g, diff.b };
-        propLabel("Diffuse");
-        if (ImGui::ColorEdit3("##Diffuse", diffF))
+        propLabel(gui, "Diffuse");
+        if (gui->colorEdit3("##Diffuse", diffF))
             light->setDiffuseColor(kVec3(diffF[0], diffF[1], diffF[2]));
-        if (ImGui::IsItemActivated())
+        if (gui->isItemActivated())
             s_diffBefore = diffPreEdit;
-        if (ImGui::IsItemDeactivatedAfterEdit())
+        if (gui->isItemDeactivatedAfterEdit())
         {
             kVec3   after  = light->getDiffuseColor();
             kVec3   before = s_diffBefore;
@@ -322,12 +319,12 @@ static void drawLightSection(kLight *light, Manager *mgr)
         kVec3 spec        = light->getSpecularColor();
         kVec3 specPreEdit = spec;
         float specF[3]    = { spec.r, spec.g, spec.b };
-        propLabel("Specular");
-        if (ImGui::ColorEdit3("##Specular", specF))
+        propLabel(gui, "Specular");
+        if (gui->colorEdit3("##Specular", specF))
             light->setSpecularColor(kVec3(specF[0], specF[1], specF[2]));
-        if (ImGui::IsItemActivated())
+        if (gui->isItemActivated())
             s_specBefore = specPreEdit;
-        if (ImGui::IsItemDeactivatedAfterEdit())
+        if (gui->isItemDeactivatedAfterEdit())
         {
             kVec3   after  = light->getSpecularColor();
             kVec3   before = s_specBefore;
@@ -338,19 +335,18 @@ static void drawLightSection(kLight *light, Manager *mgr)
         }
     }
 
-    // Direction — Spot only (sun direction is derived from rotation via the gizmo)
     if (lt == LIGHT_TYPE_SPOT)
     {
         static kVec3 s_dirBefore;
         kVec3 dir        = light->getDirection();
         kVec3 dirPreEdit = dir;
         float dirF[3]    = { dir.x, dir.y, dir.z };
-        propLabel("Direction");
-        if (ImGui::DragFloat3("##Dir", dirF, 0.01f, -1.0f, 1.0f))
+        propLabel(gui, "Direction");
+        if (gui->dragFloat3("##Dir", dirF, 0.01f, -1.0f, 1.0f))
             light->setDirection(kVec3(dirF[0], dirF[1], dirF[2]));
-        if (ImGui::IsItemActivated())
+        if (gui->isItemActivated())
             s_dirBefore = dirPreEdit;
-        if (ImGui::IsItemDeactivatedAfterEdit())
+        if (gui->isItemDeactivatedAfterEdit())
         {
             kVec3   after  = light->getDirection();
             kVec3   before = s_dirBefore;
@@ -361,7 +357,6 @@ static void drawLightSection(kLight *light, Manager *mgr)
         }
     }
 
-    // Attenuation — Point and Spot
     if (lt == LIGHT_TYPE_POINT || lt == LIGHT_TYPE_SPOT)
     {
         // Constant
@@ -369,12 +364,12 @@ static void drawLightSection(kLight *light, Manager *mgr)
             static float s_constBefore = 0.0f;
             float c        = light->getConstant();
             float cPreEdit = c;
-            propLabel("Constant");
-            if (ImGui::DragFloat("##Constant", &c, 0.01f, 0.0f, 10.0f))
+            propLabel(gui, "Constant");
+            if (gui->dragFloat("##Constant", &c, 0.01f, 0.0f, 10.0f))
                 light->setConstant(c);
-            if (ImGui::IsItemActivated())
+            if (gui->isItemActivated())
                 s_constBefore = cPreEdit;
-            if (ImGui::IsItemDeactivatedAfterEdit())
+            if (gui->isItemDeactivatedAfterEdit())
             {
                 float after  = light->getConstant();
                 float before = s_constBefore;
@@ -389,12 +384,12 @@ static void drawLightSection(kLight *light, Manager *mgr)
             static float s_linBefore = 0.0f;
             float l        = light->getLinear();
             float lPreEdit = l;
-            propLabel("Linear");
-            if (ImGui::DragFloat("##Linear", &l, 0.01f, 0.0f, 10.0f))
+            propLabel(gui, "Linear");
+            if (gui->dragFloat("##Linear", &l, 0.01f, 0.0f, 10.0f))
                 light->setLinear(l);
-            if (ImGui::IsItemActivated())
+            if (gui->isItemActivated())
                 s_linBefore = lPreEdit;
-            if (ImGui::IsItemDeactivatedAfterEdit())
+            if (gui->isItemDeactivatedAfterEdit())
             {
                 float after  = light->getLinear();
                 float before = s_linBefore;
@@ -409,12 +404,12 @@ static void drawLightSection(kLight *light, Manager *mgr)
             static float s_quadBefore = 0.0f;
             float q        = light->getQuadratic();
             float qPreEdit = q;
-            propLabel("Quadratic");
-            if (ImGui::DragFloat("##Quadratic", &q, 0.01f, 0.0f, 10.0f))
+            propLabel(gui, "Quadratic");
+            if (gui->dragFloat("##Quadratic", &q, 0.01f, 0.0f, 10.0f))
                 light->setQuadratic(q);
-            if (ImGui::IsItemActivated())
+            if (gui->isItemActivated())
                 s_quadBefore = qPreEdit;
-            if (ImGui::IsItemDeactivatedAfterEdit())
+            if (gui->isItemDeactivatedAfterEdit())
             {
                 float after  = light->getQuadratic();
                 float before = s_quadBefore;
@@ -426,7 +421,6 @@ static void drawLightSection(kLight *light, Manager *mgr)
         }
     }
 
-    // Cone angles — Spot only
     if (lt == LIGHT_TYPE_SPOT)
     {
         // Inner cone
@@ -434,12 +428,12 @@ static void drawLightSection(kLight *light, Manager *mgr)
             static float s_innerBefore = 0.0f;
             float inner        = glm::degrees(glm::acos(light->getCutOff()));
             float innerPreEdit = inner;
-            propLabel("Inner Cone");
-            if (ImGui::DragFloat("##InnerCone", &inner, 0.5f, 0.0f, 89.0f, "%.1f deg"))
+            propLabel(gui, "Inner Cone");
+            if (gui->dragFloat("##InnerCone", &inner, 0.5f, 0.0f, 89.0f, "%.1f deg"))
                 light->setCutOff(glm::cos(glm::radians(inner)));
-            if (ImGui::IsItemActivated())
+            if (gui->isItemActivated())
                 s_innerBefore = innerPreEdit;
-            if (ImGui::IsItemDeactivatedAfterEdit())
+            if (gui->isItemDeactivatedAfterEdit())
             {
                 float after  = glm::degrees(glm::acos(light->getCutOff()));
                 float before = s_innerBefore;
@@ -454,12 +448,12 @@ static void drawLightSection(kLight *light, Manager *mgr)
             static float s_outerBefore = 0.0f;
             float outer        = glm::degrees(glm::acos(light->getOuterCutOff()));
             float outerPreEdit = outer;
-            propLabel("Outer Cone");
-            if (ImGui::DragFloat("##OuterCone", &outer, 0.5f, 0.0f, 89.0f, "%.1f deg"))
+            propLabel(gui, "Outer Cone");
+            if (gui->dragFloat("##OuterCone", &outer, 0.5f, 0.0f, 89.0f, "%.1f deg"))
                 light->setOuterCutOff(glm::cos(glm::radians(outer)));
-            if (ImGui::IsItemActivated())
+            if (gui->isItemActivated())
                 s_outerBefore = outerPreEdit;
-            if (ImGui::IsItemDeactivatedAfterEdit())
+            if (gui->isItemDeactivatedAfterEdit())
             {
                 float after  = glm::degrees(glm::acos(light->getOuterCutOff()));
                 float before = s_outerBefore;
@@ -471,7 +465,7 @@ static void drawLightSection(kLight *light, Manager *mgr)
         }
     }
 
-    ImGui::EndTable();
+    gui->tableEnd();
 }
 
 // ---------------------------------------------------------------------------
@@ -482,7 +476,7 @@ void PanelInspector::draw(bool &opened)
     if (!opened) return;
 
     if (!manager->projectOpened)
-        ImGui::BeginDisabled(true);
+        gui->beginDisabled(true);
 
     gui->windowStart("Inspector", &opened);
 
@@ -492,19 +486,17 @@ void PanelInspector::draw(bool &opened)
     {
         gui->spacing();
         const char *text = "Nothing is selected";
-        float tw = ImGui::CalcTextSize(text).x;
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() +
-                             (ImGui::GetContentRegionAvail().x - tw) * 0.5f);
-        ImGui::TextDisabled("%s", text);
+        float tw = gui->calcTextSize(text).x;
+        gui->setCursorPosX(gui->getCursorPosX() + (gui->getContentRegionAvail().x - tw) * 0.5f);
+        gui->textDisabled(text);
     }
     else if (selCount > 1)
     {
         gui->spacing();
         kString text = std::to_string(selCount) + " objects selected";
-        float tw = ImGui::CalcTextSize(text.c_str()).x;
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() +
-                             (ImGui::GetContentRegionAvail().x - tw) * 0.5f);
-        ImGui::TextDisabled("%s", text.c_str());
+        float tw = gui->calcTextSize(text).x;
+        gui->setCursorPosX(gui->getCursorPosX() + (gui->getContentRegionAvail().x - tw) * 0.5f);
+        gui->textDisabled(text);
     }
     else
     {
@@ -512,7 +504,7 @@ void PanelInspector::draw(bool &opened)
 
         if (obj == nullptr)
         {
-            ImGui::TextDisabled("(object not found)");
+            gui->textDisabled("(object not found)");
         }
         else
         {
@@ -523,15 +515,13 @@ void PanelInspector::draw(bool &opened)
             else if (type == NODE_TYPE_LIGHT)  typeLabel = "Light";
             else if (type == NODE_TYPE_CAMERA) typeLabel = "Camera";
 
-            ImGui::TextDisabled("[%s]", typeLabel);
-            ImGui::SameLine();
+            gui->textDisabled(kString("[") + typeLabel + "]");
+            gui->sameLine();
 
-            // Name — committed on Enter
             {
                 char nameBuf[256];
-                strncpy(nameBuf, obj->getName().c_str(), sizeof(nameBuf) - 1);
-                nameBuf[sizeof(nameBuf) - 1] = '\0';
-                ImGui::SetNextItemWidth(-FLT_MIN);
+                strncpy_s(nameBuf, sizeof(nameBuf), obj->getName().c_str(), _TRUNCATE);
+                gui->setNextItemWidth(-FLT_MIN);
                 if (ImGui::InputText("##ObjName", nameBuf, sizeof(nameBuf),
                                      ImGuiInputTextFlags_EnterReturnsTrue))
                 {
@@ -548,11 +538,10 @@ void PanelInspector::draw(bool &opened)
                 }
             }
 
-            // Active checkbox
             {
                 bool active     = obj->getActive();
                 bool prevActive = active;
-                if (ImGui::Checkbox("Active", &active))
+                if (gui->checkbox("Active", &active))
                 {
                     obj->setActive(active);
                     kObject *cap   = obj;
@@ -564,24 +553,24 @@ void PanelInspector::draw(bool &opened)
                 }
             }
 
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Spacing();
+            gui->spacing();
+            gui->separator();
+            gui->spacing();
 
-            drawTransformSection(obj, manager);
-            ImGui::Spacing();
+            drawTransformSection(gui, obj, manager);
+            gui->spacing();
 
             if (type == NODE_TYPE_MESH)
-                drawMeshSection(static_cast<kMesh *>(obj), manager);
+                drawMeshSection(gui, static_cast<kMesh *>(obj), manager);
             else if (type == NODE_TYPE_LIGHT)
-                drawLightSection(static_cast<kLight *>(obj), manager);
+                drawLightSection(gui, static_cast<kLight *>(obj), manager);
             else if (type == NODE_TYPE_CAMERA)
-                drawCameraSection(static_cast<kCamera *>(obj), manager);
+                drawCameraSection(gui, static_cast<kCamera *>(obj), manager);
         }
     }
 
     gui->windowEnd();
 
     if (!manager->projectOpened)
-        ImGui::EndDisabled();
+        gui->endDisabled();
 }
