@@ -78,8 +78,9 @@ ImTextureRef PanelProject::getThumbnailIcon(const kString& uuid, ImTextureRef de
 
 	try
 	{
+		kString thumbKey = uuid + "_thumb";
 		kTexture2D* tex = assetManager->loadTexture2D(
-			thumbPath.string(), uuid, kTextureFormat::TEX_FORMAT_RGBA, false);
+			thumbPath.string(), thumbKey, kTextureFormat::TEX_FORMAT_RGBA, false);
 		if (tex && tex->getTextureID() != 0)
 		{
 			GLuint glId = (GLuint)tex->getTextureID();
@@ -91,6 +92,44 @@ ImTextureRef PanelProject::getThumbnailIcon(const kString& uuid, ImTextureRef de
 	catch (...) {}
 
 	return defaultIcon;
+}
+
+PanelProject::SelectedProjectAsset PanelProject::getProjectSelection() const
+{
+	SelectedProjectAsset result;
+
+	// Collect all selected nodes from the active view (flat for thumbnail, recursive for tree)
+	std::vector<const Node*> selected;
+
+	std::function<void(const Node&)> collect = [&](const Node& n) {
+		for (auto& child : n.children) {
+			if (child->isSelected)
+				selected.push_back(child.get());
+			collect(*child);
+		}
+	};
+
+	collect(displayThumbnail ? rootThumbnail : rootTree);
+
+	result.count = (int)selected.size();
+	if (result.count == 1)
+	{
+		const Node* n   = selected[0];
+		result.name     = n->name;
+		result.uuid     = n->uuid;
+		result.isFolder = (n->type == 0);
+		result.thumbnail = n->icon;
+
+		if (!result.isFolder && !result.uuid.empty())
+		{
+			auto it = manager->fileMap.find(result.uuid);
+			if (it != manager->fileMap.end())
+				result.fileType = it->second.type;
+			result.metaPath = manager->projectPath / "Library" / "Metadata" / (result.uuid + ".json");
+		}
+	}
+
+	return result;
 }
 
 void PanelProject::deselectAll(Node& root)
@@ -548,13 +587,16 @@ void PanelProject::drawThumbnailNode(const Node& currentDir)
 				gui->pushId(child.get());
 
 				float columnWidth = gui->getColumnWidth();
-				float cellHeight  = thumbSize + gui->getTextLineHeight() + 4.0f;
+				float topMargin   = 4.0f;
+				float cellHeight  = topMargin + thumbSize + gui->getTextLineHeight() + 4.0f;
 
 				// Full-cell selectable
 				bool selected = child->isSelected;
 				if (gui->selectable("##thumb", selected, 0, kVec2(columnWidth, cellHeight)))
 				{
-					child->isSelected = !child->isSelected;
+					if (!gui->isKeyShift())
+						deselectAll(rootThumbnail);
+					child->isSelected = !child->isSelected || gui->isKeyShift();
 					manager->selectedObjects.clear();
 					manager->selectedObject = nullptr;
 				}
@@ -588,7 +630,7 @@ void PanelProject::drawThumbnailNode(const Node& currentDir)
 
 				kVec2 cellPos  = gui->getItemRectMin();
 				float iconX = cellPos.x + (columnWidth - thumbSize) * 0.5f;
-				float iconY = cellPos.y;
+				float iconY = cellPos.y + topMargin;
 				gui->setCursorScreenPos(kVec2(iconX, iconY));
 				ImGui::Image(child->icon, ImVec2(thumbSize, thumbSize));
 

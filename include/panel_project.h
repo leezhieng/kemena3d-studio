@@ -77,6 +77,18 @@ class PanelProject
 
 	    void triggerRefresh() { needRefreshList = true; }
 
+		struct SelectedProjectAsset
+		{
+			int          count    = 0;      // 0=none, 1=single, >1=multi
+			kString      name;
+			kString      uuid;
+			kString      fileType;          // "mesh","image", etc. (empty for folders)
+			bool         isFolder = false;
+			ImTextureRef thumbnail = nullptr;
+			fs::path     metaPath;
+		};
+		SelectedProjectAsset getProjectSelection() const;
+
 		void deselectAll(Node& root);
 		void clearSelection();
 

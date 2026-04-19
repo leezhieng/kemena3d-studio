@@ -924,15 +924,7 @@ void Manager::processThumbnailQueue(PanelConsole *console)
 		    ("[Error] Thumbnail: failed to save " + task.thumbnailPath.generic_string()).c_str());
 	else if (panelProject != nullptr)
 		panelProject->triggerRefresh();
-
-	// Cleanup loaded mesh tree
-	std::function<void(kMesh*)> deleteMeshTree = [&](kMesh *m) {
-		for (kObject *child : m->getChildren())
-			if (child->getType() == kemena::NODE_TYPE_MESH)
-				deleteMeshTree(static_cast<kMesh*>(child));
-		delete m;
-	};
-	deleteMeshTree(mesh);
+	// Mesh is owned by the asset manager — do not delete manually.
 }
 
 void Manager::selectObject(const kString uuid, bool clearList)
