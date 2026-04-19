@@ -613,6 +613,23 @@ void PanelInspector::draw(bool &opened)
                         [cap, before]() { cap->setActive(before); },
                         [cap, after]()  { cap->setActive(after); }));
                 }
+
+                gui->sameLine();
+                {
+                    bool isStatic     = obj->getStatic();
+                    bool prevIsStatic = isStatic;
+                    if (gui->checkbox("Static", &isStatic))
+                    {
+                        obj->setStatic(isStatic);
+                        manager->renderer->setOctreeDirty();
+                        kObject *cap  = obj;
+                        bool    after  = isStatic;
+                        bool    before = prevIsStatic;
+                        manager->undoRedo.push(std::make_unique<PropertyCommand>(
+                            [cap, before]() { cap->setStatic(before); },
+                            [cap, after]()  { cap->setStatic(after); }));
+                    }
+                }
             }
 
             gui->spacing();

@@ -373,6 +373,10 @@ int main()
 			// Debug shapes for selected lights and cameras
 			if (manager->projectOpened && !manager->selectedObjects.empty())
 				renderer->renderDebugShapes(world, scene, manager->selectedObjects);
+
+			// Octree debug visualization
+			if (manager->projectOpened)
+				renderer->renderOctreeDebug(world);
 		}
 
 		// std::cout << panelWorld->width << "," << panelWorld->height << std::endl;

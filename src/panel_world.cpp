@@ -65,6 +65,18 @@ void PanelWorld::draw(bool &isOpened, kRenderer *renderer, kCamera *editorCamera
     if (ImGui::Combo("##RenderMode", &currentMode, kRenderModeNames, 7))
         renderer->setRenderMode((kRenderMode)currentMode);
 
+    gui->sameLine();
+    gui->dummy(kVec2(8, 0));
+    gui->sameLine();
+
+    // Octree debug toggle
+    {
+        bool octreeDebug = renderer->getOctreeDebugEnabled();
+        if (gui->checkbox("Octree", &octreeDebug))
+            renderer->setOctreeDebugEnabled(octreeDebug);
+        if (gui->isItemHovered()) gui->setItemTooltip("Show octree node bounds");
+    }
+
     gui->popStyleVar();
 
     gui->separator();
