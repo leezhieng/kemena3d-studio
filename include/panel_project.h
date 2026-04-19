@@ -6,12 +6,14 @@
 #include "manager.h"
 #include "util.h"
 
+#include <GL/glew.h>
 #include <imgui.h>
 #include <vector>
 #include <string>
 #include <memory>
 #include <algorithm>
 #include <filesystem>
+#include <unordered_map>
 
 using namespace kemena;
 namespace fs = std::filesystem;
@@ -64,10 +66,19 @@ class PanelProject
 		Node rootThumbnail;
 		bool needRefreshList = false;
 
+		kAssetManager* assetManager = nullptr;
+		std::unordered_map<kString, std::pair<GLuint, ImTextureRef>> thumbnailCache;
+
+		ImTextureRef getThumbnailIcon(const kString& uuid, ImTextureRef defaultIcon);
+		void clearThumbnailCache();
+
 	public:
 	    PanelProject(kGuiManager* setGuiManager, Manager* setManager, kAssetManager* assetManager);
 
+	    void triggerRefresh() { needRefreshList = true; }
+
 		void deselectAll(Node& root);
+		void clearSelection();
 
 		void drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* opened);
 		void draw(bool& opened);

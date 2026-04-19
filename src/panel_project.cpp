@@ -8,6 +8,7 @@ PanelProject::PanelProject(kGuiManager* setGuiManager, Manager* setManager, kAss
     gui = setGuiManager;
 	manager = setManager;
 	manager->panelProject = this;
+	this->assetManager = assetManager;
 
 	// Button icons
 	kTexture2D* tex_up = assetManager->loadTexture2DFromResource("ICON_FOLDER_UP_BUTTON", "icon", kTextureFormat::TEX_FORMAT_RGBA);
@@ -64,13 +65,45 @@ PanelProject::PanelProject(kGuiManager* setGuiManager, Manager* setManager, kAss
 	rootThumbnail = Node("Asset", "asset", (ImTextureID)(intptr_t)tex_folder->getTextureID(), 0);
 }
 
+ImTextureRef PanelProject::getThumbnailIcon(const kString& uuid, ImTextureRef defaultIcon)
+{
+	if (uuid.empty()) return defaultIcon;
+
+	auto it = thumbnailCache.find(uuid);
+	if (it != thumbnailCache.end())
+		return it->second.second;
+
+	fs::path thumbPath = manager->projectPath / "Library" / "Thumbnails" / (uuid + ".png");
+	if (!fs::exists(thumbPath)) return defaultIcon;
+
+	try
+	{
+		kTexture2D* tex = assetManager->loadTexture2D(
+			thumbPath.string(), uuid, kTextureFormat::TEX_FORMAT_RGBA, false);
+		if (tex && tex->getTextureID() != 0)
+		{
+			GLuint glId = (GLuint)tex->getTextureID();
+			ImTextureRef ref = (ImTextureRef)(intptr_t)glId;
+			thumbnailCache[uuid] = { glId, ref };
+			return ref;
+		}
+	}
+	catch (...) {}
+
+	return defaultIcon;
+}
+
 void PanelProject::deselectAll(Node& root)
 {
 	root.isSelected = false;
 	for (auto& child : root.children)
-	{
 		deselectAll(*child);
-	}
+}
+
+void PanelProject::clearSelection()
+{
+	deselectAll(rootTree);
+	deselectAll(rootThumbnail);
 }
 
 void PanelProject::drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* opened)
@@ -203,6 +236,7 @@ void PanelProject::draw(bool& opened)
 	{
 		if (needRefreshList)
 		{
+			clearThumbnailCache();
 			refreshTreeList();
 			refreshThumbnailList();
 
@@ -211,6 +245,15 @@ void PanelProject::draw(bool& opened)
 
 		drawProjectPanel(rootTree, rootThumbnail, &opened);
 	}
+}
+
+void PanelProject::clearThumbnailCache()
+{
+	for (auto& [uuid, entry] : thumbnailCache)
+	{
+		if (entry.first) glDeleteTextures(1, &entry.first);
+	}
+	thumbnailCache.clear();
 }
 
 void PanelProject::refreshTreeList()
@@ -267,6 +310,8 @@ void PanelProject::drawTreeNode(Node& node, Node& rootTree, int level)
 		if (!gui->isKeyShift())
 			deselectAll(rootTree);
 		node.isSelected = !node.isSelected || gui->isKeyShift();
+		manager->selectedObjects.clear();
+		manager->selectedObject = nullptr;
 	}
 
 	if (nodeOpen)
@@ -340,6 +385,8 @@ void PanelProject::populateTree(Node& parent, const fs::path& fullPath)
             kString uuid = manager->uuidMap[relativePath];
             //std::cout << relativePath << " -> " << uuid << std::endl;
 
+			icon = getThumbnailIcon(uuid, icon);
+
 			parent.children.emplace_back(std::make_unique<Node>(
 											 entry.path().filename().string(),
 											 uuid,
@@ -363,6 +410,15 @@ void PanelProject::refreshThumbnailList()
             {
 				fullPath /= dir;  // appends with correct separator for the platform
             }
+		}
+
+		// Navigate up if the current directory no longer exists
+		while ((!fs::exists(fullPath) || !fs::is_directory(fullPath)) && manager->currentDir.size() > 1)
+		{
+			manager->currentDir.pop_back();
+			fullPath = manager->projectPath;
+			for (const auto& dir : manager->currentDir)
+				fullPath /= dir;
 		}
 
 		if (!fs::exists(fullPath) || !fs::is_directory(fullPath))
@@ -450,6 +506,8 @@ void PanelProject::refreshThumbnailList()
                             kString uuid = manager->uuidMap[relativePath];
                             //std::cout << relativePath << " -> " << uuid << std::endl;
 
+							icon = getThumbnailIcon(uuid, icon);
+
 							rootThumbnail.children.emplace_back(std::make_unique<Node>(
 																	entry.path().filename().string(),
 																	uuid,
@@ -495,7 +553,11 @@ void PanelProject::drawThumbnailNode(const Node& currentDir)
 				// Full-cell selectable
 				bool selected = child->isSelected;
 				if (gui->selectable("##thumb", selected, 0, kVec2(columnWidth, cellHeight)))
+				{
 					child->isSelected = !child->isSelected;
+					manager->selectedObjects.clear();
+					manager->selectedObject = nullptr;
+				}
 
 				// Handle double-click
 				if (gui->isItemHovered() && gui->isMouseDoubleClicked(ImGuiMouseButton_Left))

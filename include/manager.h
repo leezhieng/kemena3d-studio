@@ -19,6 +19,8 @@
 #include <kemena/kmeshgenerator.h>
 #include <kemena/klight.h>
 #include <kemena/kcamera.h>
+#include <kemena/kassetmanager.h>
+#include <kemena/koffscreenrenderer.h>
 
 #include "commands.h"
 #include <portable-file-dialogs.h>
@@ -55,9 +57,20 @@ struct ImportTask
 {
     fs::path inputPath;
     fs::path outputPath;
-    kString type; // model, image, etc.
-    bool success = false;
+    kString  type;    // mesh, image, etc.
+    kString  uuid;
+    fs::path thumbnailPath; // where to save uuid.png after import
+    bool success  = false;
     bool reported = false;
+};
+
+// Queued thumbnail render (processed on main thread after batch import)
+struct ThumbnailTask
+{
+    kString  uuid;
+    fs::path srcPath;       // GLB path for mesh, original image path for image
+    fs::path thumbnailPath;
+    kString  type;          // "mesh" or "image"
 };
 
 // For hierarchy panel
@@ -76,8 +89,9 @@ public:
     Manager(kWindow *setWindow, kWorld *setWorld, kRenderer *setRenderer);
     virtual ~Manager();
 
-    void setScene(kScene *s) { scene = s; }
-    kScene *getScene()       { return scene; }
+    void setScene(kScene *s)  { scene = s; }
+    kScene    *getScene()     { return scene; }
+    kRenderer *getRenderer()  { return renderer; }
 
     kObject *findObjectByUuid(const kString &uuid);
     void deleteSelectedObjects();
@@ -149,8 +163,12 @@ public:
     bool showImportPopup = false;
     std::chrono::steady_clock::time_point importEndTime;
 
-    std::vector<ImportTask> importTasks;
+    std::vector<ImportTask>   importTasks;
+    std::vector<ThumbnailTask> thumbnailQueue;
+    kOffscreenRenderer        thumbnailRenderer{128, 128};
+
     void drawImportPopup(PanelConsole *console);
+    void processThumbnailQueue(PanelConsole *console);
 
     // Check project files
     std::unordered_map<kString, FileInfo> fileMap; // Key = uuid
@@ -175,7 +193,7 @@ public:
 private:
     kWindow   *window;
     kWorld    *world;
-    kRenderer *renderer;
+    kRenderer     *renderer;
     kScene    *scene = nullptr;
     kString    initialWindowTitle;
 

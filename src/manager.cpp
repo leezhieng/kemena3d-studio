@@ -1,5 +1,10 @@
 #include "manager.h"
 
+#include <stb/stb_image.h>
+#include <stb/stb_image_write.h>
+#define STB_IMAGE_RESIZE2_IMPLEMENTATION
+#include <stb/stb_image_resize2.h>
+
 #include <kemena/kmesh.h>
 #include <kemena/klight.h>
 #include <kemena/kcamera.h>
@@ -7,6 +12,7 @@
 
 #include <set>
 #include <functional>
+#include <ctime>
 
 namespace fs = std::filesystem;
 
@@ -255,6 +261,7 @@ bool Manager::openProject()
 	// Create other essential folders if don't exist
 	std::error_code ec;
 
+	fs::create_directories(fullPath / "Assets", ec);
 	fs::path metadataPath = fullPath / "Library" / "Metadata";
 	if (!(fs::exists(metadataPath)))
 		fs::create_directories(fullPath / "Library" / "Metadata", ec);
@@ -290,6 +297,9 @@ void Manager::checkAssetChange()
 {
 	if (projectOpened && !showingMessageBox)
 	{
+		bool anyChanges = false;
+		fileMap.clear();
+		importTasks.clear();
 		fs::path libraryFolder = projectPath / "Library";
 		fs::path assetsJsonFile = libraryFolder / "assets.json";
 		fs::path assetsPath = projectPath / "Assets";
@@ -373,6 +383,7 @@ void Manager::checkAssetChange()
 				{
 					std::cout << "Missing: " << relativePath << " (removed from list)\n";
 					it = j["files"].erase(it);
+					anyChanges = true;
 
 					// Delete metadata, thumbnail and imported asset?
 
@@ -401,37 +412,21 @@ void Manager::checkAssetChange()
 						std::cout << "File does not exist: " << metadataFile << "\n";
 					}
 
-					// Delete imported assets
+					// Delete imported assets and thumbnail
 					kString assetExt;
+					if (type == "mesh")  assetExt = ".glb";
+					else if (type == "image") assetExt = ".dds";
 
-					if (type == "mesh")
-						assetExt = ".glb";
-					else if (type == "image")
-						assetExt = ".dds";
+					auto tryDelete = [](const fs::path &p) {
+						if (!fs::exists(p)) return;
+						try { fs::remove(p); std::cout << "Deleted: " << p << "\n"; }
+						catch (const fs::filesystem_error &e) { std::cerr << "Error deleting: " << e.what() << "\n"; }
+					};
 
-					fs::path importedAssetsFile = libraryFolder / "ImportedAssets" / (uuid + assetExt);
-					if (fs::exists(importedAssetsFile))
-					{
-						try
-						{
-							if (fs::remove(importedAssetsFile))
-							{
-								std::cout << "Deleted file: " << importedAssetsFile << "\n";
-							}
-							else
-							{
-								std::cout << "Failed to delete file (unknown reason): " << importedAssetsFile << "\n";
-							}
-						}
-						catch (const fs::filesystem_error& e)
-						{
-							std::cerr << "Error deleting file: " << e.what() << "\n";
-						}
-					}
-					else
-					{
-						std::cout << "File does not exist: " << importedAssetsFile << "\n";
-					}
+					if (!assetExt.empty())
+						tryDelete(libraryFolder / "ImportedAssets" / (uuid + assetExt));
+
+					tryDelete(libraryFolder / "Thumbnails" / (uuid + ".png"));
 
 					continue;
 				}
@@ -518,70 +513,69 @@ void Manager::checkAssetChange()
 
 			if (!fileUuid.empty() && !fileType.empty())
 			{
-				// Check whether metadata exist or not
-				fs::path metaPath = libraryFolder / "Metadata" / (fileUuid + ".json");
-
-				if (!fs::exists(metaPath))
-				{
-					std::cout << "Missing meta file for UUID " << fileUuid << std::endl;
-
-					// Create new meta file
-					nlohmann::json metaJson;
-
-					// Populate the JSON with engine version and type, ignore properties for now
-					metaJson["version"] = kemena::engineVersion;
-					metaJson["type"] = fileType;
-
-					// Write JSON to file
-					std::ofstream file(metaPath);
-					if (!file)
-					{
-						std::cerr << "Failed to create metadata file: " << metaPath << "\n";
-						return;
-					}
-
-					file << metaJson.dump(4); // Pretty print with 4-space indent
-					file.close();
-				}
-				else
-				{
-					// Meta exists, you can optionally read it
-					// e.g., json metaJson = loadJson(metaPath);
-				}
-
-				// Fixed extension
+				// Determine dest extension
 				kString uuidExt;
+				if (fileType == "mesh")       uuidExt = ".glb";
+				else if (fileType == "image") uuidExt = ".dds";
 
-				if (fileType == "mesh")
-					uuidExt = ".glb";
-				else if (fileType == "image")
-					uuidExt = ".dds";
+				fs::path srcFullPath   = assetsPath / relativePath;
+				fs::path destDir       = libraryFolder / "ImportedAssets";
+				fs::path destFile      = destDir / (fileUuid + uuidExt);
+				fs::path thumbnailPath = libraryFolder / "Thumbnails" / (fileUuid + ".png");
+				fs::path metaPath      = libraryFolder / "Metadata"   / (fileUuid + ".json");
 
-				// Check whether imported asset exist or not
-				fs::path importedAssetPath = libraryFolder / "ImportedAssets" / (fileUuid + uuidExt);
-				if (!fs::exists(importedAssetPath))
-					needImport = true;  // Need import
-
-				// Check imported asset exist or not
-				if (needImport)
+				// Write / overwrite metadata whenever it's missing or the file changed
+				if (!fs::exists(metaPath) || needImport)
 				{
-					// Only import if it is mesh, image, etc.
-					if (fileType == "mesh" || fileType == "image")
+					nlohmann::json meta;
+					meta["type"]         = fileType;
+					meta["last_change"]  = static_cast<int64_t>(std::time(nullptr));
+					meta["src_checksum"] = checksum;
+					meta["src_path"]     = fs::relative(srcFullPath.parent_path(), projectPath).generic_string();
+					meta["src_file"]     = srcFullPath.filename().generic_string();
+					meta["dest_path"]    = fs::relative(destDir, projectPath).generic_string();
+					meta["dest_file"]    = fileUuid + uuidExt;
+
+					std::ofstream mf(metaPath);
+					if (mf) { mf << meta.dump(4); mf.close(); }
+					else std::cerr << "Failed to write metadata: " << metaPath << "\n";
+				}
+
+				// Queue conversion if imported asset is missing or source changed
+				if (!fs::exists(destFile))
+					needImport = true;
+
+				// If the thumbnail is missing, force a re-import/re-generation.
+				if (!fs::exists(thumbnailPath))
+				{
+					if (fileType == "mesh" && !uuidExt.empty())
 					{
-						fs::path from(assetsPath / relativePath);
-						fs::path to(libraryFolder / "ImportedAssets" / (fileUuid + uuidExt));
-
-						std:: cout << from << " -> " << to << std::endl;
-
-						importTasks.push_back(
-						{
-							from,
-							to,
-							fileType,
-							false,
-							false
-						});
+						// For meshes, delete the imported asset and metadata to trigger full re-import.
+						auto tryRemove = [](const fs::path &p) {
+							if (!fs::exists(p)) return;
+							std::error_code ec;
+							fs::remove(p, ec);
+							if (!ec) std::cout << "Removed stale Library file: " << p << "\n";
+							else     std::cerr << "Failed to remove: " << p << " (" << ec.message() << ")\n";
+						};
+						tryRemove(destFile);
+						tryRemove(metaPath);
+						needImport = true;
 					}
+					else if (fileType == "image" && fs::exists(srcFullPath) && !needImport)
+					{
+						// For images, just queue a thumbnail generation from the source file.
+						thumbnailQueue.push_back({ fileUuid, srcFullPath, thumbnailPath, "image" });
+						anyChanges = true;
+					}
+				}
+
+				if (needImport && (fileType == "mesh" || fileType == "image"))
+				{
+					std::cout << srcFullPath << " -> " << destFile << "\n";
+					importTasks.push_back({ srcFullPath, destFile, fileType,
+					                        fileUuid, thumbnailPath, false, false });
+					anyChanges = true;
 				}
 			}
 		}
@@ -593,6 +587,10 @@ void Manager::checkAssetChange()
 
 		// Begin batch imports
 		startBatchImport(importTasks);
+
+		// Refresh project panel if anything changed
+		if (anyChanges && panelProject != nullptr)
+			panelProject->triggerRefresh();
 	}
 
 	// Reset so that it will check again
@@ -727,6 +725,8 @@ kString Manager::checkAssetType(const fs::path &p)
 
 void Manager::startBatchImport(const std::vector<ImportTask>& tasks)
 {
+	if (tasks.empty()) return;
+
 	{
 		std::scoped_lock lock(queueMutex);
 		importQueue = tasks;
@@ -734,6 +734,7 @@ void Manager::startBatchImport(const std::vector<ImportTask>& tasks)
 
 	filesProcessed = 0;
 	batchDone = false;
+	showImportPopup = true;
 
 	importFuture = std::async(std::launch::async, [this]()
 	{
@@ -796,7 +797,17 @@ void Manager::drawImportPopup(PanelConsole* console)
 				{
 					if (!task.success && !task.reported)
 					{
-						console->addLog(LogLevel::Error, (kString("Failed to import asset: ") + task.inputPath.generic_string()).c_str());
+						console->addLog(LogLevel::Error, (kString("[Error] Failed to convert: ") + task.inputPath.generic_string()).c_str());
+						task.reported = true;
+					}
+					else if (task.success && !task.reported && task.type == "mesh" && !task.thumbnailPath.empty())
+					{
+						thumbnailQueue.push_back({ task.uuid, task.outputPath, task.thumbnailPath, "mesh" });
+						task.reported = true;
+					}
+					else if (task.success && !task.reported && task.type == "image" && !task.thumbnailPath.empty())
+					{
+						thumbnailQueue.push_back({ task.uuid, task.inputPath, task.thumbnailPath, "image" });
 						task.reported = true;
 					}
 				}
@@ -815,6 +826,113 @@ void Manager::drawImportPopup(PanelConsole* console)
 			}
 		}
 	}
+}
+
+void Manager::processThumbnailQueue(PanelConsole *console)
+{
+	if (thumbnailQueue.empty()) return;
+
+	ThumbnailTask task = thumbnailQueue.front();
+	thumbnailQueue.erase(thumbnailQueue.begin());
+
+	// Skip if thumbnail already exists
+	if (fs::exists(task.thumbnailPath)) return;
+
+	if (task.type == "image")
+	{
+		// Load source image, fit into 128x128 canvas, save as PNG
+		const int THUMB = 128;
+		const uint8_t BG = 42;
+
+		int w, h, c;
+		unsigned char *src = stbi_load(task.srcPath.string().c_str(), &w, &h, &c, 4);
+		if (!src)
+		{
+			console->addLog(LogLevel::Error,
+			    ("[Error] Thumbnail: failed to load image " + task.srcPath.generic_string()).c_str());
+			return;
+		}
+
+		float scale = std::min((float)THUMB / w, (float)THUMB / h);
+		int fitW = std::max(1, (int)(w * scale));
+		int fitH = std::max(1, (int)(h * scale));
+
+		std::vector<uint8_t> resized(fitW * fitH * 4);
+		stbir_resize_uint8_linear(src, w, h, 0, resized.data(), fitW, fitH, 0, STBIR_RGBA);
+		stbi_image_free(src);
+
+		// Fill canvas with background, then blit the resized image centered
+		std::vector<uint8_t> canvas(THUMB * THUMB * 4);
+		for (int i = 0; i < THUMB * THUMB * 4; i += 4)
+		{
+			canvas[i]     = BG;
+			canvas[i + 1] = BG;
+			canvas[i + 2] = BG;
+			canvas[i + 3] = 255;
+		}
+		int offX = (THUMB - fitW) / 2;
+		int offY = (THUMB - fitH) / 2;
+		for (int y = 0; y < fitH; y++)
+			for (int x = 0; x < fitW; x++)
+			{
+				int s = (y * fitW + x) * 4;
+				int d = ((offY + y) * THUMB + (offX + x)) * 4;
+				canvas[d]     = resized[s];
+				canvas[d + 1] = resized[s + 1];
+				canvas[d + 2] = resized[s + 2];
+				canvas[d + 3] = resized[s + 3];
+			}
+
+		bool saved = stbi_write_png(task.thumbnailPath.string().c_str(),
+		                            THUMB, THUMB, 4, canvas.data(), THUMB * 4) != 0;
+		if (!saved)
+			console->addLog(LogLevel::Error,
+			    ("[Error] Thumbnail: failed to save " + task.thumbnailPath.generic_string()).c_str());
+		else if (panelProject != nullptr)
+			panelProject->triggerRefresh();
+
+		return;
+	}
+
+	// Mesh thumbnail — rendered via offscreen renderer
+	kAssetManager *am = getAssetManager();
+	if (!am) return;
+	kMesh *mesh = am->loadMesh(task.srcPath.generic_string());
+	if (!mesh)
+	{
+		console->addLog(LogLevel::Error,
+		    ("[Error] Thumbnail: failed to load mesh " + task.srcPath.generic_string()).c_str());
+		return;
+	}
+
+	mesh->calculateModelMatrix();
+
+	bool saved = false;
+	try
+	{
+		thumbnailRenderer.setBackgroundColor(kVec4(42/255.0f, 42/255.0f, 42/255.0f, 1.0f));
+		thumbnailRenderer.renderMesh(mesh);
+		saved = thumbnailRenderer.saveToFile(task.thumbnailPath.generic_string());
+	}
+	catch (...)
+	{
+		saved = false;
+	}
+
+	if (!saved)
+		console->addLog(LogLevel::Error,
+		    ("[Error] Thumbnail: failed to save " + task.thumbnailPath.generic_string()).c_str());
+	else if (panelProject != nullptr)
+		panelProject->triggerRefresh();
+
+	// Cleanup loaded mesh tree
+	std::function<void(kMesh*)> deleteMeshTree = [&](kMesh *m) {
+		for (kObject *child : m->getChildren())
+			if (child->getType() == kemena::NODE_TYPE_MESH)
+				deleteMeshTree(static_cast<kMesh*>(child));
+		delete m;
+	};
+	deleteMeshTree(mesh);
 }
 
 void Manager::selectObject(const kString uuid, bool clearList)

@@ -88,6 +88,7 @@ int main()
 
 	// Editor grid
 	kMesh *gridMesh = kMeshGenerator::generatePlane();
+	sceneEditor->setFrustumCullingEnabled(false);
 	sceneEditor->addMesh(gridMesh);
 	kShader *gridShader = assetManager->loadShaderFromResource("SHADER_VERTEX_GRID", "SHADER_FRAGMENT_GRID");
 	kMaterial *gridMat = assetManager->createMaterial(gridShader);
@@ -205,6 +206,8 @@ int main()
 						{
 							manager->selectedObject = picked;
 							manager->selectObject(picked->getUuid(), !shiftPressed);
+							if (manager->panelProject != nullptr)
+								manager->panelProject->clearSelection();
 						}
 						else if (!shiftPressed)
 						{
@@ -376,7 +379,11 @@ int main()
 
 			// Octree debug visualization
 			if (manager->projectOpened)
-				renderer->renderOctreeDebug(world);
+				renderer->renderOctreeDebug(world, scene);
+
+			// Thumbnail generation (one per frame, main thread only)
+			if (manager->projectOpened)
+				manager->processThumbnailQueue(panelConsole);
 		}
 
 		// std::cout << panelWorld->width << "," << panelWorld->height << std::endl;
@@ -394,11 +401,8 @@ int main()
 
 		// If there's a need to import assets
 		manager->drawImportPopup(panelConsole);
-		if (!manager->importTasks.empty())
-		{
+		if (manager->showImportPopup)
 			gui->openPopup("Importing Assets...");
-			manager->showImportPopup = true; // <--- only set flag
-		}
 
 		gui->dockSpaceEnd();
 		gui->canvasEnd();

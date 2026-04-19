@@ -1,4 +1,5 @@
 #include "panel_hierarchy.h"
+#include "panel_project.h"
 #include "commands.h"
 
 using namespace kemena;
@@ -90,6 +91,9 @@ void PanelHierarchy::drawNode(Node &node, Node &root, int level)
 			deselectAll(root);
 		}
 		node.isSelected = !node.isSelected || gui->isKeyShift();
+
+		if (manager->panelProject != nullptr)
+			manager->panelProject->clearSelection();
 
 		if (gui->isKeyShift())
 			manager->selectObject(node.uuid, false);

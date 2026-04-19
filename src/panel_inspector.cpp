@@ -621,7 +621,7 @@ void PanelInspector::draw(bool &opened)
                     if (gui->checkbox("Static", &isStatic))
                     {
                         obj->setStatic(isStatic);
-                        manager->renderer->setOctreeDirty();
+                        manager->getRenderer()->setOctreeDirty();
                         kObject *cap  = obj;
                         bool    after  = isStatic;
                         bool    before = prevIsStatic;
