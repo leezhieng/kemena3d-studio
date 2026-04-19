@@ -107,7 +107,8 @@ int main()
 	cube->setMaterial(cubeMaterial);
 
 	// Default sunlight
-	kLight *light = scene->addSunLight(glm::vec3(0.0f, 6.0f, 0.0f), glm::vec3(0.2f, -1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+	kLight *light = scene->addSunLight(kVec3(0.0f, 6.0f, 0.0f), kVec3(0.0f, 1.0f, 0.0f), kVec3(1.0f, 1.0f, 1.0f), kVec3(1.0f, 1.0f, 1.0f));
+	light->setRotation(kVec3(-30.0f, 15.0f, 15.0f));
 	light->setPower(1.0f);
 	light->setName("Sun Light");
 
@@ -118,7 +119,7 @@ int main()
 	light->setMaterial(materialIconSun);
 
 	// Editor camera
-	kCamera *cameraEditor = world->addCamera(glm::vec3(-7, 4, 12), glm::vec3(0, 3.5, 0), kCameraType::CAMERA_TYPE_FREE);
+	kCamera *cameraEditor = world->addCamera(kVec3(-7, 4, 12), kVec3(0, 3.5, 0), kCameraType::CAMERA_TYPE_FREE);
 	cameraEditor->setFOV(60.0f);
 	world->setMainCamera(cameraEditor);
 

@@ -6,8 +6,58 @@ using namespace kemena;
 
 PanelInspector::PanelInspector(kGuiManager *setGuiManager, Manager *setManager)
 {
-    gui = setGuiManager;
+    gui     = setGuiManager;
     manager = setManager;
+
+    kAssetManager *am = manager->getAssetManager();
+    if (!am) return;
+
+    auto loadIcon = [&](const char *res) -> ImTextureRef {
+        kTexture2D *t = am->loadTexture2DFromResource(res, "icon", kTextureFormat::TEX_FORMAT_RGBA);
+        return t ? (ImTextureRef)(intptr_t)t->getTextureID() : nullptr;
+    };
+
+    iconObjMesh   = loadIcon("ICON_OBJECT_MESH");
+    iconObjLight  = loadIcon("ICON_OBJECT_LIGHT");
+    iconObjCamera = loadIcon("ICON_OBJECT_CAMERA");
+    iconObjScene  = loadIcon("ICON_OBJECT_SCENE");
+
+    iconFileModel    = loadIcon("ICON_MODEL_FILE");
+    iconFileImage    = loadIcon("ICON_IMAGE_FILE");
+    iconFileFolder   = loadIcon("ICON_FOLDER_FILE");
+    iconFileMaterial = loadIcon("ICON_MATERIAL_FILE");
+    iconFilePrefab   = loadIcon("ICON_PREFAB_FILE");
+    iconFileAudio    = loadIcon("ICON_AUDIO_FILE");
+    iconFileVideo    = loadIcon("ICON_VIDEO_FILE");
+    iconFileScript   = loadIcon("ICON_SCRIPT_FILE");
+    iconFileText     = loadIcon("ICON_TEXT_FILE");
+    iconFileWorld    = loadIcon("ICON_WORLD_FILE");
+    iconFileOther    = loadIcon("ICON_OTHER_FILE");
+}
+
+ImTextureRef PanelInspector::getFileTypeIcon(const kString &fileType) const
+{
+    if (fileType == "mesh")     return iconFileModel;
+    if (fileType == "image")    return iconFileImage;
+    if (fileType == "material") return iconFileMaterial;
+    if (fileType == "prefab")   return iconFilePrefab;
+    if (fileType == "audio")    return iconFileAudio;
+    if (fileType == "video")    return iconFileVideo;
+    if (fileType == "script")   return iconFileScript;
+    if (fileType == "text")     return iconFileText;
+    if (fileType == "world")    return iconFileWorld;
+    return iconFileOther;
+}
+
+static void drawInlineIcon(ImTextureRef icon, const char *tooltip = nullptr, float size = 16.0f)
+{
+    if (icon == nullptr) return;
+    float pad = (ImGui::GetTextLineHeight() - size) * 0.5f;
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + pad);
+    ImGui::Image(icon, ImVec2(size, size));
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() - pad);
+    if (tooltip && ImGui::IsItemHovered())
+        ImGui::SetTooltip("%s", tooltip);
 }
 
 // ---------------------------------------------------------------------------
@@ -866,14 +916,14 @@ void PanelInspector::draw(bool &opened)
         {
             if (asset.isFolder)
             {
-                gui->textDisabled("[Folder]");
-                gui->sameLine();
+                drawInlineIcon(iconFileFolder, "Folder");
+                gui->sameLine(0, 4.0f);
                 gui->textUnformatted(asset.name.c_str());
             }
             else
             {
-                gui->textDisabled(("[" + asset.fileType + "]").c_str());
-                gui->sameLine();
+                drawInlineIcon(getFileTypeIcon(asset.fileType), asset.fileType.c_str());
+                gui->sameLine(0, 4.0f);
                 gui->textUnformatted(asset.name.c_str());
             }
             gui->spacing();
@@ -897,8 +947,8 @@ void PanelInspector::draw(bool &opened)
     if (manager->selectedScene != nullptr)
     {
         kScene *scene = manager->selectedScene;
-        gui->textDisabled("[Scene]");
-        gui->sameLine();
+        drawInlineIcon(iconObjScene, "Scene");
+        gui->sameLine(0, 4.0f);
         {
             char nameBuf[256];
             strncpy_s(nameBuf, sizeof(nameBuf), scene->getName().c_str(), _TRUNCATE);
@@ -958,16 +1008,13 @@ void PanelInspector::draw(bool &opened)
             {
                 kNodeType type = obj->getType();
 
-                const char *typeLabel = "Object";
-                if (type == NODE_TYPE_MESH)
-                    typeLabel = "Mesh";
-                else if (type == NODE_TYPE_LIGHT)
-                    typeLabel = "Light";
-                else if (type == NODE_TYPE_CAMERA)
-                    typeLabel = "Camera";
+                ImTextureRef typeIcon  = iconObjMesh;
+                const char  *typeLabel = "Mesh";
+                if (type == NODE_TYPE_LIGHT)       { typeIcon = iconObjLight;  typeLabel = "Light";  }
+                else if (type == NODE_TYPE_CAMERA) { typeIcon = iconObjCamera; typeLabel = "Camera"; }
 
-                gui->textDisabled(kString("[") + typeLabel + "]");
-                gui->sameLine();
+                drawInlineIcon(typeIcon, typeLabel);
+                gui->sameLine(0, 4.0f);
 
                 {
                     char nameBuf[256];
