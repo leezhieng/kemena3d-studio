@@ -884,6 +884,189 @@ static void drawImageImportSettings(kGuiManager *gui, const PanelProject::Select
 }
 
 // ---------------------------------------------------------------------------
+// Material inspector
+// ---------------------------------------------------------------------------
+
+static void loadMaterialJson(const fs::path &srcPath, nlohmann::json &out)
+{
+    if (srcPath.empty() || !fs::exists(srcPath)) { out = nlohmann::json::object(); return; }
+    try
+    {
+        std::ifstream f(srcPath);
+        if (f.is_open()) f >> out;
+        else out = nlohmann::json::object();
+    }
+    catch (...) { out = nlohmann::json::object(); }
+}
+
+static void saveMaterialJson(const fs::path &srcPath, const nlohmann::json &j)
+{
+    std::ofstream f(srcPath);
+    if (f.is_open()) f << j.dump(4);
+}
+
+static void drawMaterialInspector(kGuiManager *gui,
+                                  const PanelProject::SelectedProjectAsset &asset,
+                                  Manager *mgr)
+{
+    static kString      lastUuid;
+    static nlohmann::json matJson;
+    static bool         dirty = false;
+
+    // Reload when selection changes
+    if (asset.uuid != lastUuid)
+    {
+        lastUuid = asset.uuid;
+        dirty    = false;
+        // srcPath is in Assets/, not Library/Metadata/
+        fs::path srcPath;
+        auto it = mgr->fileMap.find(asset.uuid);
+        if (it != mgr->fileMap.end())
+            srcPath = mgr->projectPath / "Assets" / it->second.path;
+        loadMaterialJson(srcPath, matJson);
+    }
+
+    if (!gui->collapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen))
+        return;
+    if (!beginPropTable(gui, "MatTable"))
+        return;
+
+    // --- Shader ---
+    {
+        propLabel(gui, "Shader");
+        static const char *kShaderOptions[] = { "Unlit", "Phong", "PBR", "Custom" };
+        kString current = matJson.value("shader", "Phong");
+        int selected = 1; // default: Phong
+        for (int i = 0; i < 4; i++)
+            if (current == kShaderOptions[i]) { selected = i; break; }
+        if (ImGui::Combo("##MatShader", &selected, kShaderOptions, 4))
+        {
+            matJson["shader"] = kString(kShaderOptions[selected]);
+            dirty = true;
+        }
+    }
+
+    // --- Diffuse ---
+    {
+        propLabel(gui, "Diffuse");
+        float c[3] = {1,1,1};
+        if (matJson.contains("diffuse") && matJson["diffuse"].is_array() && matJson["diffuse"].size() >= 3)
+        { c[0] = matJson["diffuse"][0]; c[1] = matJson["diffuse"][1]; c[2] = matJson["diffuse"][2]; }
+        if (ImGui::ColorEdit3("##MatDiff", c))
+        { matJson["diffuse"] = {c[0], c[1], c[2]}; dirty = true; }
+    }
+
+    // --- Ambient ---
+    {
+        propLabel(gui, "Ambient");
+        float c[3] = {1,1,1};
+        if (matJson.contains("ambient") && matJson["ambient"].is_array() && matJson["ambient"].size() >= 3)
+        { c[0] = matJson["ambient"][0]; c[1] = matJson["ambient"][1]; c[2] = matJson["ambient"][2]; }
+        if (ImGui::ColorEdit3("##MatAmb", c))
+        { matJson["ambient"] = {c[0], c[1], c[2]}; dirty = true; }
+    }
+
+    // --- Specular ---
+    {
+        propLabel(gui, "Specular");
+        float c[3] = {1,1,1};
+        if (matJson.contains("specular") && matJson["specular"].is_array() && matJson["specular"].size() >= 3)
+        { c[0] = matJson["specular"][0]; c[1] = matJson["specular"][1]; c[2] = matJson["specular"][2]; }
+        if (ImGui::ColorEdit3("##MatSpec", c))
+        { matJson["specular"] = {c[0], c[1], c[2]}; dirty = true; }
+    }
+
+    // --- Shininess ---
+    {
+        propLabel(gui, "Shininess");
+        float v = matJson.value("shininess", 32.0f);
+        if (ImGui::DragFloat("##MatShine", &v, 0.5f, 0.0f, 512.0f))
+        { matJson["shininess"] = v; dirty = true; }
+    }
+
+    // --- Metallic ---
+    {
+        propLabel(gui, "Metallic");
+        float v = matJson.value("metallic", 0.0f);
+        if (ImGui::DragFloat("##MatMetal", &v, 0.01f, 0.0f, 1.0f))
+        { matJson["metallic"] = v; dirty = true; }
+    }
+
+    // --- Roughness ---
+    {
+        propLabel(gui, "Roughness");
+        float v = matJson.value("roughness", 0.5f);
+        if (ImGui::DragFloat("##MatRough", &v, 0.01f, 0.0f, 1.0f))
+        { matJson["roughness"] = v; dirty = true; }
+    }
+
+    // --- UV Tiling ---
+    {
+        propLabel(gui, "UV Tiling");
+        float t[2] = {1,1};
+        if (matJson.contains("uv_tiling") && matJson["uv_tiling"].is_array() && matJson["uv_tiling"].size() >= 2)
+        { t[0] = matJson["uv_tiling"][0]; t[1] = matJson["uv_tiling"][1]; }
+        if (ImGui::DragFloat2("##MatUV", t, 0.01f, 0.0f, 100.0f))
+        { matJson["uv_tiling"] = {t[0], t[1]}; dirty = true; }
+    }
+
+    // --- Single Sided ---
+    {
+        propLabel(gui, "Single Sided");
+        bool v = matJson.value("single_sided", true);
+        if (ImGui::Checkbox("##MatSingle", &v))
+        { matJson["single_sided"] = v; dirty = true; }
+    }
+
+    // --- Textures ---
+    auto textureField = [&](const char *label, const char *key) {
+        propLabel(gui, label);
+        char buf[256] = {};
+        kString sv = matJson.value(key, "");
+        strncpy_s(buf, sizeof(buf), sv.c_str(), _TRUNCATE);
+        if (ImGui::InputText((kString("##") + key).c_str(), buf, sizeof(buf)))
+        { matJson[key] = kString(buf); dirty = true; }
+    };
+    textureField("Albedo",      "texture_albedo");
+    textureField("Normal",      "texture_normal");
+    textureField("Metal/Rough", "texture_metallic_roughness");
+    textureField("AO",          "texture_ao");
+    textureField("Emissive",    "texture_emissive");
+
+    gui->tableEnd();
+    gui->spacing();
+
+    bool wasDisabled = !dirty;
+    if (wasDisabled) gui->beginDisabled(true);
+    float btnW = (gui->getContentRegionAvail().x - 4.0f) * 0.5f;
+    if (ImGui::Button("Apply##Mat", ImVec2(btnW, 0)))
+    {
+        auto it = mgr->fileMap.find(asset.uuid);
+        if (it != mgr->fileMap.end())
+        {
+            fs::path srcPath = mgr->projectPath / "Assets" / it->second.path;
+            saveMaterialJson(srcPath, matJson);
+            dirty = false;
+            fs::path thumbPath = mgr->projectPath / "Library" / "Thumbnails" / (asset.uuid + ".png");
+            if (fs::exists(thumbPath)) fs::remove(thumbPath);
+            mgr->checkAssetChange();
+            if (mgr->panelProject)
+            {
+                mgr->panelProject->pendingSelectUuid = asset.uuid;
+                mgr->panelProject->triggerRefresh();
+            }
+        }
+    }
+    gui->sameLine(0, 4.0f);
+    if (ImGui::Button("Revert##Mat", ImVec2(btnW, 0)))
+    {
+        lastUuid = ""; // force reload next frame
+        dirty = false;
+    }
+    if (wasDisabled) gui->endDisabled();
+}
+
+// ---------------------------------------------------------------------------
 // Main draw
 // ---------------------------------------------------------------------------
 void PanelInspector::draw(bool &opened)
@@ -936,6 +1119,8 @@ void PanelInspector::draw(bool &opened)
                     drawMeshImportSettings(gui, asset, manager);
                 else if (asset.fileType == "image")
                     drawImageImportSettings(gui, asset, manager);
+                else if (asset.fileType == "material")
+                    drawMaterialInspector(gui, asset, manager);
             }
             gui->windowEnd();
             if (!manager->projectOpened)

@@ -114,6 +114,10 @@ public:
     void createLight(kLightType type);
     void createCamera();
 
+    // --- Asset creation -----------------------------------------------------
+    void createNewMaterial();
+    void deleteAssets(const std::vector<fs::path> &paths);
+
     kString getCurrentDirPath();
 
     void openFolder(kString name);

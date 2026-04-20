@@ -58,6 +58,7 @@ class PanelProject
 			kString uuid;
 			ImTextureRef icon = nullptr;
 			int type = 0; // 0 - Folder, 1 - File
+			fs::path fullPath;
 
 			Node(const kString& n, const kString& g, ImTextureRef i = nullptr, int t = 0) : name(n), uuid(g), icon(i), type(t) {}
 		};
@@ -71,11 +72,14 @@ class PanelProject
 
 		ImTextureRef getThumbnailIcon(const kString& uuid, ImTextureRef defaultIcon);
 		void clearThumbnailCache();
+		void invalidateThumbnail(const kString& uuid);
 
 	public:
 	    PanelProject(kGuiManager* setGuiManager, Manager* setManager, kAssetManager* assetManager);
 
 	    void triggerRefresh() { needRefreshList = true; }
+
+	    kString pendingSelectUuid;
 
 		struct SelectedProjectAsset
 		{
@@ -102,6 +106,7 @@ class PanelProject
 		void refreshThumbnailList();
 		void drawThumbnailNode(const Node& currentDir);
 		void drawBreadcrumb();
+		void executeDeleteSelected();
 
 		Manager* manager;
 		kGuiManager* gui;

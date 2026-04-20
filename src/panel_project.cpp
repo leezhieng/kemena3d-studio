@@ -263,6 +263,14 @@ void PanelProject::drawProjectPanel(Node& rootTree, Node& rootThumbnail, bool* o
 		}
 
 		gui->spacing();
+
+		// Delete key shortcut
+		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) &&
+		    ImGui::IsKeyPressed(ImGuiKey_Delete) &&
+		    getProjectSelection().count > 0)
+		{
+			executeDeleteSelected();
+		}
 	}
 	gui->windowEnd();
 
@@ -278,8 +286,25 @@ void PanelProject::draw(bool& opened)
 			clearThumbnailCache();
 			refreshTreeList();
 			refreshThumbnailList();
-
 			needRefreshList = false;
+
+			if (!pendingSelectUuid.empty())
+			{
+				std::function<void(Node&)> sel = [&](Node& n) {
+					for (auto& child : n.children) {
+						if (child->uuid == pendingSelectUuid) child->isSelected = true;
+						sel(*child);
+					}
+				};
+				sel(displayThumbnail ? rootThumbnail : rootTree);
+
+				// Keep pending until thumbnail is stable so subsequent
+				// thumbnail-triggered refreshes don't erase the selection
+				fs::path thumbPath = manager->projectPath / "Library" / "Thumbnails"
+				                     / (pendingSelectUuid + ".png");
+				if (fs::exists(thumbPath))
+					pendingSelectUuid = "";
+			}
 		}
 
 		drawProjectPanel(rootTree, rootThumbnail, &opened);
@@ -293,6 +318,16 @@ void PanelProject::clearThumbnailCache()
 		if (entry.first) glDeleteTextures(1, &entry.first);
 	}
 	thumbnailCache.clear();
+}
+
+void PanelProject::invalidateThumbnail(const kString& uuid)
+{
+	auto it = thumbnailCache.find(uuid);
+	if (it != thumbnailCache.end())
+	{
+		if (it->second.first) glDeleteTextures(1, &it->second.first);
+		thumbnailCache.erase(it);
+	}
 }
 
 void PanelProject::refreshTreeList()
@@ -353,6 +388,18 @@ void PanelProject::drawTreeNode(Node& node, Node& rootTree, int level)
 		manager->selectedObject = nullptr;
 	}
 
+	if (ImGui::BeginPopupContextItem("##TreeCtx"))
+	{
+		if (!node.isSelected)
+		{
+			deselectAll(rootTree);
+			node.isSelected = true;
+		}
+		if (ImGui::MenuItem("Delete"))
+			executeDeleteSelected();
+		ImGui::EndPopup();
+	}
+
 	if (nodeOpen)
 	{
 		level++;
@@ -382,6 +429,7 @@ void PanelProject::populateTree(Node& parent, const fs::path& fullPath)
 							 iconFolder,
 							 0
 						 );
+			child->fullPath = entry.path();
 
 			// Recursively fill subfolder
 			populateTree(*child, entry.path());
@@ -426,12 +474,14 @@ void PanelProject::populateTree(Node& parent, const fs::path& fullPath)
 
 			icon = getThumbnailIcon(uuid, icon);
 
-			parent.children.emplace_back(std::make_unique<Node>(
+			auto fileNode = std::make_unique<Node>(
 											 entry.path().filename().string(),
 											 uuid,
 											 icon,
 											 1
-										 ));
+										 );
+			fileNode->fullPath = entry.path();
+			parent.children.emplace_back(std::move(fileNode));
 		}
 	}
 }
@@ -501,12 +551,14 @@ void PanelProject::refreshThumbnailList()
 					{
 						if (entry.is_directory())
 						{
-							rootThumbnail.children.emplace_back(std::make_unique<Node>(
+							auto folderNode = std::make_unique<Node>(
 																	entry.path().filename().string(),
 																	"Folder_" + entry.path().filename().string(),
 																	iconFolder,
 																	0
-																));
+																);
+							folderNode->fullPath = entry.path();
+							rootThumbnail.children.emplace_back(std::move(folderNode));
 						}
 					}
 				}
@@ -547,12 +599,14 @@ void PanelProject::refreshThumbnailList()
 
 							icon = getThumbnailIcon(uuid, icon);
 
-							rootThumbnail.children.emplace_back(std::make_unique<Node>(
+							auto thumbNode = std::make_unique<Node>(
 																	entry.path().filename().string(),
 																	uuid,
 																	icon,
 																	1
-																));
+																);
+							thumbNode->fullPath = entry.path();
+							rootThumbnail.children.emplace_back(std::move(thumbNode));
 						}
 						else
 						{
@@ -599,6 +653,7 @@ void PanelProject::drawThumbnailNode(const Node& currentDir)
 					child->isSelected = !child->isSelected || gui->isKeyShift();
 					manager->selectedObjects.clear();
 					manager->selectedObject = nullptr;
+					pendingSelectUuid = "";
 				}
 
 				// Handle double-click
@@ -617,6 +672,19 @@ void PanelProject::drawThumbnailNode(const Node& currentDir)
                     {
                         std::cout << "Double-clicked: " << child->uuid.c_str() << std::endl;
                     }
+				}
+
+				// Per-item right-click context menu
+				if (ImGui::BeginPopupContextItem("##ItemCtx"))
+				{
+					if (!child->isSelected)
+					{
+						deselectAll(rootThumbnail);
+						child->isSelected = true;
+					}
+					if (ImGui::MenuItem("Delete"))
+						executeDeleteSelected();
+					ImGui::EndPopup();
 				}
 
 				kString displayName = fitTextWithEllipsisUtf8(gui, child->name, columnWidth - 4.0f);
@@ -656,6 +724,18 @@ void PanelProject::drawThumbnailNode(const Node& currentDir)
 			gui->setCursorPosX(textX);
 			gui->text(text);
 		}
+
+		// Right-click context menu on empty space
+		if (ImGui::BeginPopupContextWindow("##ProjectContextMenu",
+		        ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
+		{
+			if (ImGui::MenuItem("Create New Material"))
+			{
+				manager->createNewMaterial();
+				needRefreshList = true;
+			}
+			ImGui::EndPopup();
+		}
 	}
 	else
 	{
@@ -665,6 +745,41 @@ void PanelProject::drawThumbnailNode(const Node& currentDir)
 		float textX = gui->getCursorPosX() + (columnWidth - textWidth) * 0.5f;
 		gui->setCursorPosX(textX);
 		gui->text(text);
+	}
+}
+
+void PanelProject::executeDeleteSelected()
+{
+	auto sel = getProjectSelection();
+	if (sel.count == 0) return;
+
+	std::string msg = (sel.count == 1)
+		? "Delete \"" + sel.name + "\"?\nThis action cannot be undone."
+		: "Delete " + std::to_string(sel.count) + " selected asset(s)?\nThis action cannot be undone.";
+
+	auto result = pfd::message("Confirm Delete", msg, pfd::choice::yes_no, pfd::icon::warning).result();
+	if (result != pfd::button::yes) return;
+
+	std::vector<fs::path> paths;
+
+	std::function<void(const Node&)> collect = [&](const Node& n) {
+		for (auto& child : n.children) {
+			if (child->isSelected) {
+				if (!child->fullPath.empty())
+					paths.push_back(child->fullPath);
+			} else {
+				collect(*child);
+			}
+		}
+	};
+
+	collect(displayThumbnail ? rootThumbnail : rootTree);
+
+	if (!paths.empty())
+	{
+		manager->deleteAssets(paths);
+		clearSelection();
+		needRefreshList = true;
 	}
 }
 

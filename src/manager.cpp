@@ -577,6 +577,13 @@ void Manager::checkAssetChange()
 					                        fileUuid, thumbnailPath, false, false });
 					anyChanges = true;
 				}
+
+				if (fileType == "material" && (!fs::exists(thumbnailPath) || needImport))
+				{
+					if (fs::exists(thumbnailPath)) fs::remove(thumbnailPath);
+					thumbnailQueue.push_back({ fileUuid, srcFullPath, thumbnailPath, "material" });
+					anyChanges = true;
+				}
 			}
 		}
 
@@ -891,6 +898,117 @@ void Manager::processThumbnailQueue(PanelConsole *console)
 		else if (panelProject != nullptr)
 			panelProject->triggerRefresh();
 
+		return;
+	}
+
+	// Material thumbnail — render a sphere with the material's shader
+	if (task.type == "material")
+	{
+		static const char *kPinkVS = R"(
+			#version 330 core
+			layout(location = 0) in vec3 aPosition;
+			uniform mat4 modelMatrix;
+			uniform mat4 viewMatrix;
+			uniform mat4 projectionMatrix;
+			void main() {
+				gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPosition, 1.0);
+			}
+		)";
+		static const char *kPinkFS = R"(
+			#version 330 core
+			out vec4 fragColor;
+			void main() { fragColor = vec4(1.0, 0.0, 1.0, 1.0); }
+		)";
+
+		nlohmann::json matJson;
+		{
+			std::ifstream f(task.srcPath);
+			if (!f.is_open())
+			{
+				console->addLog(LogLevel::Error,
+				    ("[Error] Material thumbnail: cannot open " + task.srcPath.generic_string()).c_str());
+				return;
+			}
+			try { f >> matJson; }
+			catch (...)
+			{
+				console->addLog(LogLevel::Error,
+				    ("[Error] Material thumbnail: invalid JSON in " + task.srcPath.generic_string()).c_str());
+				return;
+			}
+		}
+
+		kMesh *sphere = kMeshGenerator::generateSphere(1.0f, 32, 32);
+		if (!sphere) return;
+		sphere->calculateModelMatrix();
+
+		// Cached built-in shaders for material thumbnails (loaded once, owned by asset manager)
+		static kShader *s_shaderUnlit = nullptr;
+		static kShader *s_shaderPhong = nullptr;
+		static kShader *s_shaderPbr   = nullptr;
+		static kShader *s_shaderPink  = nullptr;
+
+		kAssetManager *am = getAssetManager();
+		kString shaderName = matJson.value("shader", "Phong");
+		kShader *shader = nullptr;
+
+		if (shaderName == "Unlit" && am) {
+			if (!s_shaderUnlit) s_shaderUnlit = am->loadShaderFromResource("SHADER_VERTEX_MESH", "SHADER_FRAGMENT_FLAT");
+			shader = s_shaderUnlit;
+		} else if (shaderName == "Phong" && am) {
+			if (!s_shaderPhong) s_shaderPhong = am->loadShaderFromResource("SHADER_VERTEX_MESH", "SHADER_FRAGMENT_PHONG");
+			shader = s_shaderPhong;
+		} else if (shaderName == "PBR" && am) {
+			if (!s_shaderPbr) s_shaderPbr = am->loadShaderFromResource("SHADER_VERTEX_MESH", "SHADER_FRAGMENT_PBR");
+			shader = s_shaderPbr;
+		}
+
+		// "Custom" or null/invalid → pink fallback
+		if (!shader || shader->getShaderProgram() == 0) {
+			if (!s_shaderPink) {
+				s_shaderPink = new kShader();
+				s_shaderPink->loadShadersCode(kPinkVS, kPinkFS);
+			}
+			shader = s_shaderPink;
+		}
+
+		kMaterial *mat = new kMaterial();
+		mat->setShader(shader);
+
+		// Apply colour properties from JSON
+		auto readVec3 = [&](const char *key, kVec3 def) -> kVec3 {
+			if (matJson.contains(key) && matJson[key].is_array() && matJson[key].size() >= 3)
+				return kVec3(matJson[key][0].get<float>(), matJson[key][1].get<float>(), matJson[key][2].get<float>());
+			return def;
+		};
+		mat->setDiffuseColor (readVec3("diffuse",  kVec3(1.0f)));
+		mat->setAmbientColor (readVec3("ambient",  kVec3(1.0f)));
+		mat->setSpecularColor(readVec3("specular", kVec3(1.0f)));
+		mat->setShininess(matJson.value("shininess", 32.0f));
+		mat->setMetallic (matJson.value("metallic",  0.0f));
+		mat->setRoughness(matJson.value("roughness", 0.5f));
+
+		sphere->setMaterial(mat);
+
+		bool saved = false;
+		try
+		{
+			thumbnailRenderer.setBackgroundColor(kVec4(42/255.0f, 42/255.0f, 42/255.0f, 1.0f));
+			thumbnailRenderer.renderMeshWithMaterial(sphere);
+			saved = thumbnailRenderer.saveToFile(task.thumbnailPath.generic_string());
+		}
+		catch (...) { saved = false; }
+
+		// Neither kMesh nor kMaterial take ownership, delete each separately
+		// shader is cached static — not deleted here
+		delete sphere;
+		delete mat;
+
+		if (!saved)
+			console->addLog(LogLevel::Error,
+			    ("[Error] Material thumbnail: failed to save " + task.thumbnailPath.generic_string()).c_str());
+		else if (panelProject != nullptr)
+			panelProject->triggerRefresh();
 		return;
 	}
 
@@ -1365,4 +1483,76 @@ void Manager::createCamera()
             if (panelHierarchy) panelHierarchy->refreshList();
         }
     );
+}
+
+// ---------------------------------------------------------------------------
+// Create New Material asset file
+// ---------------------------------------------------------------------------
+
+void Manager::createNewMaterial()
+{
+    if (!projectOpened) return;
+
+    fs::path dir = getCurrentDirPath();
+
+    kString baseName = "New Material";
+    fs::path filePath = dir / (baseName + ".mat");
+    int counter = 1;
+    while (fs::exists(filePath))
+    {
+        filePath = dir / (baseName + " " + std::to_string(counter) + ".mat");
+        counter++;
+    }
+
+    kString matUuid = generateUuid();
+
+    nlohmann::json mat;
+    mat["uuid"]      = matUuid;
+    mat["shader"]    = "Phong";
+    mat["diffuse"]   = { 1.0f, 1.0f, 1.0f };
+    mat["ambient"]   = { 1.0f, 1.0f, 1.0f };
+    mat["specular"]  = { 1.0f, 1.0f, 1.0f };
+    mat["shininess"] = 32.0f;
+    mat["metallic"]  = 0.0f;
+    mat["roughness"] = 0.5f;
+    mat["uv_tiling"] = { 1.0f, 1.0f };
+    mat["transparent"]  = 0;
+    mat["single_sided"] = true;
+    mat["cull_back"]    = true;
+    mat["texture_albedo"]             = "";
+    mat["texture_normal"]             = "";
+    mat["texture_metallic_roughness"] = "";
+    mat["texture_ao"]                 = "";
+    mat["texture_emissive"]           = "";
+
+    std::ofstream f(filePath);
+    if (!f.is_open())
+    {
+        std::cerr << "Failed to create material file: " << filePath << "\n";
+        return;
+    }
+    f << mat.dump(4);
+    f.close();
+
+    checkAssetChange();
+}
+
+void Manager::deleteAssets(const std::vector<fs::path> &paths)
+{
+    for (const auto &p : paths)
+    {
+        if (!fs::exists(p))
+            continue;
+
+        std::error_code ec;
+        if (fs::is_directory(p))
+            fs::remove_all(p, ec);
+        else
+            fs::remove(p, ec);
+
+        if (ec)
+            std::cerr << "Failed to delete " << p << ": " << ec.message() << "\n";
+    }
+
+    checkAssetChange();
 }
