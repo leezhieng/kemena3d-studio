@@ -1,0 +1,68 @@
+#version 330 core
+
+const int MAX_BONES         = 128;
+const int MAX_BONE_INFLUENCE = 4;
+
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
+uniform mat4 finalBonesMatrices[MAX_BONES];
+
+layout(location = 0) in vec3  vertexPosition;
+layout(location = 1) in vec3  vertexColor;
+layout(location = 2) in vec2  vertexTexCoord;
+layout(location = 3) in vec3  vertexNormal;
+layout(location = 4) in vec3  vertexTangent;
+layout(location = 5) in vec3  vertexBitangent;
+layout(location = 6) in ivec4 boneIDs;
+layout(location = 7) in vec4  weights;
+
+out vec2 v_texCoord;
+
+void main()
+{
+    vec4  totalPos    = vec4(vertexPosition, 1.0);
+    float totalWeight = 0.0;
+
+    for (int i = 0; i < MAX_BONE_INFLUENCE; i++)
+    {
+        int   boneID = boneIDs[i];
+        float weight = weights[i];
+        if (boneID < 0 || weight <= 0.0) continue;
+        if (boneID >= MAX_BONES) { totalPos = vec4(vertexPosition, 1.0); break; }
+        totalPos    += finalBonesMatrices[boneID] * vec4(vertexPosition, 1.0) * weight;
+        totalWeight += weight;
+    }
+    if (totalWeight == 0.0) totalPos = vec4(vertexPosition, 1.0);
+
+    v_texCoord  = vertexTexCoord;
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * totalPos;
+}
+
+// --- FRAGMENT ---
+
+#version 330 core
+
+struct Material {
+    vec2  tiling;
+    vec3  ambient;
+    vec3  diffuse;
+    vec3  specular;
+    float shininess;
+    float metallic;
+    float roughness;
+};
+uniform Material  material;
+uniform sampler2D albedoMap;
+uniform bool      has_albedoMap;
+
+in  vec2 v_texCoord;
+out vec4 fragColor;
+
+void main()
+{
+    vec4 albedo = has_albedoMap
+        ? texture(albedoMap, v_texCoord * material.tiling)
+        : vec4(1.0);
+    fragColor = vec4(material.diffuse, 1.0) * albedo;
+}

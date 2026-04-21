@@ -58,8 +58,14 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     $<$<BOOL:${KEMENA3D_LINK_STATIC}>:KEMENA3D_STATIC>
     $<$<BOOL:${KEMENA3D_LINK_STATIC}>:DKTX_STATIC>
-    NOMINMAX   # Prevent Windows.h from defining min/max macros
+    NOMINMAX
 )
+
+# assimp and Jolt are both built with /MD (MultiThreadedDLL); force /MD for the
+# whole studio link so CRT records match across all static dependencies.
+if(MSVC AND KEMENA3D_LINK_STATIC)
+    set_property(TARGET ${PROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
+endif()
 
 # Compiler flags – separated by toolchain
 if(MSVC)
@@ -72,6 +78,8 @@ if(MSVC)
     # entry point so the standard int main() is used instead.
     target_link_options(${PROJECT_NAME} PRIVATE
         $<$<CONFIG:Release>:/ENTRY:mainCRTStartup>
+        # Suppress LNK4098: some deps rebuilt with /MD still embed MSVCRTD as a default lib
+        $<$<AND:$<CONFIG:Debug>,$<BOOL:${KEMENA3D_LINK_STATIC}>>:/NODEFAULTLIB:msvcrtd>
     )
 else()
     # GCC / MinGW
@@ -127,8 +135,6 @@ if(MSVC)
         # Jolt Physics (MSVC build tree — not installed to SDK output)
         "$<$<CONFIG:Debug>:${KEMENA3D_SOURCE_DIR}/Dependencies/jolt/Build/build_Debug/Debug/Jolt.lib>"
         "$<$<CONFIG:Release>:${KEMENA3D_SOURCE_DIR}/Dependencies/jolt/Build/build_Release/Release/Jolt.lib>"
-        # Slang shader compiler (Release-only; handled by the SDK's own CMakeLists)
-        "$<$<CONFIG:Release>:${KEMENA3D_SOURCE_DIR}/Dependencies/slang/build_Release/dist/lib/slang.lib>"
     )
 else()
     # GCC / MinGW
@@ -149,8 +155,6 @@ else()
         "$<$<CONFIG:Release>:${KEMENA3D_SOURCE_DIR}/Dependencies/recast/dist/lib/Release/libDetour.a>"
         "$<$<CONFIG:Release>:${KEMENA3D_SOURCE_DIR}/Dependencies/recast/dist/lib/Release/libDetourCrowd.a>"
         "$<$<CONFIG:Release>:${KEMENA3D_SOURCE_DIR}/Dependencies/recast/dist/lib/Release/libDetourTileCache.a>"
-        # Slang shader compiler (Release-only; handled by the SDK's own CMakeLists)
-        "$<$<CONFIG:Release>:${KEMENA3D_SOURCE_DIR}/Dependencies/slang/build_Release/dist/lib/slang.lib>"
     )
 
     # MinGW-only linker flags: static runtime, strip symbols in Release
@@ -161,3 +165,4 @@ else()
         $<$<CONFIG:Release>:-s>
     )
 endif()
+

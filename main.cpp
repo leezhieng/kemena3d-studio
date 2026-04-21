@@ -71,7 +71,7 @@ int main()
 	}
 
 	// Default skybox
-	kShader *skyShader = assetManager->loadShaderFromResource("SHADER_VERTEX_SKYBOX", "SHADER_FRAGMENT_SKYBOX");
+	kShader *skyShader = assetManager->loadGlslFromResource("SHADER_SKYBOX");
 	kMaterial *skyMaterial = assetManager->createMaterial(skyShader);
 	kTextureCube *skyTexture = assetManager->loadTextureCubeFromResource("TEXTURE_SKYBOX_RIGHT",
 																		 "TEXTURE_SKYBOX_LEFT",
@@ -90,7 +90,7 @@ int main()
 	kMesh *gridMesh = kMeshGenerator::generatePlane();
 	sceneEditor->setFrustumCullingEnabled(false);
 	sceneEditor->addMesh(gridMesh);
-	kShader *gridShader = assetManager->loadShaderFromResource("SHADER_VERTEX_GRID", "SHADER_FRAGMENT_GRID");
+	kShader *gridShader = assetManager->loadGlslFromResource("SHADER_GRID");
 	kMaterial *gridMat = assetManager->createMaterial(gridShader);
 	gridMat->setTransparent(kTransparentType::TRANSP_TYPE_BLEND);
 	gridMat->setSingleSided(false);
@@ -100,7 +100,7 @@ int main()
 	cube->setName("Cube");
 	cube->setPosition(kVec3(0.0f, 1.0f, 0.0f));
 	scene->addMesh(cube);
-	kShader *cubeShader = assetManager->loadShaderFromResource("SHADER_VERTEX_MESH", "SHADER_FRAGMENT_PHONG");
+	kShader *cubeShader = assetManager->loadGlslFromResource("SHADER_MESH_PHONG");
 	kMaterial *cubeMaterial = assetManager->createMaterial(cubeShader);
 	cubeMaterial->setAmbientColor(kVec3(1.0f, 1.0f, 1.0f));
 	cubeMaterial->setDiffuseColor(kVec3(0.5f, 0.5f, 0.5f));
@@ -112,7 +112,7 @@ int main()
 	light->setPower(1.0f);
 	light->setName("Sun Light");
 
-	kShader *iconShader = assetManager->loadShaderFromResource("SHADER_VERTEX_ICON", "SHADER_FRAGMENT_ICON");
+	kShader *iconShader = assetManager->loadGlslFromResource("SHADER_ICON");
 	kMaterial *materialIconSun = assetManager->createMaterial(iconShader);
 	kTexture2D *textureIconSun = assetManager->loadTexture2DFromResource("GIZMO_SUN_LIGHT", "albedoMap", kTextureFormat::TEX_FORMAT_RGBA);
 	materialIconSun->addTexture(textureIconSun);

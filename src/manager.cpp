@@ -953,13 +953,13 @@ void Manager::processThumbnailQueue(PanelConsole *console)
 		kShader *shader = nullptr;
 
 		if (shaderName == "Unlit" && am) {
-			if (!s_shaderUnlit) s_shaderUnlit = am->loadShaderFromResource("SHADER_VERTEX_MESH", "SHADER_FRAGMENT_FLAT");
+			if (!s_shaderUnlit) s_shaderUnlit = am->loadGlslFromResource("SHADER_MESH_FLAT");
 			shader = s_shaderUnlit;
 		} else if (shaderName == "Phong" && am) {
-			if (!s_shaderPhong) s_shaderPhong = am->loadShaderFromResource("SHADER_VERTEX_MESH", "SHADER_FRAGMENT_PHONG");
+			if (!s_shaderPhong) s_shaderPhong = am->loadGlslFromResource("SHADER_MESH_PHONG");
 			shader = s_shaderPhong;
 		} else if (shaderName == "PBR" && am) {
-			if (!s_shaderPbr) s_shaderPbr = am->loadShaderFromResource("SHADER_VERTEX_MESH", "SHADER_FRAGMENT_PBR");
+			if (!s_shaderPbr) s_shaderPbr = am->loadGlslFromResource("SHADER_MESH_PBR");
 			shader = s_shaderPbr;
 		}
 
@@ -1148,7 +1148,7 @@ static void collectUuids(kObject *node, std::vector<kString> &out, kObject **fir
 // Apply a Phong material to a mesh.
 static void applyDefaultMaterial(kMesh *mesh, kAssetManager *am)
 {
-    kShader   *shader = am->loadShaderFromResource("SHADER_VERTEX_MESH", "SHADER_FRAGMENT_PHONG");
+    kShader   *shader = am->loadGlslFromResource("SHADER_MESH_PHONG");
     kMaterial *mat    = am->createMaterial(shader);
     mat->setAmbientColor(kVec3(1.0f, 1.0f, 1.0f));
     mat->setDiffuseColor(kVec3(0.5f, 0.5f, 0.5f));
@@ -1158,7 +1158,7 @@ static void applyDefaultMaterial(kMesh *mesh, kAssetManager *am)
 // Apply a gizmo icon material to a light.
 static void applyLightIcon(kLight *light, kAssetManager *am, const char *gizmoResource)
 {
-    kShader    *shader = am->loadShaderFromResource("SHADER_VERTEX_ICON", "SHADER_FRAGMENT_ICON");
+    kShader    *shader = am->loadGlslFromResource("SHADER_ICON");
     kMaterial  *mat    = am->createMaterial(shader);
     kTexture2D *tex    = am->loadTexture2DFromResource(gizmoResource, "albedoMap",
                                                         kTextureFormat::TEX_FORMAT_RGBA);
