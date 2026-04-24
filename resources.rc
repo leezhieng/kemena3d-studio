@@ -1,5 +1,10 @@
 APP_ICON ICON "res/icons/app.ico"
 
+// Splash screen images
+IMAGE_SPLASH            RCDATA "res/images/splash.png"
+IMAGE_KEMENA_LOGO       RCDATA "res/images/kemena_logo.png"
+IMAGE_KEMENA_LOGO_INV   RCDATA "res/images/kemena_logo_inv.png"
+
 // Layout
 LAYOUT_DEFAULT RCDATA "res/layout.ini"
 

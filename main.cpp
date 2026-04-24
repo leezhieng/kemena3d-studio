@@ -8,6 +8,8 @@
 #include "panel_hierarchy.h"
 #include "panel_project.h"
 #include "panel_console.h"
+#include "panel_shader_editor.h"
+#include "splash_screen.h"
 
 #include "imgui_internal.h" // <-- required for ImGuiSettingsHandler
 
@@ -55,6 +57,17 @@ int main()
 	PanelProject *panelProject = new PanelProject(gui, manager, assetManager);
 	PanelHierarchy *panelHierarchy = new PanelHierarchy(gui, manager, assetManager, world);
 	PanelConsole *panelConsole = new PanelConsole(gui, manager);
+	PanelShaderEditor *panelShaderEditor = new PanelShaderEditor(gui, manager);
+
+	// Route .shader double-clicks from the project panel to the shader editor
+	panelProject->onFileDoubleClicked = [&](const std::string& path)
+	{
+		if (path.size() >= 7 && path.substr(path.size() - 7) == ".shader")
+		{
+			showPanel.shaderEditor = true;
+			panelShaderEditor->openFile(path);
+		}
+	};
 
 	// Load default editor layout from embedded resource
 	mainmenu->registerPanelStateHandler();
@@ -130,6 +143,9 @@ int main()
 	bool altPressed = false;
 	bool ctrlPressed = false;
 	bool shiftPressed = false;
+
+	// Splash screen (shown at startup until a project is chosen or dismissed)
+	SplashScreen* splashScreen = new SplashScreen(gui, assetManager, manager);
 
 	// Game loop
 	kSystemEvent event;
@@ -394,11 +410,14 @@ int main()
 
 		mainmenu->draw(window, showPanel);
 
+		manager->shaderPreview.active = showPanel.shaderEditor;
+
 		panelWorld->draw(showPanel.world, renderer, cameraEditor);
 		panelInspector->draw(showPanel.inspector);
 		panelHierarchy->draw(showPanel.hierarchy);
 		panelProject->draw(showPanel.project);
 		panelConsole->draw(showPanel.console);
+		panelShaderEditor->draw(showPanel.shaderEditor);
 
 		// If there's a need to import assets
 		manager->drawImportPopup(panelConsole);
@@ -406,12 +425,18 @@ int main()
 			gui->openPopup("Importing Assets...");
 
 		gui->dockSpaceEnd();
+
+		if (showSplashScreen) { splashScreen->show(); showSplashScreen = false; }
+		if (splashScreen->isOpen())
+			splashScreen->draw();
+
 		gui->canvasEnd();
 
 		window->swap();
 	}
 
 	// Clean up
+	delete splashScreen;
 	gui->destroy();
 	renderer->destroy();
 	window->destroy();

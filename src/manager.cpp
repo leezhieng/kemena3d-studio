@@ -64,6 +64,8 @@ Manager::Manager(kWindow* setWindow, kWorld* setWorld, kRenderer* setRenderer)
 		exePath.clear();
 		baseDir = fs::current_path().string(); // fallback
 	}
+
+	loadRecentProjects();
 }
 
 Manager::~Manager() = default;
@@ -181,6 +183,8 @@ bool Manager::newProject()
 	if (panelHierarchy != nullptr)
 		panelHierarchy->refreshList();
 
+	addRecentProject(projectPath.string());
+
 	return true;
 }
 
@@ -290,7 +294,106 @@ bool Manager::openProject()
 	if (panelHierarchy != nullptr)
 		panelHierarchy->refreshList();
 
+	addRecentProject(projectPath.string());
+
 	return true;
+}
+
+bool Manager::openProjectFromPath(const kString& path)
+{
+	if (path.empty()) return false;
+
+	fs::path fullPath = fs::path(path);
+
+	if (!fs::exists(fullPath) || !fs::is_directory(fullPath))
+		return false;
+
+	if (!(fs::exists(fullPath / "Assets") &&
+		  fs::exists(fullPath / "Library") &&
+		  fs::exists(fullPath / "Config")))
+		return false;
+
+	projectName   = fullPath.filename().string();
+	projectOpened = true;
+	projectSaved  = false;
+	refreshWindowTitle();
+
+	if (!renderer->getEnableObjectPicking())
+		renderer->setEnableObjectPicking(true);
+
+	projectPath = path;
+	currentDir.clear();
+	currentDir.push_back("Assets");
+
+	std::error_code ec;
+	fs::create_directories(fullPath / "Assets", ec);
+
+	if (!fs::exists(fullPath / "Library" / "Metadata"))
+		fs::create_directories(fullPath / "Library" / "Metadata", ec);
+	if (!fs::exists(fullPath / "Library" / "Thumbnails"))
+		fs::create_directories(fullPath / "Library" / "Thumbnails", ec);
+	if (!fs::exists(fullPath / "Library" / "ImportedAssets"))
+		fs::create_directories(fullPath / "Library" / "ImportedAssets", ec);
+
+	showingMessageBox = false;
+	checkAssetChange();
+
+	if (panelProject != nullptr)
+	{
+		panelProject->refreshTreeList();
+		panelProject->refreshThumbnailList();
+	}
+
+	if (panelHierarchy != nullptr)
+		panelHierarchy->refreshList();
+
+	addRecentProject(path);
+
+	return true;
+}
+
+void Manager::loadRecentProjects()
+{
+	fs::path configFile = fs::path(baseDir) / "recent_projects.json";
+	if (!fs::exists(configFile)) return;
+
+	try
+	{
+		std::ifstream f(configFile);
+		json j = json::parse(f);
+		recentProjects.clear();
+		for (auto& entry : j["projects"])
+			recentProjects.push_back(entry.get<std::string>());
+	}
+	catch (...) {}
+}
+
+void Manager::saveRecentProjects()
+{
+	fs::path configFile = fs::path(baseDir) / "recent_projects.json";
+
+	try
+	{
+		json j;
+		j["projects"] = recentProjects;
+		std::ofstream f(configFile);
+		f << j.dump(4);
+	}
+	catch (...) {}
+}
+
+void Manager::addRecentProject(const kString& path)
+{
+	auto it = std::find(recentProjects.begin(), recentProjects.end(), path);
+	if (it != recentProjects.end())
+		recentProjects.erase(it);
+
+	recentProjects.insert(recentProjects.begin(), path);
+
+	if (recentProjects.size() > 8)
+		recentProjects.resize(8);
+
+	saveRecentProjects();
 }
 
 void Manager::checkAssetChange()

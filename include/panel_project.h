@@ -13,6 +13,7 @@
 #include <memory>
 #include <algorithm>
 #include <filesystem>
+#include <functional>
 #include <unordered_map>
 
 using namespace kemena;
@@ -78,6 +79,9 @@ class PanelProject
 	    PanelProject(kGuiManager* setGuiManager, Manager* setManager, kAssetManager* assetManager);
 
 	    void triggerRefresh() { needRefreshList = true; }
+
+	    // Called when a file is double-clicked; receives the full filesystem path
+	    std::function<void(const std::string&)> onFileDoubleClicked;
 
 	    kString pendingSelectUuid;
 

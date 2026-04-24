@@ -670,7 +670,8 @@ void PanelProject::drawThumbnailNode(const Node& currentDir)
                     }
                     else
                     {
-                        std::cout << "Double-clicked: " << child->uuid.c_str() << std::endl;
+                        if (onFileDoubleClicked)
+                            onFileDoubleClicked(child->fullPath.string());
                     }
 				}
 

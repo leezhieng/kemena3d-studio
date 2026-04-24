@@ -24,6 +24,8 @@ set(SOURCES
     src/panel_inspector.cpp
     src/panel_project.cpp
     src/panel_world.cpp
+    src/panel_shader_editor.cpp
+    src/splash_screen.cpp
     src/util.cpp
     resources.rc
 )

@@ -1,8 +1,19 @@
 #include "panel_inspector.h"
 #include "panel_project.h"
 #include "commands.h"
+#include <fstream>
+#include <filesystem>
+#include <algorithm>
+#include <cmath>
+#include <regex>
+#include <GL/glew.h>
 
 using namespace kemena;
+namespace fs = std::filesystem;
+
+// Forward declarations for file-local helpers used by drawShaderPreview()
+static bool beginPropTable(kGuiManager* gui, const char* id);
+static void propLabel(kGuiManager* gui, const char* label);
 
 PanelInspector::PanelInspector(kGuiManager *setGuiManager, Manager *setManager)
 {
@@ -35,6 +46,846 @@ PanelInspector::PanelInspector(kGuiManager *setGuiManager, Manager *setManager)
     iconFileOther    = loadIcon("ICON_OTHER_FILE");
 }
 
+PanelInspector::~PanelInspector()
+{
+    delete previewRenderer;
+    for (auto* t : previewDefaultTextures) delete t;
+    delete previewShader;
+    delete previewMat;
+    delete previewCamera;
+    delete previewWorld;   // owns previewScene, previewMesh, previewLight
+
+    delete modelViewRenderer;
+    delete modelViewCamera;
+    delete modelViewWorld;  // owns modelViewScene, modelViewLight (not modelViewMesh — AM-owned)
+    for (auto* m : modelViewDefaultMats) delete m;
+
+    delete matViewMat;
+    delete matViewRenderer;
+    delete matViewCamera;
+    delete matViewWorld;  // owns matViewScene, matViewMesh, matViewLight
+}
+
+// ---------------------------------------------------------------------------
+// Shader preview helpers
+// ---------------------------------------------------------------------------
+
+void PanelInspector::initPreviewScene()
+{
+    if (previewScene) return;
+
+    previewWorld = createWorld(createAssetManager());
+    previewScene = previewWorld->createScene("preview");
+    previewScene->setFrustumCullingEnabled(false);
+    previewScene->setAmbientLightColor(kVec3(0.08f, 0.08f, 0.08f));
+
+    previewMesh = kMeshGenerator::generateSphere(1.0f, 32, 32);
+    previewScene->addMesh(previewMesh);
+
+    previewLight = previewScene->addSunLight(
+        kVec3(0.0f, 3.0f, 0.0f),
+        kVec3(-0.5f, -1.0f, -0.5f),
+        kVec3(1.0f, 1.0f, 1.0f),
+        kVec3(1.0f, 1.0f, 1.0f));
+    previewLight->setPower(1.5f);
+
+    previewCamera = new kCamera(nullptr, kCameraType::CAMERA_TYPE_LOCKED);
+    previewCamera->setFOV(45.0f);
+    previewCamera->setAspectRatio(1.0f);
+    previewCamera->setNearClip(0.1f);
+    previewCamera->setFarClip(100.0f);
+    previewCamera->setLookAt(kVec3(0.0f, 0.0f, 0.0f));
+    previewCamera->setPosition(kVec3(0.0f, 0.3f, 3.0f));
+}
+
+void PanelInspector::updatePreviewLight()
+{
+    if (!previewLight || !previewScene) return;
+    if (!lightEnabled)
+    {
+        previewLight->setPower(0.0f);
+        previewScene->setAmbientLightColor(kVec3(0.5f, 0.5f, 0.5f));
+        return;
+    }
+    previewLight->setPower(1.5f);
+    previewScene->setAmbientLightColor(kVec3(0.08f, 0.08f, 0.08f));
+
+    // Renderer reads sun light direction from the object's rotation, not setDirection()
+    previewLight->setRotation(kVec3(lightPitch, lightYaw, 0.0f));
+}
+
+void PanelInspector::loadPreviewParams(const std::string& uuid)
+{
+    // Reset to defaults
+    prevDiffuse[0] = prevDiffuse[1] = prevDiffuse[2] = 1.0f;
+    prevSpecular[0] = prevSpecular[1] = prevSpecular[2] = 1.0f;
+    prevShininess = 32.0f;
+    prevMetallic  = 0.0f;
+    prevRoughness = 0.5f;
+
+    if (uuid.empty()) return;
+    try
+    {
+        fs::path p = fs::path(manager->baseDir) / "shader_preview_params.json";
+        if (!fs::exists(p)) return;
+        std::ifstream f(p);
+        if (!f.is_open()) return;
+        nlohmann::json j; f >> j;
+        if (!j.contains(uuid)) return;
+        auto& s = j[uuid];
+        if (s.contains("diffuse") && s["diffuse"].is_array() && s["diffuse"].size() >= 3)
+        { prevDiffuse[0] = s["diffuse"][0]; prevDiffuse[1] = s["diffuse"][1]; prevDiffuse[2] = s["diffuse"][2]; }
+        if (s.contains("specular") && s["specular"].is_array() && s["specular"].size() >= 3)
+        { prevSpecular[0] = s["specular"][0]; prevSpecular[1] = s["specular"][1]; prevSpecular[2] = s["specular"][2]; }
+        if (s.contains("shininess")) prevShininess = s["shininess"].get<float>();
+        if (s.contains("metallic"))  prevMetallic  = s["metallic"].get<float>();
+        if (s.contains("roughness")) prevRoughness = s["roughness"].get<float>();
+    }
+    catch (...) {}
+}
+
+void PanelInspector::savePreviewParams(const std::string& uuid)
+{
+    if (uuid.empty()) return;
+    try
+    {
+        fs::path p = fs::path(manager->baseDir) / "shader_preview_params.json";
+        nlohmann::json j;
+        if (fs::exists(p))
+        {
+            std::ifstream f(p);
+            if (f.is_open()) { try { f >> j; } catch (...) {} }
+        }
+        j[uuid]["diffuse"]   = { prevDiffuse[0],  prevDiffuse[1],  prevDiffuse[2]  };
+        j[uuid]["specular"]  = { prevSpecular[0], prevSpecular[1], prevSpecular[2] };
+        j[uuid]["shininess"] = prevShininess;
+        j[uuid]["metallic"]  = prevMetallic;
+        j[uuid]["roughness"] = prevRoughness;
+        std::ofstream f(p);
+        if (f.is_open()) f << j.dump(4);
+    }
+    catch (...) {}
+}
+
+void PanelInspector::applyPreviewParams()
+{
+    if (!previewMat) return;
+    previewMat->setDiffuseColor (kVec3(prevDiffuse[0],  prevDiffuse[1],  prevDiffuse[2]));
+    previewMat->setAmbientColor (kVec3(prevDiffuse[0] * 0.08f, prevDiffuse[1] * 0.08f, prevDiffuse[2] * 0.08f));
+    previewMat->setSpecularColor(kVec3(prevSpecular[0], prevSpecular[1], prevSpecular[2]));
+    previewMat->setShininess(prevShininess);
+    previewMat->setMetallic (prevMetallic);
+    previewMat->setRoughness(prevRoughness);
+}
+
+void PanelInspector::rebuildPreviewShader()
+{
+    for (auto* t : previewDefaultTextures) delete t;
+    previewDefaultTextures.clear();
+    delete previewShader;
+    delete previewMat;
+    previewShader = nullptr;
+    previewMat    = nullptr;
+    prevValid     = false;
+
+    if (prevGlsl.empty()) return;
+
+    initPreviewScene();
+    if (!previewMesh) return;
+
+    previewShader = new kShader();
+    previewShader->loadGlslCode(prevGlsl);
+    if (previewShader->getShaderProgram() == 0)
+    {
+        delete previewShader;
+        previewShader = nullptr;
+        return;
+    }
+
+    previewMat = new kMaterial();
+    previewMat->setShader(previewShader);
+    applyPreviewParams();
+
+    // Bind a 1×1 white placeholder for every sampler2D in the shader so that
+    // stale GL texture units from the main scene render don't bleed through.
+    static const uint8_t white[4] = { 255, 255, 255, 255 };
+    std::regex re(R"(uniform\s+sampler2D\s+(\w+)\s*;)");
+    std::sregex_iterator it(prevGlsl.begin(), prevGlsl.end(), re);
+    for (; it != std::sregex_iterator(); ++it)
+    {
+        const std::string samplerName = (*it)[1].str();
+
+        GLuint texId = 0;
+        glGenTextures(1, &texId);
+        glBindTexture(GL_TEXTURE_2D, texId);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, white);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        kTexture2D* t = new kTexture2D();
+        t->setTextureID(texId);
+        t->setTextureName(samplerName);
+        t->setType(kTextureType::TEX_TYPE_2D);
+        previewDefaultTextures.push_back(t);
+        previewMat->addTexture(t);
+    }
+
+    previewMesh->setMaterial(previewMat);
+    prevValid = true;
+}
+
+void PanelInspector::drawShaderPreview()
+{
+    if (!previewRenderer)
+        previewRenderer = new kOffscreenRenderer(256, 256);
+
+    initPreviewScene();
+
+    const auto& ps = manager->shaderPreview;
+
+    // UUID changed: save old params, load new, invalidate shader
+    if (ps.uuid != prevUuid)
+    {
+        if (!prevUuid.empty()) savePreviewParams(prevUuid);
+        prevUuid = ps.uuid;
+        loadPreviewParams(prevUuid);
+        prevGlsl.clear();
+        prevValid = false;
+    }
+
+    // GLSL changed: rebuild shader/material
+    if (!ps.glslSource.empty() && ps.glslSource != prevGlsl)
+    {
+        prevGlsl = ps.glslSource;
+        rebuildPreviewShader();
+    }
+
+    // Update light direction / state every frame
+    updatePreviewLight();
+
+    // Render offscreen (only when shader is valid)
+    if (prevValid && previewScene && previewCamera && previewRenderer)
+    {
+        applyPreviewParams();
+        previewRenderer->render(previewWorld, previewScene, previewCamera);
+    }
+
+    // -----------------------------------------------------------------------
+    // Header
+    // -----------------------------------------------------------------------
+    gui->textDisabled("Shader Preview");
+    if (!ps.shaderType.empty())
+    {
+        ImGui::SameLine(0, 6.0f);
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.40f, 0.80f, 0.45f, 1.0f));
+        ImGui::Text("(%s)", ps.shaderType.c_str());
+        ImGui::PopStyleColor();
+    }
+    gui->spacing();
+
+    // -----------------------------------------------------------------------
+    // Preview area
+    // -----------------------------------------------------------------------
+    float avail = ImGui::GetWindowWidth()
+                - ImGui::GetStyle().WindowPadding.x * 2.0f
+                - ImGui::GetStyle().ScrollbarSize;
+    float sz    = std::min(std::max(avail, 1.0f), 256.0f);
+    float ox    = std::max((avail - sz) * 0.5f, 0.0f);
+
+    ImDrawList* dl = ImGui::GetWindowDrawList();
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ox);
+    ImVec2 screenPos = ImGui::GetCursorScreenPos();
+
+    // Draw rendered image or placeholder via DrawList (doesn't advance cursor)
+    if (prevValid && previewRenderer)
+    {
+        dl->AddImage((ImTextureID)(uintptr_t)previewRenderer->getTexture(),
+                     screenPos, ImVec2(screenPos.x + sz, screenPos.y + sz));
+    }
+    else
+    {
+        dl->AddRectFilled(screenPos, ImVec2(screenPos.x + sz, screenPos.y + sz),
+                          IM_COL32(28, 28, 32, 255));
+        dl->AddRect(screenPos, ImVec2(screenPos.x + sz, screenPos.y + sz),
+                    IM_COL32(60, 60, 75, 200));
+        const char* msg = ps.glslSource.empty()
+            ? "Compile shader to preview" : "Shader compile error";
+        ImVec2 ts = ImGui::CalcTextSize(msg);
+        dl->AddText(
+            ImVec2(screenPos.x + (sz - ts.x) * 0.5f,
+                   screenPos.y + (sz - ts.y) * 0.5f),
+            IM_COL32(110, 115, 140, 200), msg);
+    }
+
+    // InvisibleButton advances cursor and captures mouse so IsItemActive() works for drag
+    ImGui::InvisibleButton("##shaderPreview", ImVec2(sz, sz),
+        ImGuiButtonFlags_MouseButtonRight);
+    ImVec2 imgMax = ImVec2(screenPos.x + sz, screenPos.y + sz);
+
+    // clip=false bypasses window clipping rect so hover is reliable regardless of scroll position
+    bool pvHovered = ImGui::IsMouseHoveringRect(screenPos, imgMax, false);
+    if (pvHovered)
+        ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
+
+    // -----------------------------------------------------------------------
+    // Light-bulb toggle button (top-right corner of preview)
+    // -----------------------------------------------------------------------
+    const float btR   = 11.0f;
+    const float btPad =  7.0f;
+    ImVec2 btCenter = ImVec2(imgMax.x - btR - btPad, screenPos.y + btR + btPad);
+    bool   btHover  = ImGui::IsMouseHoveringRect(
+        ImVec2(btCenter.x - btR, btCenter.y - btR),
+        ImVec2(btCenter.x + btR, btCenter.y + btR), false);
+
+    // Background shadow + fill
+    ImU32 btFg = lightEnabled
+        ? (btHover ? IM_COL32(255, 235, 100, 255) : IM_COL32(245, 215, 60,  220))
+        : (btHover ? IM_COL32(140, 140, 155, 255) : IM_COL32(80,  80,  95,  200));
+    dl->AddCircleFilled(btCenter, btR,        IM_COL32(15, 15, 20, 190));
+    dl->AddCircleFilled(btCenter, btR - 1.5f, btFg);
+
+    // Bulb icon: circle (globe) + two horizontal base lines
+    float  bx = btCenter.x, by = btCenter.y;
+    ImU32  bulbInk = IM_COL32(25, 18, 5, lightEnabled ? 230 : 160);
+    dl->AddCircle(ImVec2(bx, by - 1.0f), 4.5f, bulbInk, 10, 1.3f);
+    dl->AddLine(ImVec2(bx - 3.0f, by + 5.0f), ImVec2(bx + 3.0f, by + 5.0f), bulbInk, 1.3f);
+    dl->AddLine(ImVec2(bx - 2.5f, by + 7.0f), ImVec2(bx + 2.5f, by + 7.0f), bulbInk, 1.3f);
+
+    if (btHover && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        lightEnabled = !lightEnabled;
+    if (btHover)
+        ImGui::SetTooltip("%s", lightEnabled ? "Disable preview lighting" : "Enable preview lighting");
+
+    // -----------------------------------------------------------------------
+    // Drag to rotate light (RMB held on preview, outside the bulb button)
+    // -----------------------------------------------------------------------
+    // IsItemActive() is reliable because InvisibleButton captures the mouse press,
+    // preventing the window from stealing the drag for scrolling.
+    if (ImGui::IsItemActive() && ImGui::IsMouseDown(ImGuiMouseButton_Right) && !btHover && !isDraggingLight)
+        isDraggingLight = true;
+    if (!ImGui::IsMouseDown(ImGuiMouseButton_Right))
+        isDraggingLight = false;
+    if (isDraggingLight)
+    {
+        ImVec2 delta = ImGui::GetIO().MouseDelta;
+        lightYaw   += delta.x * 0.015f;
+        lightPitch -= delta.y * 0.015f;
+        lightPitch  = std::clamp(lightPitch, -89.0f, 89.0f);
+    }
+
+    gui->spacing();
+    gui->separator();
+    gui->spacing();
+
+    // -----------------------------------------------------------------------
+    // Preview parameters
+    // -----------------------------------------------------------------------
+    const std::string& type = ps.shaderType;
+    bool changed = false;
+
+    if (gui->collapsingHeader("Preview Parameters", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        if (!beginPropTable(gui, "ShaderPrevTable")) return;
+
+        if (type == "Flat")
+        {
+            propLabel(gui, "Color");
+            if (ImGui::ColorEdit3("##PrevFlatColor", prevDiffuse)) changed = true;
+        }
+        else
+        {
+            propLabel(gui, "Albedo");
+            if (ImGui::ColorEdit3("##PrevAlbedo", prevDiffuse)) changed = true;
+        }
+
+        if (type == "Phong")
+        {
+            propLabel(gui, "Specular");
+            if (ImGui::ColorEdit3("##PrevSpec", prevSpecular)) changed = true;
+            propLabel(gui, "Shininess");
+            if (ImGui::DragFloat("##PrevShine", &prevShininess, 0.5f, 0.0f, 512.0f)) changed = true;
+        }
+        else if (type == "PBR" || type.empty())
+        {
+            propLabel(gui, "Metallic");
+            if (ImGui::DragFloat("##PrevMetal", &prevMetallic, 0.01f, 0.0f, 1.0f)) changed = true;
+            propLabel(gui, "Roughness");
+            if (ImGui::DragFloat("##PrevRough", &prevRoughness, 0.01f, 0.0f, 1.0f)) changed = true;
+        }
+
+        gui->tableEnd();
+    }
+
+    if (changed)
+        savePreviewParams(prevUuid);
+}
+
+// ---------------------------------------------------------------------------
+// Model viewer
+// ---------------------------------------------------------------------------
+
+void PanelInspector::initModelViewScene()
+{
+    if (modelViewScene) return;
+
+    modelViewWorld = createWorld(createAssetManager());
+    modelViewScene = modelViewWorld->createScene("modelViewer");
+    modelViewScene->setFrustumCullingEnabled(false);
+    modelViewScene->setAmbientLightColor(kVec3(0.08f, 0.08f, 0.08f));
+
+    modelViewLight = modelViewScene->addSunLight(
+        kVec3(0.0f, 3.0f, 0.0f),
+        kVec3(-0.5f, -1.0f, -0.5f),
+        kVec3(1.0f, 1.0f, 1.0f),
+        kVec3(1.0f, 1.0f, 1.0f));
+    modelViewLight->setPower(1.5f);
+
+    modelViewCamera = new kCamera(nullptr, kCameraType::CAMERA_TYPE_LOCKED);
+    modelViewCamera->setFOV(45.0f);
+    modelViewCamera->setAspectRatio(1.0f);
+    modelViewCamera->setNearClip(0.1f);
+    modelViewCamera->setFarClip(500.0f);
+    modelViewCamera->setLookAt(kVec3(0.0f));
+    modelViewCamera->setPosition(kVec3(0.0f, 0.3f, 3.0f));
+}
+
+void PanelInspector::updateModelViewLight()
+{
+    if (!modelViewLight || !modelViewScene) return;
+    if (!modelViewLightEnabled)
+    {
+        modelViewLight->setPower(0.0f);
+        return;
+    }
+    modelViewLight->setPower(1.5f);
+    modelViewScene->setAmbientLightColor(kVec3(0.08f, 0.08f, 0.08f));
+    modelViewLight->setRotation(kVec3(modelViewLightPitch, modelViewLightYaw, 0.0f));
+}
+
+void PanelInspector::frameModelViewCamera()
+{
+    if (!modelViewMesh || !modelViewCamera) return;
+
+    // Compute AABB using the mesh's loaded state (no rotation reset — matches thumbnail)
+    kAABB combined;
+    std::function<void(kMesh*)> expand = [&](kMesh* m) {
+        m->calculateModelMatrix();
+        kAABB b = m->getWorldAABB();
+        if (b.isValid()) { combined.expandBy(b.min); combined.expandBy(b.max); }
+        for (kObject* c : m->getChildren())
+            if (c->getType() == kNodeType::NODE_TYPE_MESH)
+                expand(static_cast<kMesh*>(c));
+    };
+    expand(modelViewMesh);
+
+    modelViewCenter = combined.isValid() ? combined.center()      : kVec3(0.0f);
+    kVec3 he        = combined.isValid() ? combined.halfExtents() : kVec3(1.0f);
+    float radius    = glm::length(he);
+    if (radius < 0.001f) radius = 1.0f;
+
+    float fov = 45.0f;
+    modelViewCamDist = (radius / glm::tan(glm::radians(fov * 0.5f))) * 1.1f;
+    kVec3 dir = glm::normalize(kVec3(0.5f, 0.5f, 1.0f));
+    float heAlong = std::abs(dir.x) * he.x + std::abs(dir.y) * he.y + std::abs(dir.z) * he.z;
+
+    modelViewCamera->setFOV(fov);
+    modelViewCamera->setNearClip(std::max(0.001f, modelViewCamDist - heAlong - radius * 0.05f));
+    modelViewCamera->setFarClip(modelViewCamDist + heAlong + radius * 0.05f);
+    // Camera position set per-frame via orbit update in drawModelViewer
+}
+
+void PanelInspector::applyDefaultMaterial(kMesh* mesh, kShader* defaultShader)
+{
+    if (!mesh || !defaultShader) return;
+    kMaterial* mat = mesh->getMaterial();
+    if (!mat || !mat->getShader() || mat->getShader()->getShaderProgram() == 0)
+    {
+        kMaterial* def = new kMaterial();
+        def->setShader(defaultShader);
+        def->setDiffuseColor(kVec3(1.0f));
+        def->setAmbientColor(kVec3(1.0f));
+        def->setSpecularColor(kVec3(1.0f));
+        def->setShininess(32.0f);
+        mesh->setMaterial(def, false);  // false = don't override children
+        modelViewDefaultMats.push_back(def);
+    }
+    for (kObject* child : mesh->getChildren())
+        if (child->getType() == kNodeType::NODE_TYPE_MESH)
+            applyDefaultMaterial(static_cast<kMesh*>(child), defaultShader);
+}
+
+void PanelInspector::drawModelViewer(const PanelProject::SelectedProjectAsset& asset)
+{
+    if (!modelViewRenderer)
+        modelViewRenderer = new kOffscreenRenderer(256, 256);
+
+    initModelViewScene();
+
+    // Reload mesh when selection changes
+    if (asset.uuid != modelViewUuid)
+    {
+        modelViewUuid          = asset.uuid;
+        modelViewLightEnabled  = false;
+        modelViewRotX          =  24.09f;
+        modelViewRotY          =  26.57f;
+        modelViewLightYaw      =  45.0f;
+        modelViewLightPitch    =  60.0f;
+        isDraggingMVLight      = false;
+        isDraggingMVModel      = false;
+
+        if (modelViewMesh && modelViewScene)
+            modelViewScene->removeMesh(modelViewMesh);
+        modelViewMesh = nullptr;
+        for (auto* m : modelViewDefaultMats) delete m;
+        modelViewDefaultMats.clear();
+
+        if (!asset.uuid.empty() && manager->getAssetManager())
+        {
+            fs::path glbPath = manager->projectPath
+                / "Library" / "ImportedAssets" / (asset.uuid + ".glb");
+            if (fs::exists(glbPath))
+            {
+                kAssetManager* am = manager->getAssetManager();
+                modelViewMesh = am->loadMesh(glbPath.generic_string());
+                if (modelViewMesh)
+                {
+                    kShader* defShader = am->loadGlslFromResource("SHADER_MESH_PHONG");
+                    applyDefaultMaterial(modelViewMesh, defShader);
+                    modelViewScene->addMesh(modelViewMesh);
+                    frameModelViewCamera();
+                }
+            }
+        }
+    }
+
+    // Orbit camera around modelViewCenter — mesh stays fixed at its loaded transform
+    if (modelViewCamera)
+    {
+        float pr = glm::radians(modelViewRotX);
+        float yr = glm::radians(modelViewRotY);
+        kVec3 camDir(std::cos(pr) * std::sin(yr),
+                     std::sin(pr),
+                     std::cos(pr) * std::cos(yr));
+        modelViewCamera->setPosition(modelViewCenter + camDir * modelViewCamDist);
+        modelViewCamera->setLookAt(modelViewCenter);
+    }
+
+    updateModelViewLight();
+
+    // Render offscreen
+    if (modelViewMesh && modelViewCamera && modelViewRenderer)
+    {
+        modelViewRenderer->setBackgroundColor(kVec4(42/255.0f, 42/255.0f, 42/255.0f, 1.0f));
+        if (modelViewLightEnabled)
+            modelViewRenderer->render(modelViewWorld, modelViewScene, modelViewCamera);
+        else
+            modelViewRenderer->renderMesh(modelViewMesh, modelViewCamera);
+    }
+
+    // -----------------------------------------------------------------------
+    // Layout
+    // -----------------------------------------------------------------------
+    float avail = ImGui::GetWindowWidth()
+                - ImGui::GetStyle().WindowPadding.x * 2.0f
+                - ImGui::GetStyle().ScrollbarSize;
+    float sz    = std::min(std::max(avail, 1.0f), 256.0f);
+    float ox    = std::max((avail - sz) * 0.5f, 0.0f);
+
+    ImDrawList* dl = ImGui::GetWindowDrawList();
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ox);
+    ImVec2 screenPos = ImGui::GetCursorScreenPos();
+
+    if (modelViewMesh && modelViewRenderer)
+    {
+        dl->AddImage((ImTextureID)(uintptr_t)modelViewRenderer->getTexture(),
+                     screenPos, ImVec2(screenPos.x + sz, screenPos.y + sz),
+                     ImVec2(0, 1), ImVec2(1, 0));
+    }
+    else
+    {
+        dl->AddRectFilled(screenPos, ImVec2(screenPos.x + sz, screenPos.y + sz),
+                          IM_COL32(28, 28, 32, 255));
+        const char* msg = "No preview available";
+        ImVec2 ts = ImGui::CalcTextSize(msg);
+        dl->AddText(ImVec2(screenPos.x + (sz - ts.x) * 0.5f,
+                           screenPos.y + (sz - ts.y) * 0.5f),
+                    IM_COL32(110, 115, 140, 200), msg);
+    }
+
+    // InvisibleButton captures mouse for both LMB and RMB drag
+    ImGui::InvisibleButton("##modelViewer", ImVec2(sz, sz),
+        ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
+    ImVec2 imgMax = ImVec2(screenPos.x + sz, screenPos.y + sz);
+
+    bool pvHovered = ImGui::IsItemHovered();
+    if (pvHovered || ImGui::IsItemActive())
+        ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
+
+    // -----------------------------------------------------------------------
+    // Light-bulb toggle (top-right corner)
+    // -----------------------------------------------------------------------
+    const float btR   = 11.0f;
+    const float btPad =  7.0f;
+    ImVec2 btCenter = ImVec2(imgMax.x - btR - btPad, screenPos.y + btR + btPad);
+    bool   btHover  = ImGui::IsMouseHoveringRect(
+        ImVec2(btCenter.x - btR, btCenter.y - btR),
+        ImVec2(btCenter.x + btR, btCenter.y + btR), false);
+
+    ImU32 btFg = modelViewLightEnabled
+        ? (btHover ? IM_COL32(255, 235, 100, 255) : IM_COL32(245, 215, 60,  220))
+        : (btHover ? IM_COL32(140, 140, 155, 255) : IM_COL32(80,  80,  95,  200));
+    dl->AddCircleFilled(btCenter, btR,        IM_COL32(15, 15, 20, 190));
+    dl->AddCircleFilled(btCenter, btR - 1.5f, btFg);
+
+    float  bx = btCenter.x, by = btCenter.y;
+    ImU32  bulbInk = IM_COL32(25, 18, 5, modelViewLightEnabled ? 230 : 160);
+    dl->AddCircle(ImVec2(bx, by - 1.0f), 4.5f, bulbInk, 10, 1.3f);
+    dl->AddLine(ImVec2(bx - 3.0f, by + 5.0f), ImVec2(bx + 3.0f, by + 5.0f), bulbInk, 1.3f);
+    dl->AddLine(ImVec2(bx - 2.5f, by + 7.0f), ImVec2(bx + 2.5f, by + 7.0f), bulbInk, 1.3f);
+
+    if (btHover && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        modelViewLightEnabled = !modelViewLightEnabled;
+    if (btHover)
+        ImGui::SetTooltip("%s", modelViewLightEnabled ? "Disable preview lighting" : "Enable preview lighting");
+
+    // -----------------------------------------------------------------------
+    // Left-click drag = rotate model
+    // -----------------------------------------------------------------------
+    if (ImGui::IsItemActive() && ImGui::IsMouseDown(ImGuiMouseButton_Left) && !btHover && !isDraggingMVModel)
+        isDraggingMVModel = true;
+    if (!ImGui::IsMouseDown(ImGuiMouseButton_Left))
+        isDraggingMVModel = false;
+
+    if (isDraggingMVModel)
+    {
+        ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
+        ImVec2 delta = ImGui::GetIO().MouseDelta;
+        modelViewRotY -= delta.x * 0.5f;
+        modelViewRotX += delta.y * 0.5f;
+        modelViewRotX  = std::clamp(modelViewRotX, -89.0f, 89.0f);
+    }
+
+    // -----------------------------------------------------------------------
+    // Right-click drag = move light
+    // -----------------------------------------------------------------------
+    if (ImGui::IsItemActive() && ImGui::IsMouseDown(ImGuiMouseButton_Right) && !isDraggingMVLight)
+        isDraggingMVLight = true;
+    if (!ImGui::IsMouseDown(ImGuiMouseButton_Right))
+        isDraggingMVLight = false;
+
+    if (isDraggingMVLight)
+    {
+        ImVec2 delta = ImGui::GetIO().MouseDelta;
+        modelViewLightYaw   += delta.x * 0.015f;
+        modelViewLightPitch -= delta.y * 0.015f;
+        modelViewLightPitch  = std::clamp(modelViewLightPitch, -89.0f, 89.0f);
+    }
+
+    gui->spacing();
+    gui->separator();
+    gui->spacing();
+}
+
+// ---------------------------------------------------------------------------
+// Material viewer
+// ---------------------------------------------------------------------------
+
+void PanelInspector::initMatViewScene()
+{
+    if (matViewScene) return;
+
+    matViewWorld = createWorld(createAssetManager());
+    matViewScene = matViewWorld->createScene("matViewer");
+    matViewScene->setFrustumCullingEnabled(false);
+    matViewScene->setAmbientLightColor(kVec3(0.08f, 0.08f, 0.08f));
+
+    matViewLight = matViewScene->addSunLight(
+        kVec3(0.0f, 3.0f, 0.0f),
+        kVec3(-0.5f, -1.0f, -0.5f),
+        kVec3(1.0f, 1.0f, 1.0f),
+        kVec3(1.0f, 1.0f, 1.0f));
+    matViewLight->setPower(1.5f);
+
+    matViewMesh = kMeshGenerator::generateSphere(1.0f, 32, 32);
+    matViewScene->addMesh(matViewMesh);
+
+    matViewCamera = new kCamera(nullptr, kCameraType::CAMERA_TYPE_LOCKED);
+    matViewCamera->setFOV(45.0f);
+    matViewCamera->setAspectRatio(1.0f);
+    matViewCamera->setNearClip(0.1f);
+    matViewCamera->setFarClip(100.0f);
+    matViewCamera->setLookAt(kVec3(0.0f));
+    matViewCamera->setPosition(kVec3(0.0f, 0.3f, 3.0f));
+}
+
+void PanelInspector::updateMatViewLight()
+{
+    if (!matViewLight || !matViewScene) return;
+    if (!matViewLightEnabled)
+    {
+        matViewLight->setPower(0.0f);
+        matViewScene->setAmbientLightColor(kVec3(0.5f, 0.5f, 0.5f));
+        return;
+    }
+    matViewLight->setPower(1.5f);
+    matViewScene->setAmbientLightColor(kVec3(0.08f, 0.08f, 0.08f));
+    matViewLight->setRotation(kVec3(matViewLightPitch, matViewLightYaw, 0.0f));
+}
+
+void PanelInspector::rebuildMatViewMaterial(const nlohmann::json& matJson)
+{
+    delete matViewMat;
+    matViewMat = nullptr;
+    if (!matViewMesh) return;
+    if (!matJson.is_object()) return;
+
+    kAssetManager* am = manager->getAssetManager();
+    kString shaderName = matJson.value("shader", "Phong");
+    kShader* shader = nullptr;
+
+    if (am)
+    {
+        if      (shaderName == "Unlit") shader = am->loadGlslFromResource("SHADER_MESH_FLAT");
+        else if (shaderName == "Phong") shader = am->loadGlslFromResource("SHADER_MESH_PHONG");
+        else if (shaderName == "PBR")   shader = am->loadGlslFromResource("SHADER_MESH_PBR");
+    }
+    if (!shader || shader->getShaderProgram() == 0) return;
+
+    auto readVec3 = [&](const char* key, kVec3 def) -> kVec3 {
+        if (matJson.contains(key) && matJson[key].is_array() && matJson[key].size() >= 3)
+            return kVec3(matJson[key][0].get<float>(), matJson[key][1].get<float>(), matJson[key][2].get<float>());
+        return def;
+    };
+
+    matViewMat = new kMaterial();
+    matViewMat->setShader(shader);
+    matViewMat->setDiffuseColor (readVec3("diffuse",  kVec3(1.0f)));
+    matViewMat->setAmbientColor (readVec3("ambient",  kVec3(1.0f)));
+    matViewMat->setSpecularColor(readVec3("specular", kVec3(1.0f)));
+    matViewMat->setShininess(matJson.value("shininess", 32.0f));
+    matViewMat->setMetallic (matJson.value("metallic",  0.0f));
+    matViewMat->setRoughness(matJson.value("roughness", 0.5f));
+
+    matViewMesh->setMaterial(matViewMat);
+}
+
+void PanelInspector::drawMaterialViewer(const PanelProject::SelectedProjectAsset& asset)
+{
+    if (!matViewRenderer)
+        matViewRenderer = new kOffscreenRenderer(256, 256);
+
+    initMatViewScene();
+
+    // Rebuild when the inspector's live JSON changes (UUID change or any property edit)
+    bool uuidChanged = (matInspUuid != matViewUuid);
+    if (uuidChanged)
+    {
+        matViewLightYaw     =  45.0f;
+        matViewLightPitch   =  60.0f;
+        matViewLightEnabled = true;
+        isDraggingMatLight  = false;
+        matViewUuid         = matInspUuid;
+    }
+    if ((uuidChanged || matInspVersion != matViewVersion) && !matInspUuid.empty())
+    {
+        matViewVersion = matInspVersion;
+        rebuildMatViewMaterial(matInspJson);
+    }
+
+    updateMatViewLight();
+
+    if (matViewMat && matViewScene && matViewCamera && matViewRenderer)
+    {
+        matViewRenderer->setBackgroundColor(kVec4(42/255.0f, 42/255.0f, 42/255.0f, 1.0f));
+        matViewRenderer->render(matViewWorld, matViewScene, matViewCamera);
+    }
+
+    // -----------------------------------------------------------------------
+    // Layout
+    // -----------------------------------------------------------------------
+    float avail = ImGui::GetWindowWidth()
+                - ImGui::GetStyle().WindowPadding.x * 2.0f
+                - ImGui::GetStyle().ScrollbarSize;
+    float sz    = std::min(std::max(avail, 1.0f), 256.0f);
+    float ox    = std::max((avail - sz) * 0.5f, 0.0f);
+
+    ImDrawList* dl = ImGui::GetWindowDrawList();
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ox);
+    ImVec2 screenPos = ImGui::GetCursorScreenPos();
+
+    if (matViewMat && matViewRenderer)
+    {
+        dl->AddImage((ImTextureID)(uintptr_t)matViewRenderer->getTexture(),
+                     screenPos, ImVec2(screenPos.x + sz, screenPos.y + sz));
+    }
+    else
+    {
+        dl->AddRectFilled(screenPos, ImVec2(screenPos.x + sz, screenPos.y + sz),
+                          IM_COL32(28, 28, 32, 255));
+        const char* msg = "No preview available";
+        ImVec2 ts = ImGui::CalcTextSize(msg);
+        dl->AddText(ImVec2(screenPos.x + (sz - ts.x) * 0.5f,
+                           screenPos.y + (sz - ts.y) * 0.5f),
+                    IM_COL32(110, 115, 140, 200), msg);
+    }
+
+    ImGui::InvisibleButton("##matViewer", ImVec2(sz, sz),
+        ImGuiButtonFlags_MouseButtonRight);
+    ImVec2 imgMax = ImVec2(screenPos.x + sz, screenPos.y + sz);
+
+    bool pvHovered = ImGui::IsItemHovered();
+    if (pvHovered || ImGui::IsItemActive())
+        ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
+
+    // -----------------------------------------------------------------------
+    // Light-bulb toggle (top-right corner)
+    // -----------------------------------------------------------------------
+    const float btR   = 11.0f;
+    const float btPad =  7.0f;
+    ImVec2 btCenter = ImVec2(imgMax.x - btR - btPad, screenPos.y + btR + btPad);
+    bool   btHover  = ImGui::IsMouseHoveringRect(
+        ImVec2(btCenter.x - btR, btCenter.y - btR),
+        ImVec2(btCenter.x + btR, btCenter.y + btR), false);
+
+    ImU32 btFg = matViewLightEnabled
+        ? (btHover ? IM_COL32(255, 235, 100, 255) : IM_COL32(245, 215, 60,  220))
+        : (btHover ? IM_COL32(140, 140, 155, 255) : IM_COL32(80,  80,  95,  200));
+    dl->AddCircleFilled(btCenter, btR,        IM_COL32(15, 15, 20, 190));
+    dl->AddCircleFilled(btCenter, btR - 1.5f, btFg);
+
+    float  bx = btCenter.x, by = btCenter.y;
+    ImU32  bulbInk = IM_COL32(25, 18, 5, matViewLightEnabled ? 230 : 160);
+    dl->AddCircle(ImVec2(bx, by - 1.0f), 4.5f, bulbInk, 10, 1.3f);
+    dl->AddLine(ImVec2(bx - 3.0f, by + 5.0f), ImVec2(bx + 3.0f, by + 5.0f), bulbInk, 1.3f);
+    dl->AddLine(ImVec2(bx - 2.5f, by + 7.0f), ImVec2(bx + 2.5f, by + 7.0f), bulbInk, 1.3f);
+
+    if (btHover && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        matViewLightEnabled = !matViewLightEnabled;
+    if (btHover)
+        ImGui::SetTooltip("%s", matViewLightEnabled ? "Disable preview lighting" : "Enable preview lighting");
+
+    // -----------------------------------------------------------------------
+    // Right-click drag = move light
+    // -----------------------------------------------------------------------
+    if (ImGui::IsItemActive() && ImGui::IsMouseDown(ImGuiMouseButton_Right) && !btHover && !isDraggingMatLight)
+        isDraggingMatLight = true;
+    if (!ImGui::IsMouseDown(ImGuiMouseButton_Right))
+        isDraggingMatLight = false;
+
+    if (isDraggingMatLight)
+    {
+        ImVec2 delta = ImGui::GetIO().MouseDelta;
+        matViewLightYaw   += delta.x * 0.015f;
+        matViewLightPitch -= delta.y * 0.015f;
+        matViewLightPitch  = std::clamp(matViewLightPitch, -89.0f, 89.0f);
+    }
+
+    gui->spacing();
+    gui->separator();
+    gui->spacing();
+}
+
 ImTextureRef PanelInspector::getFileTypeIcon(const kString &fileType) const
 {
     if (fileType == "mesh")     return iconFileModel;
@@ -52,7 +903,7 @@ ImTextureRef PanelInspector::getFileTypeIcon(const kString &fileType) const
 static void drawInlineIcon(ImTextureRef icon, const char *tooltip = nullptr, float size = 16.0f)
 {
     if (icon == nullptr) return;
-    float pad = (ImGui::GetTextLineHeight() - size) * 0.5f;
+    float pad = (ImGui::GetFrameHeight() - size) * 0.5f;
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + pad);
     ImGui::Image(icon, ImVec2(size, size));
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() - pad);
@@ -905,25 +1756,19 @@ static void saveMaterialJson(const fs::path &srcPath, const nlohmann::json &j)
     if (f.is_open()) f << j.dump(4);
 }
 
-static void drawMaterialInspector(kGuiManager *gui,
-                                  const PanelProject::SelectedProjectAsset &asset,
-                                  Manager *mgr)
+void PanelInspector::drawMaterialInspector(const PanelProject::SelectedProjectAsset& asset)
 {
-    static kString      lastUuid;
-    static nlohmann::json matJson;
-    static bool         dirty = false;
-
-    // Reload when selection changes
-    if (asset.uuid != lastUuid)
+    // Reload from file when selection changes
+    if (asset.uuid != matInspUuid)
     {
-        lastUuid = asset.uuid;
-        dirty    = false;
-        // srcPath is in Assets/, not Library/Metadata/
+        matInspUuid  = asset.uuid;
+        matInspDirty = false;
         fs::path srcPath;
-        auto it = mgr->fileMap.find(asset.uuid);
-        if (it != mgr->fileMap.end())
-            srcPath = mgr->projectPath / "Assets" / it->second.path;
-        loadMaterialJson(srcPath, matJson);
+        auto it = manager->fileMap.find(asset.uuid);
+        if (it != manager->fileMap.end())
+            srcPath = manager->projectPath / "Assets" / it->second.path;
+        loadMaterialJson(srcPath, matInspJson);
+        ++matInspVersion;
     }
 
     if (!gui->collapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen))
@@ -931,101 +1776,100 @@ static void drawMaterialInspector(kGuiManager *gui,
     if (!beginPropTable(gui, "MatTable"))
         return;
 
+    auto changed = [&]() { matInspDirty = true; ++matInspVersion; };
+
     // --- Shader ---
     {
         propLabel(gui, "Shader");
         static const char *kShaderOptions[] = { "Unlit", "Phong", "PBR", "Custom" };
-        kString current = matJson.value("shader", "Phong");
-        int selected = 1; // default: Phong
+        kString current = matInspJson.value("shader", "Phong");
+        int selected = 1;
         for (int i = 0; i < 4; i++)
             if (current == kShaderOptions[i]) { selected = i; break; }
         if (ImGui::Combo("##MatShader", &selected, kShaderOptions, 4))
-        {
-            matJson["shader"] = kString(kShaderOptions[selected]);
-            dirty = true;
-        }
+        { matInspJson["shader"] = kString(kShaderOptions[selected]); changed(); }
     }
 
     // --- Diffuse ---
     {
         propLabel(gui, "Diffuse");
         float c[3] = {1,1,1};
-        if (matJson.contains("diffuse") && matJson["diffuse"].is_array() && matJson["diffuse"].size() >= 3)
-        { c[0] = matJson["diffuse"][0]; c[1] = matJson["diffuse"][1]; c[2] = matJson["diffuse"][2]; }
+        if (matInspJson.contains("diffuse") && matInspJson["diffuse"].is_array() && matInspJson["diffuse"].size() >= 3)
+        { c[0] = matInspJson["diffuse"][0]; c[1] = matInspJson["diffuse"][1]; c[2] = matInspJson["diffuse"][2]; }
         if (ImGui::ColorEdit3("##MatDiff", c))
-        { matJson["diffuse"] = {c[0], c[1], c[2]}; dirty = true; }
+        { matInspJson["diffuse"] = {c[0], c[1], c[2]}; changed(); }
     }
 
     // --- Ambient ---
     {
         propLabel(gui, "Ambient");
         float c[3] = {1,1,1};
-        if (matJson.contains("ambient") && matJson["ambient"].is_array() && matJson["ambient"].size() >= 3)
-        { c[0] = matJson["ambient"][0]; c[1] = matJson["ambient"][1]; c[2] = matJson["ambient"][2]; }
+        if (matInspJson.contains("ambient") && matInspJson["ambient"].is_array() && matInspJson["ambient"].size() >= 3)
+        { c[0] = matInspJson["ambient"][0]; c[1] = matInspJson["ambient"][1]; c[2] = matInspJson["ambient"][2]; }
         if (ImGui::ColorEdit3("##MatAmb", c))
-        { matJson["ambient"] = {c[0], c[1], c[2]}; dirty = true; }
+        { matInspJson["ambient"] = {c[0], c[1], c[2]}; changed(); }
     }
 
     // --- Specular ---
     {
         propLabel(gui, "Specular");
         float c[3] = {1,1,1};
-        if (matJson.contains("specular") && matJson["specular"].is_array() && matJson["specular"].size() >= 3)
-        { c[0] = matJson["specular"][0]; c[1] = matJson["specular"][1]; c[2] = matJson["specular"][2]; }
+        if (matInspJson.contains("specular") && matInspJson["specular"].is_array() && matInspJson["specular"].size() >= 3)
+        { c[0] = matInspJson["specular"][0]; c[1] = matInspJson["specular"][1]; c[2] = matInspJson["specular"][2]; }
         if (ImGui::ColorEdit3("##MatSpec", c))
-        { matJson["specular"] = {c[0], c[1], c[2]}; dirty = true; }
+        { matInspJson["specular"] = {c[0], c[1], c[2]}; changed(); }
     }
 
     // --- Shininess ---
     {
         propLabel(gui, "Shininess");
-        float v = matJson.value("shininess", 32.0f);
+        float v = matInspJson.value("shininess", 32.0f);
         if (ImGui::DragFloat("##MatShine", &v, 0.5f, 0.0f, 512.0f))
-        { matJson["shininess"] = v; dirty = true; }
+        { matInspJson["shininess"] = v; changed(); }
     }
 
     // --- Metallic ---
     {
         propLabel(gui, "Metallic");
-        float v = matJson.value("metallic", 0.0f);
+        float v = matInspJson.value("metallic", 0.0f);
         if (ImGui::DragFloat("##MatMetal", &v, 0.01f, 0.0f, 1.0f))
-        { matJson["metallic"] = v; dirty = true; }
+        { matInspJson["metallic"] = v; changed(); }
     }
 
     // --- Roughness ---
     {
         propLabel(gui, "Roughness");
-        float v = matJson.value("roughness", 0.5f);
+        float v = matInspJson.value("roughness", 0.5f);
         if (ImGui::DragFloat("##MatRough", &v, 0.01f, 0.0f, 1.0f))
-        { matJson["roughness"] = v; dirty = true; }
+        { matInspJson["roughness"] = v; changed(); }
     }
 
     // --- UV Tiling ---
     {
         propLabel(gui, "UV Tiling");
         float t[2] = {1,1};
-        if (matJson.contains("uv_tiling") && matJson["uv_tiling"].is_array() && matJson["uv_tiling"].size() >= 2)
-        { t[0] = matJson["uv_tiling"][0]; t[1] = matJson["uv_tiling"][1]; }
+        if (matInspJson.contains("uv_tiling") && matInspJson["uv_tiling"].is_array() && matInspJson["uv_tiling"].size() >= 2)
+        { t[0] = matInspJson["uv_tiling"][0]; t[1] = matInspJson["uv_tiling"][1]; }
         if (ImGui::DragFloat2("##MatUV", t, 0.01f, 0.0f, 100.0f))
-        { matJson["uv_tiling"] = {t[0], t[1]}; dirty = true; }
+        { matInspJson["uv_tiling"] = {t[0], t[1]}; changed(); }
     }
 
     // --- Single Sided ---
     {
         propLabel(gui, "Single Sided");
-        bool v = matJson.value("single_sided", true);
+        bool v = matInspJson.value("single_sided", true);
         if (ImGui::Checkbox("##MatSingle", &v))
-        { matJson["single_sided"] = v; dirty = true; }
+        { matInspJson["single_sided"] = v; changed(); }
     }
 
     // --- Textures ---
     auto textureField = [&](const char *label, const char *key) {
         propLabel(gui, label);
         char buf[256] = {};
-        kString sv = matJson.value(key, "");
+        kString sv = matInspJson.value(key, "");
         strncpy_s(buf, sizeof(buf), sv.c_str(), _TRUNCATE);
         if (ImGui::InputText((kString("##") + key).c_str(), buf, sizeof(buf)))
-        { matJson[key] = kString(buf); dirty = true; }
+        { matInspJson[key] = kString(buf); changed(); }
     };
     textureField("Albedo",      "texture_albedo");
     textureField("Normal",      "texture_normal");
@@ -1036,32 +1880,38 @@ static void drawMaterialInspector(kGuiManager *gui,
     gui->tableEnd();
     gui->spacing();
 
-    bool wasDisabled = !dirty;
+    bool wasDisabled = !matInspDirty;
     if (wasDisabled) gui->beginDisabled(true);
     float btnW = (gui->getContentRegionAvail().x - 4.0f) * 0.5f;
     if (ImGui::Button("Apply##Mat", ImVec2(btnW, 0)))
     {
-        auto it = mgr->fileMap.find(asset.uuid);
-        if (it != mgr->fileMap.end())
+        auto it = manager->fileMap.find(asset.uuid);
+        if (it != manager->fileMap.end())
         {
-            fs::path srcPath = mgr->projectPath / "Assets" / it->second.path;
-            saveMaterialJson(srcPath, matJson);
-            dirty = false;
-            fs::path thumbPath = mgr->projectPath / "Library" / "Thumbnails" / (asset.uuid + ".png");
+            fs::path srcPath = manager->projectPath / "Assets" / it->second.path;
+            saveMaterialJson(srcPath, matInspJson);
+            matInspDirty = false;
+            fs::path thumbPath = manager->projectPath / "Library" / "Thumbnails" / (asset.uuid + ".png");
             if (fs::exists(thumbPath)) fs::remove(thumbPath);
-            mgr->checkAssetChange();
-            if (mgr->panelProject)
+            manager->checkAssetChange();
+            if (manager->panelProject)
             {
-                mgr->panelProject->pendingSelectUuid = asset.uuid;
-                mgr->panelProject->triggerRefresh();
+                manager->panelProject->pendingSelectUuid = asset.uuid;
+                manager->panelProject->triggerRefresh();
             }
         }
     }
     gui->sameLine(0, 4.0f);
     if (ImGui::Button("Revert##Mat", ImVec2(btnW, 0)))
     {
-        lastUuid = ""; // force reload next frame
-        dirty = false;
+        // Reload from file, broadcast new version so preview reverts too
+        fs::path srcPath;
+        auto it = manager->fileMap.find(asset.uuid);
+        if (it != manager->fileMap.end())
+            srcPath = manager->projectPath / "Assets" / it->second.path;
+        loadMaterialJson(srcPath, matInspJson);
+        matInspDirty = false;
+        ++matInspVersion;
     }
     if (wasDisabled) gui->endDisabled();
 }
@@ -1073,6 +1923,15 @@ void PanelInspector::draw(bool &opened)
 {
     if (!opened)
         return;
+
+    // Shader editor active: take over the inspector with preview (always interactive)
+    if (manager->shaderPreview.active)
+    {
+        gui->windowStart("Inspector", &opened);
+        drawShaderPreview();
+        gui->windowEnd();
+        return;
+    }
 
     if (!manager->projectOpened)
         gui->beginDisabled(true);
@@ -1112,7 +1971,12 @@ void PanelInspector::draw(bool &opened)
             gui->spacing();
             gui->separator();
             gui->spacing();
-            drawAssetThumbnail(gui, asset);
+            if (!asset.isFolder && asset.fileType == "mesh")
+                drawModelViewer(asset);
+            else if (!asset.isFolder && asset.fileType == "material")
+                drawMaterialViewer(asset);
+            else
+                drawAssetThumbnail(gui, asset);
             if (!asset.isFolder)
             {
                 if (asset.fileType == "mesh")
@@ -1120,7 +1984,7 @@ void PanelInspector::draw(bool &opened)
                 else if (asset.fileType == "image")
                     drawImageImportSettings(gui, asset, manager);
                 else if (asset.fileType == "material")
-                    drawMaterialInspector(gui, asset, manager);
+                    drawMaterialInspector(asset);
             }
             gui->windowEnd();
             if (!manager->projectOpened)

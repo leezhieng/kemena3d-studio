@@ -21,12 +21,14 @@ struct ShowPanel
 	bool hierarchy = true;
 	bool console = true;
 	bool project = true;
+	bool shaderEditor = false;
 };
 
 inline ShowPanel showPanel;
 inline ImGuiSettingsHandler ini_handler;
 inline bool isReloadLayout = false;
 inline kString layoutFileName = "layout.ini";
+inline bool showSplashScreen = false;
 
 class MainMenu
 {

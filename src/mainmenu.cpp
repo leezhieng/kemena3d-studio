@@ -133,7 +133,7 @@ void MainMenu::draw(kWindow* window, ShowPanel& showPanel)
 		}
 
 		// Object Menu
-		if (gui->menu("Object"))
+		if (ImGui::BeginMenu("Object", manager->projectOpened))
 		{
 			if (gui->menuItem("Create Scene", "", false, manager->projectOpened))
 				manager->createSceneObject();
@@ -171,7 +171,7 @@ void MainMenu::draw(kWindow* window, ShowPanel& showPanel)
 			if (gui->menuItem("Camera", "", false, manager->projectOpened))
 				manager->createCamera();
 
-			gui->menuEnd();
+			ImGui::EndMenu();
 		}
 
 		// Component Menu
@@ -189,7 +189,7 @@ void MainMenu::draw(kWindow* window, ShowPanel& showPanel)
 		// Window menu
 		if (gui->menu("Window"))
 		{
-			if (gui->menu("General"))
+			if (ImGui::BeginMenu("General", manager->projectOpened))
 			{
 				if (gui->menuItem("Inspector", "", showPanel.inspector))
 					showPanel.inspector = !showPanel.inspector;
@@ -200,13 +200,13 @@ void MainMenu::draw(kWindow* window, ShowPanel& showPanel)
 				if (gui->menuItem("Project", "", showPanel.project))
 					showPanel.project = !showPanel.project;
 
-				//if (gui->menuItem("Script", "", showScript))
-				//showScript = !showScript;
-
 				if (gui->menuItem("Console", "", showPanel.console))
 					showPanel.console = !showPanel.console;
 
-				gui->menuEnd();
+				if (gui->menuItem("Shader Editor", "", showPanel.shaderEditor))
+					showPanel.shaderEditor = !showPanel.shaderEditor;
+
+				ImGui::EndMenu();
 			}
 
 			//if (gui->menuItem("Rendering", "", showRendering))
@@ -223,7 +223,7 @@ void MainMenu::draw(kWindow* window, ShowPanel& showPanel)
 
 			gui->separator();
 
-			if (gui->menu("Workspace"))
+			if (ImGui::BeginMenu("Workspace", manager->projectOpened))
 			{
 				if (gui->menuItem("Save", ""))
 				{
@@ -265,7 +265,7 @@ void MainMenu::draw(kWindow* window, ShowPanel& showPanel)
 					layoutFileName = "layout.ini";
 				}
 
-				gui->menuEnd();
+				ImGui::EndMenu();
 			}
 
 			gui->menuEnd();
@@ -275,6 +275,7 @@ void MainMenu::draw(kWindow* window, ShowPanel& showPanel)
 		if (gui->menu("Help"))
 		{
 			if (gui->menuItem("About", "")) {}
+			if (gui->menuItem("Splash Screen", "")) { showSplashScreen = true; }
 			gui->separator();
 			if (gui->menuItem("Manual", "")) { SDL_OpenURL("https://kemena3d.com/manual"); }
 			if (gui->menuItem("Scripting Reference", "")) {}
@@ -311,6 +312,8 @@ void MainMenu::readLine(ImGuiContext*, ImGuiSettingsHandler*, void*, const char*
 		showPanel.console = (tmp != 0);
 	else if (sscanf_s(line, "ProjectOpened=%d", &tmp) == 1)
 		showPanel.project = (tmp != 0);
+	else if (sscanf_s(line, "ShaderEditorOpened=%d", &tmp) == 1)
+		showPanel.shaderEditor = (tmp != 0);
 }
 
 void MainMenu::writeAll(ImGuiContext*, ImGuiSettingsHandler*, ImGuiTextBuffer* out_buf)
@@ -321,6 +324,7 @@ void MainMenu::writeAll(ImGuiContext*, ImGuiSettingsHandler*, ImGuiTextBuffer* o
 	out_buf->appendf("HierarchyOpened=%d\n", showPanel.hierarchy ? 1 : 0);
 	out_buf->appendf("ConsoleOpened=%d\n", showPanel.console ? 1 : 0);
 	out_buf->appendf("ProjectOpened=%d\n", showPanel.project ? 1 : 0);
+	out_buf->appendf("ShaderEditorOpened=%d\n", showPanel.shaderEditor ? 1 : 0);
 
 	out_buf->append("\n");
 }

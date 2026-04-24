@@ -44,6 +44,16 @@ using namespace kemena;
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
+// Live state shared between PanelShaderEditor and PanelInspector
+struct ShaderPreviewState
+{
+    bool        active     = false;
+    std::string uuid;
+    std::string glslSource;   // compiled GLSL; empty until first compile
+    std::string shaderType;   // "Flat", "Phong", "PBR"
+    std::string shaderName;   // display name
+};
+
 // For project panel
 struct FileInfo
 {
@@ -98,6 +108,7 @@ public:
     std::vector<TransformState> captureSelectedTransforms();
 
     // --- Accessors ----------------------------------------------------------
+    kWindow       *getWindow()       { return window; }
     kWorld        *getWorld()        { return world; }
     kAssetManager *getAssetManager() { return world ? world->getAssetManager() : nullptr; }
 
@@ -125,6 +136,13 @@ public:
 
     bool newProject();
     bool openProject();
+    bool openProjectFromPath(const kString& path);
+
+    // Recent projects (persisted to <exeDir>/recent_projects.json)
+    std::vector<kString> recentProjects;
+    void loadRecentProjects();
+    void saveRecentProjects();
+    void addRecentProject(const kString& path);
 
     void checkAssetChange();
 
@@ -193,6 +211,8 @@ public:
 
     UndoRedoManager undoRedo;
     PivotMode pivotMode = PivotMode::LastSelected;
+
+    ShaderPreviewState shaderPreview;
 
 private:
     kWindow   *window;
