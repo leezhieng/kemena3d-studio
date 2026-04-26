@@ -1150,7 +1150,8 @@ void Manager::processThumbnailQueue(PanelConsole *console)
 
 void Manager::selectObject(const kString uuid, bool clearList)
 {
-    selectedScene = nullptr;
+    selectedScene  = nullptr;
+    worldSelected  = false;
 
     if (clearList)
         selectedObjects.clear();
@@ -1559,7 +1560,7 @@ void Manager::createCamera()
 
     kCamera *cam = new kCamera();
     cam->setName("Camera");
-    cam->setPosition(kVec3(0.0f, 1.0f, -5.0f));
+    cam->setPosition(kVec3(0.0f, 1.0f, 5.0f));
     cam->setLookAt(kVec3(0.0f, 0.0f, 0.0f));
     cam->setFOV(60.0f);
 
@@ -1638,6 +1639,301 @@ void Manager::createNewMaterial()
     f.close();
 
     checkAssetChange();
+}
+
+// ---------------------------------------------------------------------------
+// Save / Load world
+// ---------------------------------------------------------------------------
+
+void Manager::saveWorld()
+{
+    if (!projectOpened || !world) return;
+
+    if (worldPath.empty())
+        worldPath = projectPath / "scene.world";
+
+    json data = world->serialize(1); // skip editor scene at index 0
+
+    try
+    {
+        std::ofstream f(worldPath);
+        if (!f.is_open())
+        {
+            std::cerr << "saveWorld: cannot open " << worldPath << "\n";
+            return;
+        }
+        f << data.dump(4);
+        projectSaved = true;
+        worldName = worldPath.stem().string();
+        refreshWindowTitle();
+        std::cout << "World saved: " << worldPath << "\n";
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "saveWorld: " << e.what() << "\n";
+    }
+}
+
+void Manager::saveWorldAs(const kString &path)
+{
+    if (!projectOpened || !world) return;
+
+    worldPath = path;
+    saveWorld();
+}
+
+static void applyLightIconLoad(kLight *light, kAssetManager *am, const char *gizmoResource)
+{
+    kShader    *shader = am->loadGlslFromResource("SHADER_ICON");
+    kMaterial  *mat    = am->createMaterial(shader);
+    kTexture2D *tex    = am->loadTexture2DFromResource(gizmoResource, "albedoMap",
+                                                        kTextureFormat::TEX_FORMAT_RGBA);
+    mat->addTexture(tex);
+    light->setMaterial(mat);
+}
+
+static kObject* loadObjectFromJson(const json &obj, kScene *scene, kWorld *world,
+                                   kAssetManager *am, const fs::path &projectPath,
+                                   kCamera *editorCamera)
+{
+    std::string type = obj.value("type", "object");
+    std::string uuid = obj.value("uuid", "");
+    std::string name = obj.value("name", "");
+    bool active      = obj.value("active", true);
+
+    auto readVec3xyz = [&](const json &j, const char *key, kVec3 def = kVec3(0)) -> kVec3 {
+        if (!j.contains(key)) return def;
+        const auto &v = j[key];
+        return kVec3(v.value("x", def.x), v.value("y", def.y), v.value("z", def.z));
+    };
+    auto readVec3rgb = [&](const json &j, const char *key, kVec3 def = kVec3(1)) -> kVec3 {
+        if (!j.contains(key)) return def;
+        const auto &v = j[key];
+        return kVec3(v.value("r", def.x), v.value("g", def.y), v.value("b", def.z));
+    };
+
+    kVec3 pos   = readVec3xyz(obj, "position");
+    kVec3 rotEu = readVec3xyz(obj, "rotation");
+    kVec3 scale = readVec3xyz(obj, "scale", kVec3(1.0f));
+
+    kObject *result = nullptr;
+
+    if (type == "mesh")
+    {
+        std::string refName = obj.value("reference", "");
+        std::string fileName = obj.value("file_name", "");
+
+        fs::path meshPath;
+        if (!refName.empty())
+            meshPath = projectPath / "Library" / "ImportedAssets" / (refName + ".glb");
+        else if (!fileName.empty())
+            meshPath = fs::path(fileName);
+
+        kMesh *mesh = nullptr;
+        if (!meshPath.empty() && fs::exists(meshPath))
+            mesh = am->loadMesh(meshPath.string());
+
+        if (!mesh)
+        {
+            mesh = new kMesh();
+            std::cerr << "loadWorld: mesh file not found for '" << name << "'\n";
+        }
+
+        mesh->setName(name);
+        mesh->setActive(active);
+        mesh->setCastShadow(obj.value("cast_shadow", true));
+        mesh->setReceiveShadow(obj.value("receive_shadow", true));
+        scene->addMesh(mesh, uuid);
+        result = mesh;
+    }
+    else if (type == "light")
+    {
+        std::string ltStr = obj.value("light_type", "sun");
+        kVec3 diff  = readVec3rgb(obj, "diffuse",  kVec3(1));
+        kVec3 spec  = readVec3rgb(obj, "specular", kVec3(1));
+        float power = obj.value("power", 1.0f);
+        float constant  = obj.value("constant",  1.0f);
+        float linear    = obj.value("linear",    0.7f);
+        float quadratic = obj.value("quadratic", 1.8f);
+        kVec3 dir   = readVec3xyz(obj, "direction", kVec3(0,-1,0));
+        float cutOff      = obj.value("cut_off",       glm::cos(glm::radians(15.0f)));
+        float outerCutOff = obj.value("outer_cut_off", glm::cos(glm::radians(20.0f)));
+
+        kLight *light = nullptr;
+        const char *gizmoRes = "GIZMO_SUN_LIGHT";
+
+        if (ltStr == "point")
+        {
+            light = scene->addPointLight(pos, diff, spec, uuid);
+            gizmoRes = "GIZMO_POINT_LIGHT";
+        }
+        else if (ltStr == "spot")
+        {
+            light = scene->addSpotLight(pos, diff, spec, uuid);
+            gizmoRes = "GIZMO_SPOT_LIGHT";
+        }
+        else
+        {
+            light = scene->addSunLight(pos, dir, diff, spec, uuid);
+            gizmoRes = "GIZMO_SUN_LIGHT";
+        }
+
+        light->setName(name);
+        light->setActive(active);
+        light->setPower(power);
+        light->setConstant(constant);
+        light->setLinear(linear);
+        light->setQuadratic(quadratic);
+        light->setDirection(dir);
+        light->setCutOff(cutOff);
+        light->setOuterCutOff(outerCutOff);
+        if (am) applyLightIconLoad(light, am, gizmoRes);
+
+        result = light;
+    }
+    else if (type == "camera")
+    {
+        std::string camTypeStr = obj.value("camera_type", "free");
+        kCameraType camType = (camTypeStr == "locked") ? kCameraType::CAMERA_TYPE_LOCKED
+                                                       : kCameraType::CAMERA_TYPE_FREE;
+        kVec3 lookAt = readVec3xyz(obj, "look_at");
+        float fov    = obj.value("fov", 60.0f);
+        float nearClip = obj.value("near_clip", 0.1f);
+        float farClip  = obj.value("far_clip",  1000.0f);
+
+        kCamera *cam = new kCamera();
+        cam->setName(name);
+        cam->setActive(active);
+        cam->setCameraType(camType);
+        cam->setLookAt(lookAt);
+        cam->setFOV(fov);
+        cam->setNearClip(nearClip);
+        cam->setFarClip(farClip);
+
+        cam->setSceneUuid(obj.value("scene_uuid", std::string("")));
+
+        scene->addObject(cam, uuid);
+        world->addCamera(cam, uuid);
+
+        result = cam;
+    }
+    else
+    {
+        kObject *empty = new kObject();
+        empty->setName(name);
+        empty->setActive(active);
+        scene->addObject(empty, uuid);
+        result = empty;
+    }
+
+    if (result)
+    {
+        result->setPosition(pos);
+        result->setRotation(kQuat(glm::radians(rotEu)));
+        result->setScale(scale);
+    }
+
+    return result;
+}
+
+void Manager::loadWorld(const kString &path)
+{
+    if (!projectOpened || !world) return;
+
+    fs::path loadPath = path;
+    if (!fs::exists(loadPath))
+    {
+        std::cerr << "loadWorld: file not found: " << path << "\n";
+        return;
+    }
+
+    json data;
+    try
+    {
+        std::ifstream f(loadPath);
+        data = json::parse(f);
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "loadWorld: parse error: " << e.what() << "\n";
+        return;
+    }
+
+    // Remove non-editor cameras from world first (before deleting scene objects)
+    {
+        auto cams = world->getCameras();
+        for (kCamera *c : cams)
+            if (c != editorCamera)
+                world->removeCamera(c);
+    }
+
+    // Clear game scenes (keep editor scene at index 0)
+    {
+        auto scenes = world->getScenes();
+        for (size_t i = 1; i < scenes.size(); ++i)
+        {
+            kScene *s = scenes[i];
+            if (s && s->getRootNode())
+            {
+                for (kObject *child : s->getRootNode()->getChildren())
+                    deleteObjectRecursive(child);
+                delete s->getRootNode();
+            }
+            world->removeScene(s);
+            delete s;
+        }
+    }
+    defaultGameCamera = nullptr;
+    selectedObject    = nullptr;
+    selectedScene     = nullptr;
+    selectedObjects.clear();
+
+    kAssetManager *am = getAssetManager();
+
+    if (!data.contains("scenes") || !data["scenes"].is_array())
+    {
+        std::cerr << "loadWorld: no scenes array in file\n";
+        return;
+    }
+
+    for (const auto &sceneJson : data["scenes"])
+    {
+        std::string sceneUuid = sceneJson.value("uuid", "");
+        std::string sceneName = sceneJson.value("name", "Scene");
+        bool sceneActive      = sceneJson.value("active", true);
+
+        kScene *scene = world->createScene(sceneName, sceneUuid);
+        scene->setActive(sceneActive);
+
+        if (sceneJson.contains("ambient_light"))
+        {
+            const auto &al = sceneJson["ambient_light"];
+            scene->setAmbientLightColor(kVec3(al.value("r", 0.1f), al.value("g", 0.1f), al.value("b", 0.1f)));
+        }
+        scene->setSkyboxAmbientEnabled(sceneJson.value("skybox_ambient_enabled", false));
+        scene->setSkyboxAmbientStrength(sceneJson.value("skybox_ambient_strength", 1.0f));
+
+        if (sceneJson.contains("objects") && sceneJson["objects"].is_array())
+        {
+            for (const auto &objJson : sceneJson["objects"])
+            {
+                loadObjectFromJson(objJson, scene, world, am, projectPath, editorCamera);
+            }
+        }
+
+        // Use this scene as the main game scene
+        setScene(scene);
+    }
+
+    worldName    = loadPath.stem().string();
+    worldPath    = loadPath;
+    projectSaved = true;
+    refreshWindowTitle();
+
+    if (panelHierarchy)
+        panelHierarchy->refreshList();
+
+    std::cout << "World loaded: " << loadPath << "\n";
 }
 
 void Manager::deleteAssets(const std::vector<fs::path> &paths)

@@ -25,6 +25,7 @@ set(SOURCES
     src/panel_project.cpp
     src/panel_world.cpp
     src/panel_shader_editor.cpp
+    src/panel_game.cpp
     src/splash_screen.cpp
     src/util.cpp
     resources.rc

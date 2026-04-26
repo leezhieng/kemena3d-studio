@@ -107,10 +107,14 @@ void PanelHierarchy::drawNode(Node &node, Node &root, int level)
 		if (level == 0)
 		{
 			// World
+			manager->worldSelected  = true;
+			manager->selectedObject = nullptr;
+			manager->selectedScene  = nullptr;
 		}
 		else if (level == 1)
 		{
 			// Scene — find and expose it for the inspector
+			manager->worldSelected  = false;
 			manager->selectedObject = nullptr;
 			manager->selectedScene  = nullptr;
 			for (kScene *s : world->getScenes())
@@ -125,6 +129,7 @@ void PanelHierarchy::drawNode(Node &node, Node &root, int level)
 		else
 		{
 			// Objects
+			manager->worldSelected = false;
 			manager->selectedScene = nullptr;
 			if (manager->objectMap[node.uuid.c_str()].object != nullptr)
 			{

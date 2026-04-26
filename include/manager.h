@@ -30,6 +30,7 @@
 #include "panel_project.h"
 #include "panel_hierarchy.h"
 #include "panel_console.h"
+#include "panel_game.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -92,6 +93,7 @@ struct ObjectInfo
 class PanelProject;
 class PanelHierarchy;
 class PanelConsole;
+class PanelGame;
 
 class Manager
 {
@@ -152,6 +154,10 @@ public:
     void clearWorld(bool forced = false);
     void deleteObjectRecursive(kObject *node);
 
+    void saveWorld();
+    void saveWorldAs(const kString &path);
+    void loadWorld(const kString &path);
+
     // Editor path and directory
     fs::path exePath;
     fs::path baseDir;
@@ -167,10 +173,17 @@ public:
 
     // World info
     kString worldName = "";
+    fs::path worldPath;
     // kString worldUuid = "";
 
-    PanelProject *panelProject;
-    PanelHierarchy *panelHierarchy;
+    PanelProject   *panelProject   = nullptr;
+    PanelHierarchy *panelHierarchy = nullptr;
+    PanelGame      *panelGame      = nullptr;
+
+    // Camera used by the editor viewport (excluded from game camera candidates)
+    kCamera *editorCamera      = nullptr;
+    // Explicitly-chosen default camera for the Game panel (nullptr = auto-pick)
+    kCamera *defaultGameCamera = nullptr;
 
     std::vector<ImportTask> importQueue;
     std::future<void> importFuture;
@@ -205,6 +218,7 @@ public:
 
     kObject *selectedObject = nullptr;
     kScene  *selectedScene  = nullptr;
+    bool     worldSelected  = false;
 
     ImGuizmo::OPERATION manipulatorType = ImGuizmo::TRANSLATE;
     ImGuizmo::MODE manipulatorMode = ImGuizmo::LOCAL;

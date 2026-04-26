@@ -386,6 +386,8 @@ void PanelProject::drawTreeNode(Node& node, Node& rootTree, int level)
 		node.isSelected = !node.isSelected || gui->isKeyShift();
 		manager->selectedObjects.clear();
 		manager->selectedObject = nullptr;
+		manager->selectedScene  = nullptr;
+		manager->worldSelected  = false;
 	}
 
 	if (ImGui::BeginPopupContextItem("##TreeCtx"))
@@ -653,6 +655,8 @@ void PanelProject::drawThumbnailNode(const Node& currentDir)
 					child->isSelected = !child->isSelected || gui->isKeyShift();
 					manager->selectedObjects.clear();
 					manager->selectedObject = nullptr;
+					manager->selectedScene  = nullptr;
+					manager->worldSelected  = false;
 					pendingSelectUuid = "";
 				}
 

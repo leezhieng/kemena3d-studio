@@ -1069,6 +1069,22 @@ static void drawMeshSection(kGuiManager *gui, kMesh *mesh, Manager *mgr)
             { cap->setCastShadow(after); }));
     }
 
+    propLabel(gui, "Receive Shadow");
+    bool receiveShadow = mesh->getReceiveShadow();
+    bool prevReceiveShadow = receiveShadow;
+    if (gui->checkbox("##ReceiveShadow", &receiveShadow))
+    {
+        mesh->setReceiveShadow(receiveShadow);
+        kMesh *cap = mesh;
+        bool after = receiveShadow;
+        bool before = prevReceiveShadow;
+        mgr->undoRedo.push(std::make_unique<PropertyCommand>(
+            [cap, before]()
+            { cap->setReceiveShadow(before); },
+            [cap, after]()
+            { cap->setReceiveShadow(after); }));
+    }
+
     gui->tableEnd();
 }
 
@@ -1152,7 +1168,50 @@ static void drawCameraSection(kGuiManager *gui, kCamera *cam, Manager *mgr)
         }
     }
 
+    // Scene selector
+    {
+        kWorld *world = mgr->getWorld();
+        const auto &scenes = world ? world->getScenes() : std::vector<kScene*>{};
+
+        std::vector<kScene*> gameScenes;
+        for (size_t i = 1; i < scenes.size(); ++i)
+            gameScenes.push_back(scenes[i]);
+
+        std::vector<std::string> sceneNames;
+        sceneNames.push_back("(Auto)");
+        for (kScene *s : gameScenes)
+            sceneNames.push_back(s->getName().empty() ? "(unnamed)" : s->getName());
+
+        int curIdx = 0;
+        for (int i = 0; i < (int)gameScenes.size(); ++i)
+            if (gameScenes[i]->getUuid() == cam->getSceneUuid()) { curIdx = i + 1; break; }
+
+        std::vector<const char*> scenePtrs;
+        for (auto &s : sceneNames) scenePtrs.push_back(s.c_str());
+
+        propLabel(gui, "Scene");
+        if (ImGui::Combo("##CamScene", &curIdx, scenePtrs.data(), (int)scenePtrs.size()))
+            cam->setSceneUuid(curIdx == 0 ? "" : gameScenes[curIdx - 1]->getUuid());
+    }
+
     gui->tableEnd();
+
+    // Set / unset this camera as the default for the Game panel
+    gui->spacing();
+    bool isDefault = (mgr->defaultGameCamera == cam);
+    if (isDefault)
+    {
+        gui->pushStyleColor(ImGuiCol_Button,        kVec4(0.26f, 0.59f, 0.98f, 1.00f));
+        gui->pushStyleColor(ImGuiCol_ButtonHovered, kVec4(0.26f, 0.59f, 0.98f, 0.85f));
+    }
+    if (gui->button(isDefault ? "Default Camera" : "Set as Default", kIvec2(-1, 0)))
+        mgr->defaultGameCamera = isDefault ? nullptr : cam;
+    if (isDefault)
+        gui->popStyleColor(2);
+    if (gui->isItemHovered())
+        gui->setItemTooltip(isDefault
+            ? "This is the active Game panel camera.\nClick to unset."
+            : "Use this camera as the default in the Game panel.");
 }
 
 // ---------------------------------------------------------------------------
@@ -1366,6 +1425,356 @@ static void drawLightSection(kGuiManager *gui, kLight *light, Manager *mgr)
     }
 
     gui->tableEnd();
+}
+
+// ---------------------------------------------------------------------------
+// Helper: collapsing section header with a small "+" button on the right.
+// Returns true if the section is open.
+// ---------------------------------------------------------------------------
+static bool componentHeader(const char *label, const char *popupId, bool &addClicked)
+{
+    ImGui::SetNextItemAllowOverlap();
+    bool open = ImGui::CollapsingHeader(label, ImGuiTreeNodeFlags_DefaultOpen);
+    ImGui::SameLine(ImGui::GetWindowWidth() - 30.0f);
+    char btnId[64];
+    snprintf(btnId, sizeof(btnId), "+##%s", popupId);
+    addClicked = ImGui::SmallButton(btnId);
+    return open;
+}
+
+// ---------------------------------------------------------------------------
+// Components section (Physics / Scripts / Particles / Audio Sources / Listener)
+// ---------------------------------------------------------------------------
+static void drawComponentsSection(kGuiManager *gui, kObject *obj, Manager *manager)
+{
+    kNodeType type = obj->getType();
+
+    gui->spacing();
+    gui->separatorText("Components");
+    gui->spacing();
+
+    // ── Physics (mesh only) ─────────────────────────────────────────────────
+    if (type == NODE_TYPE_MESH)
+    {
+        bool addPhysics = false;
+        bool open = componentHeader("Physics", "AddPhysics", addPhysics);
+
+        if (addPhysics)
+            ImGui::OpenPopup("AddPhysicsPopup");
+
+        if (ImGui::BeginPopup("AddPhysicsPopup"))
+        {
+            if (obj->getHasPhysicsDesc())
+            {
+                ImGui::TextDisabled("Already has a physics body");
+            }
+            else
+            {
+                auto setShape = [&](kPhysicsShapeType t) {
+                    obj->getPhysicsDesc().shape.type = t;
+                    obj->setHasPhysicsDesc(true);
+                    manager->projectSaved = false;
+                };
+                if (ImGui::MenuItem("Box Collider"))     setShape(kPhysicsShapeType::Box);
+                if (ImGui::MenuItem("Sphere Collider"))  setShape(kPhysicsShapeType::Sphere);
+                if (ImGui::MenuItem("Capsule Collider")) setShape(kPhysicsShapeType::Capsule);
+                if (ImGui::MenuItem("Cylinder Collider"))setShape(kPhysicsShapeType::Cylinder);
+            }
+            ImGui::EndPopup();
+        }
+
+        if (open)
+        {
+            if (obj->getHasPhysicsDesc())
+            {
+                kPhysicsObjectDesc &desc = obj->getPhysicsDesc();
+
+                // Shape
+                const char *shapeNames[] = { "Box", "Sphere", "Capsule", "Cylinder" };
+                int shapeIdx = (int)desc.shape.type;
+                ImGui::SetNextItemWidth(-1);
+                if (ImGui::Combo("##PhysShape", &shapeIdx, shapeNames, 4))
+                {
+                    desc.shape.type = (kPhysicsShapeType)shapeIdx;
+                    manager->projectSaved = false;
+                }
+
+                // Body type
+                const char *bodyNames[] = { "Dynamic", "Static", "Kinematic", "Trigger" };
+                int bodyIdx = (int)desc.type;
+                ImGui::SetNextItemWidth(-1);
+                if (ImGui::Combo("##PhysBody", &bodyIdx, bodyNames, 4))
+                {
+                    desc.type = (kPhysicsObjectType)bodyIdx;
+                    manager->projectSaved = false;
+                }
+
+                // Mass (dynamic only)
+                if (desc.type == kPhysicsObjectType::Dynamic)
+                {
+                    ImGui::SetNextItemWidth(-1);
+                    if (ImGui::DragFloat("Mass (kg)##PhysMass", &desc.mass, 0.05f, 0.001f, 10000.0f, "%.3f"))
+                        manager->projectSaved = false;
+                }
+
+                // Shape params
+                if (desc.shape.type == kPhysicsShapeType::Box)
+                {
+                    float he[3] = { desc.shape.halfExtents.x, desc.shape.halfExtents.y, desc.shape.halfExtents.z };
+                    if (ImGui::DragFloat3("Half Extents##PhysHE", he, 0.01f, 0.001f, 1000.0f))
+                    {
+                        desc.shape.halfExtents = kVec3(he[0], he[1], he[2]);
+                        manager->projectSaved = false;
+                    }
+                }
+                else if (desc.shape.type == kPhysicsShapeType::Sphere)
+                {
+                    if (ImGui::DragFloat("Radius##PhysR", &desc.shape.radius, 0.01f, 0.001f, 1000.0f))
+                        manager->projectSaved = false;
+                }
+                else
+                {
+                    if (ImGui::DragFloat("Radius##PhysR",  &desc.shape.radius, 0.01f, 0.001f, 1000.0f))
+                        manager->projectSaved = false;
+                    if (ImGui::DragFloat("Height##PhysH",  &desc.shape.height, 0.01f, 0.001f, 1000.0f))
+                        manager->projectSaved = false;
+                }
+
+                gui->spacing();
+                if (ImGui::SmallButton("Remove Physics##RemPhys"))
+                {
+                    obj->setHasPhysicsDesc(false);
+                    manager->projectSaved = false;
+                }
+            }
+            else
+            {
+                ImGui::TextDisabled("  No physics body");
+            }
+        }
+        gui->spacing();
+    }
+
+    // ── Scripts ─────────────────────────────────────────────────────────────
+    {
+        bool addScript = false;
+        bool open = componentHeader("Scripts", "AddScript", addScript);
+
+        if (addScript)
+        {
+            auto result = pfd::open_file("Select Script", "",
+                { "AngelScript Files", "*.as", "All Files", "*" }).result();
+            if (!result.empty())
+            {
+                kScript s;
+                s.uuid     = generateUuid();
+                s.fileName = result[0];
+                s.isActive = true;
+                obj->addScript(s);
+                manager->projectSaved = false;
+            }
+        }
+
+        if (open)
+        {
+            auto &scripts = obj->getScripts();
+            kString toRemove;
+            for (auto &s : scripts)
+            {
+                ImGui::PushID(s.uuid.c_str());
+                if (ImGui::Checkbox("##ScActive", &s.isActive))
+                    manager->projectSaved = false;
+                ImGui::SameLine();
+                fs::path p(s.fileName);
+                ImGui::TextUnformatted(p.filename().string().c_str());
+                ImGui::SameLine(ImGui::GetWindowWidth() - 28.0f);
+                if (ImGui::SmallButton("x##RemSc"))
+                    toRemove = s.uuid;
+                ImGui::PopID();
+            }
+            if (!toRemove.empty())
+            {
+                obj->removeScript(toRemove);
+                manager->projectSaved = false;
+            }
+            if (scripts.empty())
+                ImGui::TextDisabled("  No scripts");
+        }
+        gui->spacing();
+    }
+
+    // ── Particles ───────────────────────────────────────────────────────────
+    {
+        bool addPart = false;
+        bool open = componentHeader("Particles", "AddParticle", addPart);
+
+        if (addPart)
+        {
+            kParticle p;
+            p.uuid = generateUuid();
+            obj->addParticle(p);
+            manager->projectSaved = false;
+        }
+
+        if (open)
+        {
+            auto &particles = obj->getParticles();
+            kString toRemove;
+            for (auto &p : particles)
+            {
+                ImGui::PushID(p.uuid.c_str());
+                if (ImGui::Checkbox("##PartActive", &p.isActive))
+                    manager->projectSaved = false;
+                ImGui::SameLine();
+                char nameBuf[64];
+                strncpy_s(nameBuf, sizeof(nameBuf), p.name.c_str(), _TRUNCATE);
+                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - 28.0f);
+                if (ImGui::InputText("##PartName", nameBuf, sizeof(nameBuf),
+                                     ImGuiInputTextFlags_EnterReturnsTrue))
+                {
+                    p.name = nameBuf;
+                    manager->projectSaved = false;
+                }
+                ImGui::SameLine(ImGui::GetWindowWidth() - 28.0f);
+                if (ImGui::SmallButton("x##RemPart"))
+                    toRemove = p.uuid;
+                ImGui::PopID();
+            }
+            if (!toRemove.empty())
+            {
+                obj->removeParticle(toRemove);
+                manager->projectSaved = false;
+            }
+            if (particles.empty())
+                ImGui::TextDisabled("  No particle systems");
+        }
+        gui->spacing();
+    }
+
+    // ── Audio Sources ────────────────────────────────────────────────────────
+    {
+        bool addAudio = false;
+        bool open = componentHeader("Audio Sources", "AddAudio", addAudio);
+
+        if (addAudio)
+        {
+            auto result = pfd::open_file("Select Audio File", "",
+                { "Audio Files", "*.wav *.mp3 *.ogg *.flac", "All Files", "*" }).result();
+            if (!result.empty())
+            {
+                kAudioSource src;
+                src.uuid      = generateUuid();
+                src.audioFile = result[0];
+                src.name      = fs::path(result[0]).filename().string();
+                obj->addAudioSource(src);
+                manager->projectSaved = false;
+            }
+        }
+
+        if (open)
+        {
+            auto &sources = obj->getAudioSources();
+            kString toRemove;
+            for (auto &src : sources)
+            {
+                ImGui::PushID(src.uuid.c_str());
+                if (ImGui::Checkbox("##AudActive", &src.isActive))
+                    manager->projectSaved = false;
+                ImGui::SameLine();
+                fs::path p(src.audioFile);
+                ImGui::TextUnformatted(p.filename().string().empty()
+                    ? src.name.c_str() : p.filename().string().c_str());
+                ImGui::SameLine(ImGui::GetWindowWidth() - 28.0f);
+                if (ImGui::SmallButton("x##RemAud"))
+                    toRemove = src.uuid;
+
+                // Expanded audio source properties
+                ImGui::Indent();
+                bool loopV = src.loop;
+                if (ImGui::Checkbox("Loop##AudLoop", &loopV))
+                { src.loop = loopV; manager->projectSaved = false; }
+                ImGui::SameLine();
+                bool powV = src.playOnAwake;
+                if (ImGui::Checkbox("Play On Awake##AudPOA", &powV))
+                { src.playOnAwake = powV; manager->projectSaved = false; }
+
+                ImGui::SetNextItemWidth(-1);
+                if (ImGui::SliderFloat("Volume##AudVol", &src.volume, 0.0f, 1.0f))
+                    manager->projectSaved = false;
+                ImGui::SetNextItemWidth(-1);
+                if (ImGui::SliderFloat("Pitch##AudPitch", &src.pitch, 0.1f, 3.0f))
+                    manager->projectSaved = false;
+
+                bool spatV = src.spatialize;
+                if (ImGui::Checkbox("3D Spatial##AudSpat", &spatV))
+                { src.spatialize = spatV; manager->projectSaved = false; }
+
+                if (src.spatialize)
+                {
+                    ImGui::SetNextItemWidth(-1);
+                    if (ImGui::DragFloat("Min Dist##AudMin", &src.minDistance, 0.1f, 0.0f, src.maxDistance))
+                        manager->projectSaved = false;
+                    ImGui::SetNextItemWidth(-1);
+                    if (ImGui::DragFloat("Max Dist##AudMax", &src.maxDistance, 1.0f, src.minDistance, 10000.0f))
+                        manager->projectSaved = false;
+                }
+                ImGui::Unindent();
+
+                ImGui::PopID();
+            }
+            if (!toRemove.empty())
+            {
+                obj->removeAudioSource(toRemove);
+                manager->projectSaved = false;
+            }
+            if (sources.empty())
+                ImGui::TextDisabled("  No audio sources");
+        }
+        gui->spacing();
+    }
+
+    // ── Audio Listener ───────────────────────────────────────────────────────
+    {
+        bool addListener = false;
+        bool open = componentHeader("Audio Listener", "AddListener", addListener);
+
+        if (addListener)
+        {
+            auto &listeners = obj->getAudioListeners();
+            if (listeners.empty())
+            {
+                kAudioListener l;
+                l.uuid = generateUuid();
+                obj->addAudioListener(l);
+                manager->projectSaved = false;
+            }
+        }
+
+        if (open)
+        {
+            auto &listeners = obj->getAudioListeners();
+            if (!listeners.empty())
+            {
+                auto &l = listeners[0];
+                ImGui::PushID(l.uuid.c_str());
+                if (ImGui::Checkbox("Active##ListActive", &l.isActive))
+                    manager->projectSaved = false;
+                ImGui::SameLine();
+                ImGui::TextUnformatted("Audio Listener");
+                ImGui::SameLine(ImGui::GetWindowWidth() - 28.0f);
+                if (ImGui::SmallButton("x##RemList"))
+                {
+                    obj->removeAudioListener(l.uuid);
+                    manager->projectSaved = false;
+                }
+                ImGui::PopID();
+            }
+            else
+            {
+                ImGui::TextDisabled("  No audio listener");
+            }
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -1993,7 +2402,50 @@ void PanelInspector::draw(bool &opened)
         }
     }
 
-    if (manager->selectedScene != nullptr)
+    if (manager->worldSelected)
+    {
+        drawInlineIcon(iconObjScene, "World");
+        gui->sameLine(0, 4.0f);
+        gui->textUnformatted("World");
+        gui->spacing();
+        gui->separator();
+        gui->spacing();
+
+        if (gui->collapsingHeader("World", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            if (beginPropTable(gui, "WorldTable"))
+            {
+                kWorld* world = manager->getWorld();
+                propLabel(gui, "Active Camera");
+
+                const auto& cams = world ? world->getCameras() : std::vector<kCamera*>{};
+                std::vector<kCamera*> gameCams;
+                for (kCamera* c : cams)
+                    if (c != manager->editorCamera)
+                        gameCams.push_back(c);
+
+                int curIdx = -1;
+                for (int i = 0; i < (int)gameCams.size(); ++i)
+                    if (gameCams[i] == manager->defaultGameCamera) { curIdx = i; break; }
+
+                std::vector<std::string> camNames;
+                camNames.push_back("(None)");
+                for (kCamera* c : gameCams)
+                    camNames.push_back(c->getName().empty() ? "(unnamed)" : c->getName());
+
+                int comboIdx = (curIdx >= 0) ? curIdx + 1 : 0;
+                std::vector<const char*> camNamePtrs;
+                for (auto& s : camNames) camNamePtrs.push_back(s.c_str());
+
+                gui->setNextItemWidth(-FLT_MIN);
+                if (ImGui::Combo("##ActiveCamera", &comboIdx, camNamePtrs.data(), (int)camNamePtrs.size()))
+                    manager->defaultGameCamera = (comboIdx == 0) ? nullptr : gameCams[comboIdx - 1];
+
+                gui->tableEnd();
+            }
+        }
+    }
+    else if (manager->selectedScene != nullptr)
     {
         kScene *scene = manager->selectedScene;
         drawInlineIcon(iconObjScene, "Scene");
@@ -2136,6 +2588,8 @@ void PanelInspector::draw(bool &opened)
                     drawLightSection(gui, static_cast<kLight *>(obj), manager);
                 else if (type == NODE_TYPE_CAMERA)
                     drawCameraSection(gui, static_cast<kCamera *>(obj), manager);
+
+                drawComponentsSection(gui, obj, manager);
             }
         }
 

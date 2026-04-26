@@ -22,6 +22,7 @@ struct ShowPanel
 	bool console = true;
 	bool project = true;
 	bool shaderEditor = false;
+	bool game = false;
 };
 
 inline ShowPanel showPanel;
@@ -29,6 +30,7 @@ inline ImGuiSettingsHandler ini_handler;
 inline bool isReloadLayout = false;
 inline kString layoutFileName = "layout.ini";
 inline bool showSplashScreen = false;
+inline bool showAbout        = false;
 
 class MainMenu
 {
@@ -43,8 +45,13 @@ class MainMenu
 		static void writeAll(ImGuiContext*, ImGuiSettingsHandler*, ImGuiTextBuffer* out_buf);
 		static void registerPanelStateHandler();
 
+		void drawAbout();
+
 		Manager* manager;
 		kGuiManager* gui;
+
+	private:
+		ImTextureRef texAboutLogo = nullptr;
 };
 
 #endif

@@ -9,6 +9,7 @@
 #include "panel_project.h"
 #include "panel_console.h"
 #include "panel_shader_editor.h"
+#include "panel_game.h"
 #include "splash_screen.h"
 
 #include "imgui_internal.h" // <-- required for ImGuiSettingsHandler
@@ -58,6 +59,8 @@ int main()
 	PanelHierarchy *panelHierarchy = new PanelHierarchy(gui, manager, assetManager, world);
 	PanelConsole *panelConsole = new PanelConsole(gui, manager);
 	PanelShaderEditor *panelShaderEditor = new PanelShaderEditor(gui, manager);
+	PanelGame *panelGame = new PanelGame(gui, manager);
+	manager->panelGame = panelGame;
 
 	// Route .shader double-clicks from the project panel to the shader editor
 	panelProject->onFileDoubleClicked = [&](const std::string& path)
@@ -135,6 +138,7 @@ int main()
 	kCamera *cameraEditor = world->addCamera(kVec3(-7, 4, 12), kVec3(0, 3.5, 0), kCameraType::CAMERA_TYPE_FREE);
 	cameraEditor->setFOV(60.0f);
 	world->setMainCamera(cameraEditor);
+	manager->editorCamera = cameraEditor;
 
 	bool dragging = false;
 	kVec2 dragStart;
@@ -221,6 +225,8 @@ int main()
 
 						if (picked != nullptr)
 						{
+							manager->worldSelected  = false;
+							manager->selectedScene  = nullptr;
 							manager->selectedObject = picked;
 							manager->selectObject(picked->getUuid(), !shiftPressed);
 							if (manager->panelProject != nullptr)
@@ -228,6 +234,7 @@ int main()
 						}
 						else if (!shiftPressed)
 						{
+							manager->worldSelected  = false;
 							manager->selectedObject = nullptr;
 							manager->selectedObjects.clear();
 						}
@@ -372,13 +379,15 @@ int main()
 		// Fix aspect ratio
 		if (panelWorld->width > 0 && panelWorld->height > 0)
 		{
-			renderer->render(world, scene, 0, 0, panelWorld->width * 2, panelWorld->height * 2, window->getTimer()->getDeltaTime(), false);
+			// Pass 0 as deltaTime when paused so physics/animations freeze
+			float gameDt = panelGame->getEffectiveDeltaTime(deltaTime);
+			renderer->render(world, scene, 0, 0, panelWorld->width * 2, panelWorld->height * 2, gameDt, false);
 
 			// Editor scene (grid) always renders in Full mode — debug modes don't apply to it.
 			{
 				kRenderMode savedMode = renderer->getRenderMode();
 				renderer->setRenderMode(kRenderMode::RENDER_MODE_FULL);
-				renderer->render(world, sceneEditor, 0, 0, panelWorld->width * 2, panelWorld->height * 2, window->getTimer()->getDeltaTime(), false);
+				renderer->render(world, sceneEditor, 0, 0, panelWorld->width * 2, panelWorld->height * 2, deltaTime, false);
 				renderer->setRenderMode(savedMode);
 			}
 
@@ -418,6 +427,7 @@ int main()
 		panelProject->draw(showPanel.project);
 		panelConsole->draw(showPanel.console);
 		panelShaderEditor->draw(showPanel.shaderEditor);
+		panelGame->draw(showPanel.game);
 
 		// If there's a need to import assets
 		manager->drawImportPopup(panelConsole);
@@ -429,6 +439,8 @@ int main()
 		if (showSplashScreen) { splashScreen->show(); showSplashScreen = false; }
 		if (splashScreen->isOpen())
 			splashScreen->draw();
+
+		mainmenu->drawAbout();
 
 		gui->canvasEnd();
 

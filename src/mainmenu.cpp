@@ -57,11 +57,29 @@ void MainMenu::draw(kWindow* window, ShowPanel& showPanel)
 		if (gui->menu("File"))
 		{
 			if (gui->menuItem("New World", "", false, manager->projectOpened)) {}
-			if (gui->menuItem("Open World", "", false, manager->projectOpened)) {}
+			if (gui->menuItem("Open World", "", false, manager->projectOpened))
+			{
+				auto files = pfd::open_file("Open World", manager->projectPath.string(),
+				                            {"World Files", "*.world", "All Files", "*"}).result();
+				if (!files.empty())
+					manager->loadWorld(files[0]);
+			}
 			if (gui->menuItem("Open Recent World", "", false, manager->projectOpened)) {}
 			gui->separator();
-			if (gui->menuItem("Save World", "Ctrl+S", false, manager->projectOpened)) {}
-			if (gui->menuItem("Save As...", "", false, manager->projectOpened)) {}
+			if (gui->menuItem("Save World", "Ctrl+S", false, manager->projectOpened))
+				manager->saveWorld();
+			if (gui->menuItem("Save As...", "", false, manager->projectOpened))
+			{
+				auto path = pfd::save_file("Save World As", manager->projectPath.string(),
+				                           {"World Files", "*.world", "All Files", "*"}).result();
+				if (!path.empty())
+				{
+					fs::path p = path;
+					if (p.extension() != ".world")
+						p += ".world";
+					manager->saveWorldAs(p.string());
+				}
+			}
 			gui->separator();
 			if (gui->menuItem("New Project", "")) { manager->newProject(); }
 			if (gui->menuItem("Open Project", "")) { manager->openProject(); }
@@ -98,8 +116,21 @@ void MainMenu::draw(kWindow* window, ShowPanel& showPanel)
 			if (gui->menuItem("Frame Selected", "", false, manager->projectOpened)) {}
 			if (gui->menuItem("Lock View To Selected", "", false, manager->projectOpened)) {}
 			gui->separator();
-			if (gui->menuItem("Play", "", false, manager->projectOpened)) {}
-			if (gui->menuItem("Pause", "", false, manager->projectOpened)) {}
+			if (gui->menuItem("Play",  "", false, manager->projectOpened))
+			{
+				if (manager->panelGame)
+					manager->panelGame->pressPlay();
+			}
+			if (gui->menuItem("Pause", "", false, manager->projectOpened))
+			{
+				if (manager->panelGame)
+					manager->panelGame->pressPause();
+			}
+			if (gui->menuItem("Stop",  "", false, manager->projectOpened && manager->panelGame && manager->panelGame->getPlayState() != GamePlayState::Stopped))
+			{
+				if (manager->panelGame)
+					manager->panelGame->pressStop();
+			}
 			gui->separator();
 			if (gui->menuItem("Sign In", "")) {}
 			if (gui->menuItem("Sign Out", "")) {}
@@ -206,6 +237,9 @@ void MainMenu::draw(kWindow* window, ShowPanel& showPanel)
 				if (gui->menuItem("Shader Editor", "", showPanel.shaderEditor))
 					showPanel.shaderEditor = !showPanel.shaderEditor;
 
+				if (gui->menuItem("Game", "", showPanel.game))
+					showPanel.game = !showPanel.game;
+
 				ImGui::EndMenu();
 			}
 
@@ -274,7 +308,7 @@ void MainMenu::draw(kWindow* window, ShowPanel& showPanel)
 		// Help Menu
 		if (gui->menu("Help"))
 		{
-			if (gui->menuItem("About", "")) {}
+			if (gui->menuItem("About", "")) { showAbout = true; }
 			if (gui->menuItem("Splash Screen", "")) { showSplashScreen = true; }
 			gui->separator();
 			if (gui->menuItem("Manual", "")) { SDL_OpenURL("https://kemena3d.com/manual"); }
@@ -289,6 +323,96 @@ void MainMenu::draw(kWindow* window, ShowPanel& showPanel)
 
 		gui->menuBarEnd();
 	}
+}
+
+void MainMenu::drawAbout()
+{
+    if (!showAbout) return;
+
+    // Lazy-load the logo texture once
+    if (texAboutLogo == nullptr)
+    {
+        kAssetManager *am = manager->getAssetManager();
+        if (am)
+        {
+            kTexture2D *logo = am->loadTexture2DFromResource(
+                "IMAGE_KEMENA_LOGO_INV", "aboutLogo", kTextureFormat::TEX_FORMAT_RGBA);
+            if (logo)
+                texAboutLogo = (ImTextureRef)(intptr_t)logo->getTextureID();
+        }
+    }
+
+    ImGui::OpenPopup("About Kemena3D");
+
+    ImGuiIO &io = ImGui::GetIO();
+    ImVec2 center(floorf(io.DisplaySize.x * 0.5f), floorf(io.DisplaySize.y * 0.5f));
+    ImGui::SetNextWindowPos(center, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowSize(ImVec2(360.0f, 0.0f));
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,  ImVec2(24.0f, 20.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing,    ImVec2(8.0f, 8.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding,  5.0f);
+
+    bool stillOpen = true;
+    if (ImGui::BeginPopupModal("About Kemena3D", &stillOpen,
+                               ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+                               ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        float winW = ImGui::GetContentRegionAvail().x;
+
+        // Logo
+        if (texAboutLogo != nullptr)
+        {
+            constexpr float LOGO_W = 200.0f;
+            constexpr float LOGO_H = 58.0f;
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (winW - LOGO_W) * 0.5f);
+            ImGui::Image(texAboutLogo, ImVec2(LOGO_W, LOGO_H));
+        }
+
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+
+        // Link buttons — three equal-width columns
+        constexpr float BTN_H  = 28.0f;
+        constexpr float GAP    = 6.0f;
+        float btnW = (winW - GAP * 2.0f) / 3.0f;
+
+        ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.18f, 0.42f, 0.80f, 0.90f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.28f, 0.52f, 0.92f, 1.00f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(0.12f, 0.32f, 0.68f, 1.00f));
+
+        if (ImGui::Button("Website", ImVec2(btnW, BTN_H)))
+            SDL_OpenURL("https://kemena3d.com");
+        ImGui::SameLine(0.0f, GAP);
+        if (ImGui::Button("Discord", ImVec2(btnW, BTN_H)))
+            SDL_OpenURL("https://discord.gg/eNCZAzAntF");
+        ImGui::SameLine(0.0f, GAP);
+        if (ImGui::Button("GitHub", ImVec2(btnW, BTN_H)))
+            SDL_OpenURL("https://github.com/leezhieng/kemena3d");
+
+        ImGui::PopStyleColor(3);
+
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+
+        // "Created by" line
+        const char *credit = "Created by Lee Zhi Eng";
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (winW - ImGui::CalcTextSize(credit).x) * 0.5f);
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.60f, 0.62f, 0.68f, 1.0f));
+        ImGui::TextUnformatted(credit);
+        ImGui::PopStyleColor();
+
+        ImGui::Spacing();
+
+        ImGui::EndPopup();
+    }
+
+    ImGui::PopStyleVar(3);
+
+    if (!stillOpen)
+        showAbout = false;
 }
 
 void* MainMenu::readOpen(ImGuiContext*, ImGuiSettingsHandler*, const char* name)
@@ -314,6 +438,8 @@ void MainMenu::readLine(ImGuiContext*, ImGuiSettingsHandler*, void*, const char*
 		showPanel.project = (tmp != 0);
 	else if (sscanf_s(line, "ShaderEditorOpened=%d", &tmp) == 1)
 		showPanel.shaderEditor = (tmp != 0);
+	else if (sscanf_s(line, "GameOpened=%d", &tmp) == 1)
+		showPanel.game = (tmp != 0);
 }
 
 void MainMenu::writeAll(ImGuiContext*, ImGuiSettingsHandler*, ImGuiTextBuffer* out_buf)
@@ -325,6 +451,7 @@ void MainMenu::writeAll(ImGuiContext*, ImGuiSettingsHandler*, ImGuiTextBuffer* o
 	out_buf->appendf("ConsoleOpened=%d\n", showPanel.console ? 1 : 0);
 	out_buf->appendf("ProjectOpened=%d\n", showPanel.project ? 1 : 0);
 	out_buf->appendf("ShaderEditorOpened=%d\n", showPanel.shaderEditor ? 1 : 0);
+	out_buf->appendf("GameOpened=%d\n", showPanel.game ? 1 : 0);
 
 	out_buf->append("\n");
 }
